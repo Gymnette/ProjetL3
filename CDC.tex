@@ -1,0 +1,96 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{framed}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel} 
+\usepackage{lmodern} % Pour changer le pack de police
+\usepackage{makeidx}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bclogo}
+\usepackage[top=2cm, bottom=3cm, left=2.5cm, right=2.5cm]{geometry} %Marges
+
+\renewcommand{\baselinestretch}{1.3} %Interligne
+
+\newcommand{\tend}[2]{\displaystyle\mathop{\longrightarrow}_{#1\rightarrow#2}} 
+\newcommand{\IKex}[2]{\mathbb{#1}^{#2}}
+\newcommand{\IK}[1]{\mathbb{#1}}
+\newcommand{\IRex}[1]{\IKex{R}{#1}}
+\newcommand{\IR}{\IK{R}}
+\newcommand{\dans}[2]{#1 \rightarrow #2}
+
+\title{Cahier des Charges}
+\author{L3}
+\date{Annee 2019-2020}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\newpage
+
+\section{Contexte et définition du problème}
+
+\subsection{Motivations}
+
+Lors d'expériences scientifiques, des données sont acquises. Cependant, ces données sont très souvent discrètes, et ne permettent pas de tirer des conclusions telles quelles. Il faut ainsi trouver une loi (une fonction pour des données de $\IR$ dans $\IRex{n}$) que suivent ces données. C'est le principe de l'interpolation.
+\\ \\
+Comme exemples d'utilisations, on peut citer :
+\begin{itemize}
+\item Étalonnage d'instruments de mesure, en métrologie
+\item Découverte de lois à partir d'expériences, dans tous les domaines de la recherche
+\item Identifier des données incohérentes : une faute de frappe, un produit défectueux
+\end{itemize}
+
+\subsection{Problème}
+
+La base de l'interpolation est de trouver une loi qui coïncide parfaitement avec les données. Cependant, les données expérimentales peuvent imprécises, et peuvent ne pas recouper exactement la loi. 
+
+\newpage
+\section{Objectif}
+
+Résultats attendus et quantifiés (code, expérience, …) :
+Codes : (chacun *2, en 1D et 2D = paramétrique, et 3D)
+\begin{itemize}
+\item splines (par tous les points)
+\item splines de lissage (approximation, minimisation des erreurs avec plusieurs méthodes)
+\item splines de lissage en excluant les données aberrantes
+\end{itemize}
+Exemples d’utilisations sur des jeux de données fournis, illustrés.
+Rapport expliquant la méthode de détection des données aberrantes
+
+\newpage
+\section{Périmètre}
+
+Restriction de la solution proposée (cadrage) :
+\begin{itemize}
+\item Les points donnés en entrée seront défini dans un ordre précis.
+\end{itemize}
+
+\newpage
+\section{Description fonctionnelle}
+
+\subsection{Entrées}
+
+Input : fichiers textes contenant les données
+
+\subsection{Sorties}
+
+Output : fichier contenant les valeurs aberrantes
+	   Fichier contenant une discrétisation de la foncti on résultat
+	   Affichage de la fonction résultat
+
+\newpage
+\section{Délais Livrables}
+
+échéancier, dates importantes, livraison :
+Mercredi 11 décembre : présentation du cahier des charges
+Jeudi 30 avril : soutenance du projet, et rendu des codes.
+
+
+
+\end{document}
