@@ -53,15 +53,19 @@ La base de l'interpolation est de trouver une loi qui coïncide parfaitement ave
 \newpage
 \section{Objectif}
 
-Résultats attendus et quantifiés (code, expérience, …) :
-Codes : (chacun *2, en 1D et 2D = paramétrique, et 3D)
+Le projet sera livré sous la forme d'une archive contenant :
 \begin{itemize}
-\item splines (par tous les points)
-\item splines de lissage (approximation, minimisation des erreurs avec plusieurs méthodes)
-\item splines de lissage en excluant les données aberrantes
+\item[•] Plusieurs packages python regroupant les différentes foncitonnalités décrite à la section \ref{Fonctions}  : 
+\begin{itemize}
+\item Package "Splines 1D", qui regroupe les méthodes de création des splines 1D.
+\item Package "Splines Paramétriques", qui regroupe les méthodes de création des splines paramétriques.
+\item Package "Données Aberrantes" qui regroupe les méthodes de gestion des points aberrants.
+\item Package "Automatisation" qui regroupe les méthodes de configuration automatique des paramètres.
+\item Package "Interface" qui contient le programme principa à lancer par l'utilisateur.
 \end{itemize}
-Exemples d’utilisations sur des jeux de données fournis, illustrés.
-Rapport expliquant la méthode de détection des données aberrantes
+\item[•] Un read-me conciliant les dépendances entre les programmes, et les instructions d'utilisation.
+\item[•] Rapport d'explications des divers méthodes, avec exemples d’utilisations sur des jeux de données, illustrés.
+\end{itemize}
 
 \newpage
 \section{Périmètre}
@@ -74,11 +78,13 @@ Restriction de la solution proposée (cadrage) :
 \newpage
 \section{Description fonctionnelle}
 
-\subsection{Entrées}
+\subsection{Fonctionnalités}
+\label{Fonctions}
+
+
+\subsection{Entrées et Sorties}
 
 Input : fichiers textes contenant les données
-
-\subsection{Sorties}
 
 Output : fichier contenant les valeurs aberrantes
 	   Fichier contenant une discrétisation de la foncti on résultat
@@ -88,8 +94,10 @@ Output : fichier contenant les valeurs aberrantes
 \section{Délais Livrables}
 
 échéancier, dates importantes, livraison :
-Mercredi 11 décembre : présentation du cahier des charges
-Jeudi 30 avril : soutenance du projet, et rendu des codes.
+\begin{itemize}
+\item Mercredi 11 décembre : présentation du cahier des charges.
+\item Jeudi 30 avril : soutenance du projet et rendu des codes.
+\end{itemize}
 
 
 
