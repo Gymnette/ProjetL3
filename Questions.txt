@@ -1,0 +1,18 @@
+Que doit-on mettre obligatoirement dans le cahier des charges ? => Cf mail
+Quelle longueur doit-il faire ? => Cf mail (cahier des charges inclu dans rapport)
+
+Que doit-on dire/présenter lors de la soutenance ? (les 6 doivent-ils obligatoirement parler ?) => Cf mail
+Combien de temps dure-t-elle ? Cf mail
+Doit-on/Peut-on créer un diapo ? C'est mieux, oui
+
+Peut-on indiquer les effectifs pour chaque tâche dans le diagramme de Gantt ? Le diagramme de Gantt tel qu'il est va au prof. 
+A-t-on le droit de laisser de la "marge", en ne mettant pas toujours 6 personnes occupées (les autres aidant où il y a besoin) ? Pas de problèmes, mais à clairement justifier (Jung...)
+Doit-on déjà définir qui fait quoi ? Un responsable de chaque tâche
+
+Que doit-on mettre dans le rapport final ? Les résultats, et les méthodes pour y arriver (entre autres)
+
+Pour les splines (naturelles et lissage), que considère-t-on comme acquis ? (doit-on réétablir les matrices ?) 
+On peut citer le cours. Néanmoins, il peut être utile de réétablir (ou au moins réévoquer) certaines choses si on s'en resert ensuite, ou si on utilise une méthode similaire.
+Par exemple : citer la quantité minimisée, car on en minimisera d'autres (avec la tâche 7 par exemple)
+
+Autre : Le prof nous fournira un générateur de données bruitées (= en incluant des aberrantes), avec différentes lois.
