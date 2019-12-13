@@ -48,11 +48,25 @@ Comme exemples d'utilisations, on peut citer :
 
 \subsection{Problème}
 
-La base de l'interpolation est de trouver une loi qui coïncide parfaitement avec les données. Cependant, les données expérimentales peuvent imprécises, et peuvent ne pas recouper exactement la loi. 
+[La base de l'interpolation est de trouver une loi qui coïncide parfaitement avec les données. Cependant, les données expérimentales peuvent imprécises, et peuvent ne pas recouper exactement la loi.]
+
+L’interpolation consiste à remplacer une courbe ou une fonction par une autre courbe (ou fonction) plus simple, mais qui coïncide avec la première en un nombre fini de points (ou de valeurs) donnés au départ. Suivant la méthode que l’on aura choisie, on peut demander à la courbe ou la fonction de vérifier certaines propriétés en plus. Le choix des points (ou valeurs) au départ est un élément important dans la construction.
+Ces données expérimentales peuvent être imprécises. L’idée c’est de trouver une loi qui coïncide parfaitement avec les données.
+
+Les fonctions d’interpolation utilisées ici sont des splines.
+Une spline d’interpolation est une fonction par morceaux constituée d’un polynôme sur chaque intervalle.
+L’idée c’est de combiner des fonctions simples (typiquement des polynômes de bas degré) de manière à former une fonction composite lisse (c’est-à-dire de classe Ck).
+
+L’évaluation des paramètres de la spline peuvent diverger si la pente entre deux nœuds est beaucoup plus grande que 1, la spline dépend du choix du système de coordonnées, elle ne possède donc pas de propriété d’invariance géométrique, on ne peut pas l’utiliser si la courbe à représenter n’est pas une fonction, c’est-à-dire s’il y’a plus d’une abscisse donnée (courbes qui « reviennent en arrière » comme les ellipses, les cercles, etc.)
+
+Pour approcher ces données parfois imprécises on utilise les splines de lissage. L’objectif du lissage est de fournir une estimation non bruitée des données avec un paramètre de lissage rho qui permet de contrôler le compromis entre les données observées et le lissage de la fonction.
 
 \newpage
 \section{Objectif}
 
+Le but du projet est de s'adapter à un ensemble de données en 2D et en 3D
+
+\subsection*{Contenu}
 Le projet sera livré sous la forme d'une archive contenant :
 \begin{itemize}
 \item[•] Plusieurs packages python regroupant les différentes foncitonnalités décrite à la section \ref{Fonctions}  : 
