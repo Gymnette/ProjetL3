@@ -54,11 +54,17 @@ Voici quelques exemples d'utilisation de l'interpolation et de l'approximation :
 
 \subsection{Problème}
 
-L’idée consiste à interpoler des données en tenant compte des points aberrants, trouver une ou plusieurs méthodes pour les détecter et les traiter suivant qu’elles soient uniformes ou non.
+Lidée sera d'interpoler des données en tenant compte des erreurs de mesure, des points aberrants, et de trouver une ou plusieurs méthodes pour les détecter et les traiter suivant qu’elles soient uniformes ou non.
 
-Ensuite, introduire la notion de spline de lissage pour aborder le cas des données imprécises en fonction d’un paramètre rho qui permet de contrôler le rapport entre les points et le lissage de la fonction. Trouver une ou plusieurs façons de trouver automatiquement ce paramètre de lissage rho en fonction de nos entrées.
-Pour commencer, nous allons interpoler des points en utilisant les splines naturelles cubiques C2 qui consiste à faire passer entre chaque point un polynôme de degré inférieur ou égal à 3 et qui soit de classe C2 dans le cas uniforme et non uniforme.
-Ces données peuvent contenir des valeurs aberrantes, il faut dans un premier temps trouver un moyen d’identifier ces valeurs, les supprimer ou leur attribuer un poids faible, utiliser des méthodes de minimisation pour trouver de nouvelles données et les inclure dans notre spline de lissage en 1D et le cas paramétrique 2D.
+Ensuite, on introduira la notion de spline de lissage pour aborder le cas des données imprécises en fonction d’un paramètre qui permet de contrôler le rapport entre les points et le lissage de la fonction. On cherchera à trouver automatiquement ce paramètre de lissage en fonction de nos entrées.
+
+Pour commencer, on interpolera des points 1D en utilisant les splines naturelles C2 qui consistent à faire passer entre chaque point un polynôme de degré inférieur ou égal à 3 et qui soit de classe C2 dans le cas uniforme et non uniforme.
+
+Pour tenir compte des fluctuations des mesures, on implémentera une méthode de splines naturelles de lissages, qui permettent de minimiser une certaine quantité représentant la différence entre la courbe et les points mesurés.
+
+Les données peuvent contenir des valeurs aberrantes, il faudra identifier ces valeurs, les supprimer ou leur attribuer un poids faible.
+
+Enfin, on adaptera ces méthodes au cas paramétrique (2D).
 
 \section{Objectifs}
 
