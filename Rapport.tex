@@ -15,9 +15,9 @@
 
 \renewcommand{\baselinestretch}{1.3} %Interligne
 
-\title{Mon titre}
-\author{Auteur}
-\date{Date}
+\title{\textbf{Interpolaspline}}
+\author{Rapport du stage applicatif\\ L3 MIN}
+\date{\emph{Décembre 2019}\\CORBILLE Clément, DOUMBOUYA Mohamed, EL BOUCHOUARI Zakaria, HEDDIA Bilel, PIASENTIN Béryl, RODET Amélys}
 
 \begin{document} %Ne rien ecrire avant
 
@@ -26,9 +26,72 @@
 
 \newpage
 
-\section{ bonjour}
+\section*{Introduction}
 
-bonjour
+Le groupe est composé de 6 personnes intéressées par le sujet.
+
+\section{Organisation de la semaine}
+
+L'objectif de cette semaine de stage était de mettre en place l'organisation nécessaire à la réalisation du projet, qui aura lieu en avril.
+
+Nous avons commencé par désigner un chef de projet : Béryl a été choisie à cet effet. PHRASE PARTICULIEREMENT FOIREUSE A MODIFIER La chef de projet veille sur le bon déroulement de chaque tâche en plus de sa participation aux différentes tâches. Nous avons ensuite défini un nom pour le projet, en rapport avec le contenu mais également percutant. "Interpolaspline" a été le nom retenu, en tant que fusion du mot "interpolation" et du mot "spline", deux notions principales du sujet.
+
+Durant cette semaine d'organisation, chaque membre du groupe a été responsable d’une ou de plusieurs tâche. Etre responsable d'une tâche signifie s'assurer que celle-ci est correctement réalisée et terminée dans les délais fixés, mais pas obligatoirement qu'elle doit être réalisée seul.
+
+Les premiers jours ont été mis à profit pour comprendre le sujet et trouver ce sur quoi nous allions travailler pendant trois semaines. Il a fallu ensuite établir un plan de travail. Cette reflexion nous a permis de construire un diagramme de Gantt et un graphe de dépendances des tâches, mais aussi de répartir les tâches entre les différents membres du groupe. Chacun sait donc de quelle tâche il est responsable et peut se projeter dans la semaine de réalisation.
+
+Une fois tous ces points mis en place, nous avons établi le cahier de charges. Nous y avons décrit le problème, nos objectifs, le cadre du projet. La description des fonctionnalités livrées à la fin du projet y est également détaillée, ainsi que l'organisation temporelle du projet. 
+
+Tous les membres du groupes ont participé à la rédaction du rapport basé sur cette semaine de travail, incluant le cahier des charges, mais aussi à la préparation de la soutenance. Pour terminer cette semaine d'organisation, chacun a pris le temps de bien comprendre ce qu'il devrait faire durant les trois semaines de réalisation. 
+
+
+
+\section{Définition des tâches}
+
+	\subsection{Création des tâches}
+	Dans le but d'interpoler des données en utilisant des splines de lissage tenant compte des valeurs aberrantes, nous nous devions de savoir comment aborder le sujet. En discutant entre membres du groupe, nous avons convenu qu'il fallait dans un premier temps approfondir les notions générales sur les splines naturelles et de lissage en fonction de la répartition des points et trouver un moyen d'automatiser l'estimation du paramètre de lissage. Puis nous avons prévu d'étudier des méthodes d'identification des valeurs aberrantes que l'on souhaite à terme implémenter en deux dimensions, mais aussi des méthodes permettant d'interpoler des splines sans commencer par détecter les valeurs aberrantes.
+
+	\subsection{Contenu des tâches}
+Interpolation :
+            L’interpolation est une opération mathématique consistant à déterminer une fonction analytique réelle passant par un nombre fini N de points de coordonnées  (Xi ,Yi)  pour              i = 1,… N.
+ 
+Spline d’interpolation :
+            Une fonction spline est une fonction  définie par morceaux sur chaque intervalle          [ Xi, Xi+1 ]  pour  i= 1,… N
+            L’idée c’est de combiner plusieurs morceaux de fonction (en générale on utilise des polynômes de petits degrés) pour former une spline lisse définie par morceaux de fonction de classe Ck . Donc les splines d’interpolations consistent à déterminer une courbe de spline lisse et de classe Ck qui passe par les données (Xi ,Yi)  pour  i= 1,… N .
+Interpolation des splines naturelles :
+            Une spline cubique est une spline constituée de polynômes de degré trois par morceaux qui passent par un ensemble de N points de contrôle. La dérivée seconde de chaque polynôme est généralement mise à zéro aux points d'extrémité, car cela fournit une condition aux limites qui complète le système d'équations N-2. Cela produit une spline cubique dite "naturelle" et conduit à un système tridiagonal simple qui peut être résolu facilement pour donner les coefficients des polynômes. Cependant, ce choix n'est pas le seul possible et d'autres conditions aux limites peuvent être utilisées à la place.
+L’interpolation paramétrique :
+             L'objectif  c’est de trouver un polynôme paramétrique de degré N qui interpole une séquences de N points données,  pour en faire en général on utilise deux méthodes :
+-          Soit on interpole les données directement,  en cherchant un polynôme paramétrique qui passe par les points de coordonnées (Xi,Yi )   pour   i =  1,… N .
+-          Soit en interpolant deux polynômes Q et R par les données (ti,Xi) et (ti,Yi) pour i= 1,… N, avec ti est un paramètre bien choisi. En regroupant les résultat, on obtient un polynôme paramétrique P qui interpole les données (Xi,Yi ) .
+                P(t) = ( Q(t) , R(t) )
+                         Avec      P(ti) = ( Q(ti) = Xi , R(ti) = Yi )     pour  i= 1,… N .
+ 
+Spline de lissage :
+            Les splines de lissage sont des estimations de fonction, obtenues à partir d'un ensemble d'observations bruyantes Yi de la cible f (Xi), afin de trouver la spline minimale qui suit le nuage des points (Xi,Yi) mais qui passe pas forcément par tous les points, cette méthode vise à éviter l’oscillation de la courbe de la spline quand n est très grand   
+-          Le paramètre de lissage  :
+            La quantité à minimiser est composée de deux parties, la première assure le passage de la spline par nos données  et l’autre assure le lissage  de la courbe. Donc plus qu’on augmente la valeur du paramètre de lissage plus qu’on donne un poid à la partie de lissage, ce qui nous donne par suite une spline continue et lisse .
+ 
+ 
+Donnée aberrantes :  
+
+
+
+
+\section{Planification des tâches}
+
+	\subsection{Organisation des tâches}
+
+	\subsection{Répartition des tâches}
+
+
+
+\section{Cahier des charges}
+
+
+\section*{Conclusion}
+
+\section*{Annexes}
 
 
 \end{document} %Ne rien ecrire apres
