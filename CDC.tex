@@ -38,7 +38,7 @@
 
 \subsection{Motivations}
 
-Lors d'expériences scientifiques, des données sont acquises. Cependant, ces données sont très souvent discrètes ce qui ne permet pas d'établir facilement une loi (fonction de $\IR$ dans $\IRex{n}$ suivie par ces données) continue. C'est le principe de l'interpolation.
+Lors d'expériences scientifiques, des données sont acquises. Cependant, ces données sont très souvent discrètes ce qui ne permet pas d'établir facilement une loi (fonction de $\IR$ dans $\IRex{n}$ suivie par ces données, "n" étant la dimension dans laquelle l'interpolation est faite) continue. C'est le principe de l'interpolation.
 
 Cependant, dans la majorité des expériences, une fonction passant par toutes les données oscillerait trop. On trouve donc une fonction minimisant une certaine quantité, liée à la distance entre les données et la fonction établie. Dans ce cas, on parle d'approximation.
 
@@ -57,14 +57,14 @@ Voici quelques exemples d'utilisation de l'interpolation et de l'approximation :
 L’idée consiste à interpoler des données en tenant compte des points aberrants, trouver une ou plusieurs méthodes pour les détecter et les traiter suivant qu’elles soient uniformes ou non.
 
 Ensuite, introduire la notion de spline de lissage pour aborder le cas des données imprécises en fonction d’un paramètre rho qui permet de contrôler le rapport entre les points et le lissage de la fonction. Trouver une ou plusieurs façons de trouver automatiquement ce paramètre de lissage rho en fonction de nos entrées.
-Pour commencer, nous allons interpoler des points en utilisant les splines naturelles C2 qui consiste à faire passer entre chaque point un polynôme de degré inférieur ou égal à 3 et qui soit de classe C2 dans le cas uniforme et non uniforme.
+Pour commencer, nous allons interpoler des points en utilisant les splines naturelles cubiques C2 qui consiste à faire passer entre chaque point un polynôme de degré inférieur ou égal à 3 et qui soit de classe C2 dans le cas uniforme et non uniforme.
 Ces données peuvent contenir des valeurs aberrantes, il faut dans un premier temps trouver un moyen d’identifier ces valeurs, les supprimer ou leur attribuer un poids faible, utiliser des méthodes de minimisation pour trouver de nouvelles données et les inclure dans notre spline de lissage en 1D et le cas paramétrique 2D.
 
 \section{Objectifs}
 
 
 Une spline naturelle est une fonction définie par morceau par des polynômes cubiques, dont la dérivée seconde est continue, et dont les dérivées secondes aux extrémités de l'intervalle de définition sont nulles.
-Le but du projet est de pouvoir créer une spline naturelle approximant un ensemble de données contenant des points aberrants, à une dimension puis à deux dimensions (splines naturelles paramétriques).
+Le but du projet est de pouvoir créer automatiquement une spline de lissage approximant un ensemble de données contenant des points aberrants, à une dimension puis à deux dimensions (splines naturelles paramétriques).
 
 \subsection*{Contenu}
 Le projet sera livré sous la forme d'une archive contenant :
@@ -93,9 +93,9 @@ Restriction de la solution proposée (cadrage) :
 \subsection{Fonctionnalités}
 \label{Fonctions}
 
-Le programme permettra d'interpoler sur une série de données stockées dans un fichier. L'utilisateur pourra :
+Le programme permettra de créer une approximation de données stockées dans un fichier. L'utilisateur pourra :
 \begin{itemize}
-\item Créer la spline naturelle qui interpole exactement tous les points, en 1D ou en paramétrique.
+\item Créer la spline naturelle qui interpole exactement tous les points, en une dimension ou en paramétrique.
 \item Créer la spline de lissage associée, en  1D ou en paramétrique.
 \item Créer la spline de lissage, en prenant en compte les points aberrants.
 \item Choisir la quantitée à minimisée dans une liste.
