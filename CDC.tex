@@ -38,7 +38,7 @@
 
 \subsection{Motivations}
 
-Lors d'expériences scientifiques, des données sont acquises. Cependant, ces données sont très souvent discrètes ce qui ne permet pas d'établir facilement une loi (fonction de $\IR$ dans $\IRex{n}$ suivie par ces données, "n" étant la dimension dans laquelle l'interpolation est faite) continue. C'est le principe de l'interpolation.
+Lors d'expériences scientifiques, des données sont acquises. Cependant, ces données sont très souvent discrètes ce qui ne permet pas d'établir facilement une loi (fonction de $\IR$ dans $\IRex{n}$ suivie par ces données, $n$ étant la dimension dans laquelle l'interpolation est faite) continue. C'est le principe de l'interpolation.
 
 Cependant, dans la majorité des expériences, une fonction passant par toutes les données oscillerait trop. On trouve donc une fonction minimisant une certaine quantité, liée à la distance entre les données et la fonction établie. Dans ce cas, on parle d'approximation.
 
@@ -75,7 +75,7 @@ Le projet sera livré sous la forme d'une archive contenant :
 \item Une librairie "Splines Paramétriques" (nommée $"SplinesParametriques.py"$), qui regroupe les méthodes de création des splines paramétriques
 \item Une librairie "Données Aberrantes" (nommée $"DonneesAberrantes.py"$), qui regroupe les méthodes de gestion des points aberrants
 \item Une librairie "Automatisation" (nommée $"Automatisation.py"$), qui regroupe les méthodes de configuration automatique des paramètres des splines
-\item Un fichier "Interface" (nommé $"Interface.py"$), qui contient le programme principal, qui est le seul que l'utilisateur doit lancer.
+\item Un fichier "Interface" (nommé $"Interface.py"$), qui contient le programme principal, qui est le seul que l'utilisateur doit lancer
 \end{itemize}
 \item[•] Un lisez-moi consignant les dépendances entre les programmes, et les instructions d'utilisation.
 \item[•] Un rapport expliquant les diverses méthodes, avec des exemples d’utilisations illustrés.
@@ -95,10 +95,10 @@ Restriction de la solution proposée (cadrage) :
 
 Le programme permettra de créer une approximation de données stockées dans un fichier. L'utilisateur pourra :
 \begin{itemize}
-\item Créer la spline naturelle qui interpole exactement tous les points, en une dimension ou en paramétrique.
-\item Créer la spline de lissage associée, en  1D ou en paramétrique.
-\item Créer la spline de lissage, en prenant en compte les points aberrants.
-\item Choisir la quantitée à minimisée dans une liste.
+\item Créer la spline naturelle qui interpole exactement tous les points, en une dimension ou en paramétrique
+\item Créer la spline de lissage associée aux données, en une dimension ou en paramétrique
+\item Créer la spline de lissage, en tenant compte des points aberrants
+\item Choisir la quantité à minimiser dans une liste
 \end{itemize}
 
 \subsection{Entrées et sorties}
@@ -106,7 +106,7 @@ Le programme permettra de créer une approximation de données stockées dans un
 \subsubsection{Entrées}
 
 Lors du lancement du programme, il sera demandé à l'utilisateur d'entrer le chemin vers le fichier contenant les donnnées à interpoler.
-Ce fichier contient 2 colones (représentées par des espaces) et un nombre indéterminé de lignes. La première colonne représente les abcisses, et la deuxième les ordonnées. Le fichier peut contenir des commentaires, précédés par un dièse et sans caractères spéciaux.
+Ce fichier doit contenir 2 colonnes (séparées par un espace) et un nombre inconnu de lignes. La première colonne représente les abcisses, et la deuxième les ordonnées. Le fichier peut contenir des commentaires, précédés par un dièse et sans caractères spéciaux.
 
 Exemple :
 
@@ -121,7 +121,7 @@ Exemple :
 
 Ce fichier donnera en abcisses  $\{0,1,2,3\}$, et en ordonnées $\{0,1,6,9\}$.
 
-Puis il reseigne la dimension de ses données (1D ou paramétriques).
+Puis il reseigne la dimension de ses données (1D ou paramétriques) : EXPLIQUER BLABLABLA
 
 Il choisit ensuite le type de sortie qu'il souhaite, entre une spline exacte et une spline de lissage.
 
@@ -129,7 +129,7 @@ Enfin, l'utilisateur peut demander au programme de gérer les points aberrants, 
 
 \subsubsection{Sorties}
 
-À la fin de l'éxécution, le programme affichera un graphe représentant les données fournies par l'utilisateur, ainsi que la spline interpolant les données (spline dépendant des choix de l'utilisateur). La discrétisation de cette spline sera aussi fournie en sortie, dans le fichier $"nom\_du\_fichier\_de\_depart.res"$.
+À la fin de l'exécution, le programme affichera un graphe représentant les données fournies par l'utilisateur, ainsi que la spline interpolant ces données (spline dépendant des choix de l'utilisateur). La discrétisation de cette spline sera également fournie en sortie, dans le fichier $"nom\_du\_fichier\_de\_depart.res"$.
 
 Ce fichier sera au même format que le fichier passé en entrée, avec en première ligne la dimension de la spline ($"1D" $ ou $"2D"$).
 
