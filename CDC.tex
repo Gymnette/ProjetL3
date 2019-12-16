@@ -59,7 +59,8 @@ L’idée consiste à interpoler des données en tenant compte des points aberra
 Ensuite, introduire la notion de spline de lissage pour aborder le cas des données imprécises en fonction d’un paramètre rho qui permet de contrôler le rapport entre les points et le lissage de la fonction. Trouver une ou plusieurs façons de trouver automatiquement ce paramètre de lissage rho en fonction de nos entrées.
 Pour commencer, nous allons interpoler des points en utilisant les splines naturelles C2 qui consiste à faire passer entre chaque point un polynôme de degré inférieur ou égal à 3 et qui soit de classe C2 dans le cas uniforme et non uniforme.
 Ces données peuvent contenir des valeurs aberrantes, il faut dans un premier temps trouver un moyen d’identifier ces valeurs, les supprimer ou leur attribuer un poids faible, utiliser des méthodes de minimisation pour trouver de nouvelles données et les inclure dans notre spline de lissage en 1D et le cas paramétrique 2D.
-\section{Objectif}
+
+\section{Objectifs}
 
 
 Une spline naturelle est une fonction définie par morceau par des polynômes cubiques, dont la dérivée seconde est continue, et dont les dérivées secondes aux extrémités de l'intervalle de définition sont nulles.
