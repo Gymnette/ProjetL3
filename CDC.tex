@@ -23,8 +23,8 @@
 \newcommand{\dans}[2]{#1 \rightarrow #2}
 
 \title{Cahier des Charges}
-\author{L3}
-\date{Annee 2019-2020}
+\author{\textbf{Interpolaspline}\\Stage Applicatif L3 MIN}
+\date{Année 2019-2020}
 
 \begin{document}
 
@@ -37,14 +37,19 @@
 
 \subsection{Motivations}
 
-Lors d'expériences scientifiques, des données sont acquises. Cependant, ces données sont très souvent discrètes, et ne permettent pas de tirer des conclusions telles quelles. Il faut ainsi trouver une loi (une fonction pour des données de $\IR$ dans $\IRex{n}$) que suivent ces données. C'est le principe de l'interpolation.
+Lors d'expériences scientifiques, des données sont acquises. Cependant, ces données sont très souvent discrètes ce qui ne permet pas d'établir facilement une loi (fonction de $\IR$ dans $\IRex{n}$ suivie par ces données) continue. C'est le principe de l'interpolation.
+
+Cependant, dans la majorité des expériences, une fonction passant par toutes les données oscillerait trop. On trouve donc une fonction minimisant une certaine quantité, liée à la distance entre les données et la fonction établie. Dans ce cas, on parle d'approximation.
+
+Lors des expériences, si une donnée est très éloignée des autres, on peut souhaiter l'ignorer. Cela peut-être une erreur de mesure, un changement de conditions, une grosse imprécision, etc. Ces données sont dites aberrantes, et c'est ce cas qui nous intéresse dans ce projet.
 \\ \\
-Comme exemples d'utilisations, on peut citer :
+Voici quelques exemples d'utilisation de l'interpolation et de l'approximation :
 \begin{itemize}
 \item Étalonnage d'instruments de mesure, en métrologie
 \item Découverte de lois à partir d'expériences, dans tous les domaines de la recherche
 \item Identifier des données incohérentes : une faute de frappe, un produit défectueux
 \end{itemize}
+
 
 \subsection{Problème}
 
@@ -62,27 +67,28 @@ L’évaluation des paramètres de la spline peuvent diverger si la pente entre 
 Pour approcher ces données parfois imprécises on utilise les splines de lissage. L’objectif du lissage est de fournir une estimation non bruitée des données avec un paramètre de lissage rho qui permet de contrôler le compromis entre les données observées et le lissage de la fonction.
 
 \newpage
-\section{Objectif}
+\section{Objectifs}
 
-Le but du projet est de s'adapter à un ensemble de données en 2D et en 3D
+Une spline naturelle est une fonction définie par morceau par des polynômes cubiques, dont la dérivée seconde est continue, et dont les dérivées secondes aux extrémités de l'intervalle de définition sont nulles.
+Le but du projet est de pouvoir créer une spline naturelle approximant un ensemble de données à une dimension, puis à deux dimensions (splines naturelles paramétriques).
 
 \subsection*{Contenu}
 Le projet sera livré sous la forme d'une archive contenant :
 \begin{itemize}
-\item[•] Plusieurs packages python regroupant les différentes foncitonnalités décrite à la section \ref{Fonctions}  : 
+\item[•] Plusieurs fichiers python regroupant les différentes fonctionnalités décrites à la section \ref{Fonctions}  : 
 \begin{itemize}
-\item Package "Splines 1D", qui regroupe les méthodes de création des splines 1D.
-\item Package "Splines Paramétriques", qui regroupe les méthodes de création des splines paramétriques.
-\item Package "Données Aberrantes" qui regroupe les méthodes de gestion des points aberrants.
-\item Package "Automatisation" qui regroupe les méthodes de configuration automatique des paramètres.
-\item Package "Interface" qui contient le programme principa à lancer par l'utilisateur.
+\item Une librairie "Splines 1D" (nommée $"Splines1D.py"$), qui regroupe les méthodes de création des splines à une dimension
+\item Une librairie "Splines Paramétriques" (nommée $"SplinesParametriques.py"$), qui regroupe les méthodes de création des splines paramétriques
+\item Une librairie "Données Aberrantes" (nommée $"DonneesAberrantes.py"$), qui regroupe les méthodes de gestion des points aberrants
+\item Une librairie "Automatisation" (nommée $"Automatisation.py"$), qui regroupe les méthodes de configuration automatique des paramètres des splines
+\item Un fichier "Interface" (nommé $"Interface.py"$), qui contient le programme principal, qui est le seul que l'utilisateur doit lancer.
 \end{itemize}
-\item[•] Un read-me conciliant les dépendances entre les programmes, et les instructions d'utilisation.
-\item[•] Rapport d'explications des divers méthodes, avec exemples d’utilisations sur des jeux de données, illustrés.
+\item[•] Un lisez-moi consignant les dépendances entre les programmes, et les instructions d'utilisation.
+\item[•] Un rapport expliquant les diverses méthodes, avec des exemples d’utilisations illustrés.
 \end{itemize}
 
 \newpage
-\section{Périmètre}
+\section{Limites}
 
 Restriction de la solution proposée (cadrage) :
 \begin{itemize}
@@ -96,7 +102,7 @@ Restriction de la solution proposée (cadrage) :
 \label{Fonctions}
 
 
-\subsection{Entrées et Sorties}
+\subsection{Entrées et sorties}
 
 Input : fichiers textes contenant les données
 
@@ -105,11 +111,11 @@ Output : fichier contenant les valeurs aberrantes
 	   Affichage de la fonction résultat
 
 \newpage
-\section{Délais Livrables}
+\section{Organisation temporelle}
 
-échéancier, dates importantes, livraison :
+Dates importantes et livraison :
 \begin{itemize}
-\item Mercredi 11 décembre : présentation du cahier des charges.
+\item Mercredi 18 décembre : présentation du cahier des charges et de l'organisation du projet.
 \item Jeudi 30 avril : soutenance du projet et rendu des codes.
 \end{itemize}
 
