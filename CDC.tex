@@ -11,6 +11,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{bclogo}
+\usepackage{listings}
 \usepackage[top=2cm, bottom=3cm, left=2.5cm, right=2.5cm]{geometry} %Marges
 
 \renewcommand{\baselinestretch}{1.3} %Interligne
@@ -48,11 +49,17 @@ Comme exemples d'utilisations, on peut citer :
 
 \subsection{Problème}
 
-La base de l'interpolation est de trouver une loi qui coïncide parfaitement avec les données. Cependant, les données expérimentales peuvent imprécises, et peuvent ne pas recouper exactement la loi. 
+L’idée consiste à interpoler des données en tenant compte des points aberrants, trouver une ou plusieurs méthodes pour les détecter et les traiter suivant qu’elles soient uniformes ou non.
 
-\newpage
+Pour commencer, nous allons interpoler des points en utilisant les splines naturelles C2 qui consiste à faire passer entre chaque point un polynôme de degré inférieur ou égal à 3 et qui soit de classe C2 dans le cas uniforme et non uniforme.
+Ensuite, introduire la notion de spline de lissage pour aborder le cas des données imprécises en fonction d’un paramètre rho qui permet de contrôler le rapport entre les points et le lissage de la fonction. Trouver une ou plusieurs façons de trouver automatiquement ce paramètre de lissage rho en fonction de nos entrées.
+Ces données peuvent contenir des valeurs aberrantes, il faut dans un premier temps trouver un moyen d’identifier ces valeurs, les supprimer ou leur attribuer un poids faible, utiliser des méthodes de minimisation pour trouver de nouvelles données et les inclure dans notre spline de lissage en 1D et le cas paramétrique 2D.
+
 \section{Objectif}
 
+Le but du projet est de s'adapter à un ensemble de données dans un plan, et trouver une loi continue qui les décrit au mieux.
+
+\subsection*{Contenu}
 Le projet sera livré sous la forme d'une archive contenant :
 \begin{itemize}
 \item[•] Plusieurs packages python regroupant les différentes foncitonnalités décrite à la section \ref{Fonctions}  : 
@@ -67,7 +74,6 @@ Le projet sera livré sous la forme d'une archive contenant :
 \item[•] Rapport d'explications des divers méthodes, avec exemples d’utilisations sur des jeux de données, illustrés.
 \end{itemize}
 
-\newpage
 \section{Périmètre}
 
 Restriction de la solution proposée (cadrage) :
@@ -75,22 +81,62 @@ Restriction de la solution proposée (cadrage) :
 \item Les points donnés en entrée seront défini dans un ordre précis.
 \end{itemize}
 
-\newpage
 \section{Description fonctionnelle}
 
 \subsection{Fonctionnalités}
 \label{Fonctions}
 
+Le programme permettra d'interpoler sur une série de données stockées dans un fichier. L'utilisateur pourra :
+\begin{itemize}
+\item Créer la spline naturelle qui interpole exactement tous les points, en 1D ou en paramétrique.
+\item Créer la spline de lissage associée, en  1D ou en paramétrique.
+\item Créer la spline de lissage, en prenant en compte les points aberrants.
+\item Choisir la quantitée à minimisée dans une liste.
+\end{itemize}
 
 \subsection{Entrées et Sorties}
 
-Input : fichiers textes contenant les données
+\subsubsection{Entrées}
 
-Output : fichier contenant les valeurs aberrantes
-	   Fichier contenant une discrétisation de la foncti on résultat
-	   Affichage de la fonction résultat
+Lors du lancement du programme, il sera demandé à l'utilisateur d'entrer le chemin vers le fichier contenant les donnnées à interpoler.
+Ce fichier contient 2 colones (représentées par des espaces) et un nombre indéterminé de lignes. La première colonne représente les abcisses, et la deuxième les ordonnées. Le fichier peut contenir des commentaires, précédés par un dièse et sans caractères spéciaux.
 
-\newpage
+Exemple :
+
+\begin{lstlisting}
+    # nom : fichier_de_depart.txt
+    0 0
+    1 1
+    2 6 # Cette valeur est etrange
+    3 9
+    4 16
+\end{lstlisting}
+
+Ce fichier donnera en abcisses  $\{0,1,2,3\}$, et en ordonnées $\{0,1,6,9\}$.
+
+Puis il reseigne la dimension de ses données (1D ou paramétriques).
+
+Il choisit ensuite le type de sortie qu'il souhaite, entre une spline exacte et une spline de lissage.
+
+Enfin, l'utilisateur peut demander au programme de gérer les points aberrants, avec l'une des méthodes proposées.
+
+\subsubsection{Sorties}
+
+À la fin de l'éxécution, le programme affichera un graphe représentant les données fournies par l'utilisateur, ainsi que la spline interpolant les données (spline dépendant des choix de l'utilisateur). La discrétisation de cette spline sera aussi fournie en sortie, dans le fichier $"nom\_du\_fichier\_de\_depart.res"$.
+
+Ce fichier sera au même format que le fichier passé en entrée, avec en première ligne la dimension de la spline ($"1D" $ ou $"2D"$).
+
+Exemple : 
+
+\begin{lstlisting}
+    # 1D
+    0 0
+    1 1
+    2 4
+    3 9
+    4 16
+\end{lstlisting}
+
 \section{Délais Livrables}
 
 échéancier, dates importantes, livraison :
