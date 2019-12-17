@@ -127,7 +127,7 @@ Exemple :
 
 Ce fichier donnera en abcisses  $\{0,1,2,3\}$, et en ordonnées $\{0,1,6,9\}$.
 
-Puis il renseigne la dimension de ses données (une dimension ou deux dimensions) : En une dimension, l'ordre des points donnés n'a pas d'importance. En paramétrique (deux dimensions), l'ordre des points forme un paramètre de plus : pour $n+1$ points $(x_i,y_i),i\in \llbracket 0; n \rrbracket$, la spline sera définie par sa valeur en un paramètre $t \in [0,1]$ tel que si $t = f(i,n) $, alors $S(t) = (x_i,y_i)$, avec $f(i,n)$ dépendant de la répartition utilisée (par exemple, la répartition uniforme donne $f(i,n) = \frac{i}{n}$). Il faut donc que les points soient rentrés dans l'ordre dans le cas paramétrique.
+Puis il renseigne la dimension de ses données (une dimension ou deux dimensions) : en une dimension, l'ordre des points donnés n'a pas d'importance. En paramétrique (deux dimensions), l'ordre des points forme un paramètre de plus : pour $n+1$ points $(x_i,y_i),i\in \llbracket 0; n \rrbracket$, la spline sera définie par sa valeur en un paramètre $t \in [0,1]$ tel que si $t = f(i,n) $, alors $S(t) = (x_i,y_i)$, avec $f(i,n)$ dépendant de la répartition utilisée (par exemple, la répartition uniforme donne $f(i,n) = \frac{i}{n}$). Il faut donc que les points soient rentrés dans l'ordre dans le cas paramétrique.
 
 L'utilisateur choisit ensuite le type de sortie qu'il souhaite, entre une spline exacte et une spline de lissage.
 

@@ -11,6 +11,7 @@
 \usepackage{amsmath} % Maths
 \usepackage{amssymb} % symboles ?
 \usepackage{bclogo} % ?????
+\usepackage{stmaryrd}
 \usepackage[top=2cm, bottom=3cm, left=2.5cm, right=2.5cm]{geometry} %Marges
 
 \renewcommand{\baselinestretch}{1.3} %Interligne
@@ -27,9 +28,9 @@
 \newpage
 
 \section*{Introduction}
-Dans le cadre de notre troisième année de licence mathématiques-informatique à l’Université Grenoble Alpes, nous devons effectuer un stage applicatif à l’UFR IMA2G. Ce stage, qui consiste en un projet, est une étape indispensable pour mettre en pratique les connaissances acquises durant cette formation et pour acquérir de nouvelles compétences de recherche. Les projets ont lieu durant quatre semaines, réparties en deux périodes de respectivement une puis trois semaines. Des groupes de six étudiants ont été construits en fonction des affinités de chacun pour les différents sujets proposés. Notre groupe est constitué de CORBILLE Clément, DOUMBOUYA Mohamed, EL BOUCHOUARI Zakaria, HEDDIA Bilel, PIASENTIN Béryl et RODET Amélys.
+Dans le cadre de notre troisième année de licence mathématiques-informatique à l’Université Grenoble Alpes, nous devons effectuer un stage applicatif à l’UFR IM$^2$AG. Ce stage, qui consiste en un projet, est une étape indispensable pour mettre en pratique les connaissances acquises durant cette formation et pour acquérir de nouvelles compétences de recherche. Les projets ont lieu durant quatre semaines, réparties en deux périodes de respectivement une puis trois semaines. Des groupes de six étudiants ont été construits en fonction des affinités de chacun pour les différents sujets proposés.
 
-Le sujet de notre projet est l'interpolation avec données aberrantes. Il nous donne l’opportunité d’approfondir nos connaissance en Mathématiques appliquées, plus précisément d'approfondir l'enseignement d'algèbre linéaire pour le graphique et la CAO (Conception assistée par ordinateur) que nous avons reçu, ainsi que la programmation en langage  python. De plus, ce stage va nous permettre d'acquérir des compétences en travail de groupe.
+Le sujet de notre projet est l'interpolation avec données aberrantes. Il nous donne l’opportunité d’approfondir nos connaissance en Mathématiques appliquées, plus précisément d'approfondir l'enseignement d'algèbre linéaire pour le graphique et la CAO (Conception A ssistée par Ordinateur) que nous avons reçu, ainsi que la programmation en langage  python. De plus, ce stage va nous permettre d'acquérir des compétences en travail de groupe.
 
 \section{Organisation de la semaine}
 
@@ -44,31 +45,68 @@ Les premiers jours ont été mis à profit pour comprendre le sujet et trouver c
 Une fois tous ces points mis en place, nous avons établi le cahier de charges. Nous y avons décrit le problème, nos objectifs, le cadre du projet. La description des fonctionnalités livrées à la fin du projet y est également détaillée, ainsi que l'organisation temporelle du projet. 
 
 Tous les membres du groupes ont participé à la rédaction du rapport basé sur cette semaine de travail, incluant le cahier des charges, mais aussi à la préparation de la soutenance. Pour terminer cette semaine d'organisation, chacun a pris le temps de bien comprendre ce qu'il devrait faire durant les trois semaines de réalisation. 
-
-
+\newpage
+\section{Contexte et objectifs}
+	REDIGER DU BLABLA SUR QQOQCCP
 
 \section{Définition des tâches}
 
 	\subsection{Création des tâches}
 	Dans le but d'interpoler des données en utilisant des splines de lissage tenant compte des valeurs aberrantes, nous nous devions de savoir comment aborder le sujet. En discutant entre membres du groupe, nous avons convenu qu'il fallait dans un premier temps approfondir les notions générales sur les splines naturelles et de lissage en fonction de la répartition des points et trouver un moyen d'automatiser l'estimation du paramètre de lissage. Puis nous avons prévu d'étudier des méthodes d'identification des valeurs aberrantes que l'on souhaite à terme implémenter en deux dimensions, mais aussi des méthodes permettant d'interpoler des splines sans commencer par détecter les valeurs aberrantes.
-
+\newpage
 	\subsection{Contenu des tâches}
-	Les tâches sont les suivantes : 
-Interpolation :
-            L’interpolation est une opération mathématique consistant à déterminer une fonction analytique réelle passant par un nombre fini N de points de coordonnées  (Xi ,Yi)  pour              i = 1,… N.
- 
-Spline d’interpolation :
-            Une fonction spline est une fonction  définie par morceaux sur chaque intervalle          [ Xi, Xi+1 ]  pour  i= 1,… N
-            L’idée c’est de combiner plusieurs morceaux de fonction (en générale on utilise des polynômes de petits degrés) pour former une spline lisse définie par morceaux de fonction de classe Ck . Donc les splines d’interpolations consistent à déterminer une courbe de spline lisse et de classe Ck qui passe par les données (Xi ,Yi)  pour  i= 1,… N .
-Interpolation des splines naturelles :
-            Une spline cubique est une spline constituée de polynômes de degré trois par morceaux qui passent par un ensemble de N points de contrôle. La dérivée seconde de chaque polynôme est généralement mise à zéro aux points d'extrémité, car cela fournit une condition aux limites qui complète le système d'équations N-2. Cela produit une spline cubique dite "naturelle" et conduit à un système tridiagonal simple qui peut être résolu facilement pour donner les coefficients des polynômes. Cependant, ce choix n'est pas le seul possible et d'autres conditions aux limites peuvent être utilisées à la place.
-L’interpolation paramétrique :
-             L'objectif  c’est de trouver un polynôme paramétrique de degré N qui interpole une séquences de N points données,  pour en faire en général on utilise deux méthodes :
+	Les tâches sont les suivantes :
+\begin{itemize}
+\item Approfondissement des splines naturelles
+\item Approfondissement des splines de lissage uniformes
+\item Approfondissement des splines de lissages non-uniformes
+\item Estimation automatique du paramètre de lissage
+\item Identification des points aberrants
+\item Etude des splines de lissage avec points aberrants
+\item Etude de l'algorithme RanSac
+\item Redéfinition d'autres fonctions d'erreur à minimiser
+\item Finalisation du projet
+\end{itemize}
+
+Voici quelques explications du contenu scientifique, caractérisant les tâches listées ci-dessus.
+\subsubsection*{Splines naturelles}
+L’interpolation est une opération mathématique consistant à déterminer une fonction passant par un nombre fini de points donnés.
+
+Soient $(x_i,y_i)$ les $n+1$ données, $i\in\llbracket 0; n \rrbracket$.
+Une spline est une fonction définie par morceaux sur chaque intervalle $[x_i, x_{i+1}]$, $i\in\llbracket 0; n-1 \rrbracket$.
+Le principe d'une spline est de combiner plusieurs morceaux de fonctions (en général on utilise des polynômes de petit degré) pour former une fonction d'une classe définie.
+
+Les splines cubiques $C^2$ sont les splines définies par des polynômes cubiques dont la dérivée seconde est continue. On appelle spline naturelle la spline cubique $C^2$ dont les dérivées secondes aux extrémités de l'intervalle de définition sont nulles. La spline naturelle existe toujours pour des données distinctes, et est unique. Le principe de la spline cubique naturelle permet d'obtenir un système tridiagonal simple qui peut être résolu facilement, afin d'obtenir les coefficients des polynômes.
+
+\subsubsection*{Splines de lissage}
+
+\subsubsection*{Paramètre de lissage}
+
+\subsubsection*{Identification des points aberrants}
+
+\subsubsection*{Splines de lissage avec points aberrants}
+
+\subsubsection*{RanSac}
+
+\subsubsection*{Minimisation de nouvelles quantités}
+
+\subsubsection*{Paramétrique}
+
+L'objectif de l'interpolation paramétrique est de trouver un polynôme paramétrique qui interpole les données. Pour ce faire, deux méthodes sont possibles :
+\begin{itemize}
+\item L'interpolation séparée des $n$ données $(t_i,x_i)$ et des $n$ données $(t_i,y_i)$, $i\in\llbracket 0; n \rrbracket$, avec t un paramètre bien choisi. En associant les deux splines obtenues grâce au paramètre t, on obtient une spline paramétrique interpolant les données de départ.
+\item L'interpolation e
+\end{itemize}
 -          Soit on interpole les données directement,  en cherchant un polynôme paramétrique qui passe par les points de coordonnées (Xi,Yi )   pour   i =  1,… N .
 -          Soit en interpolant deux polynômes Q et R par les données (ti,Xi) et (ti,Yi) pour i= 1,… N, avec ti est un paramètre bien choisi. En regroupant les résultat, on obtient un polynôme paramétrique P qui interpole les données (Xi,Yi ) .
                 P(t) = ( Q(t) , R(t) )
                          Avec      P(ti) = ( Q(ti) = Xi , R(ti) = Yi )     pour  i= 1,… N .
  
+
+\subsubsection*{Finalisation du projet}
+
+ L’interpolation paramétrique :
+             
 Spline de lissage :
             Les splines de lissage sont des estimations de fonction, obtenues à partir d'un ensemble d'observations bruyantes Yi de la cible f (Xi), afin de trouver la spline minimale qui suit le nuage des points (Xi,Yi) mais qui passe pas forcément par tous les points, cette méthode vise à éviter l’oscillation de la courbe de la spline quand n est très grand   
 -          Le paramètre de lissage  :
@@ -89,7 +127,9 @@ quantités dont les  moindres carrées et d’autre qu’on le précisera par la
 
 \section{Cahier des charges}
 
+Le cahier des charges est l'annexe n\degre4. Nous y avons détaillé le projet, du sujet à l'archive rendue, en passant par sa réalisation. Ce cahier des charges représente notre compréhension globale du sujet ainsi que les principales idées d'organisation et de réalisation.
 
+Ce document est censé être le lien entre notre équipe et le client, mais il est ici le lien entre notre équipe et l'équipe d'enseignants responsables du stage applicatif. Nous allons l'utiliser durant la seconde fin du projet. Notre objectif est de réaliser tous les objectifs qui y sont définis, dans les délais impartis.
 
 \section{Planification des tâches}
 
