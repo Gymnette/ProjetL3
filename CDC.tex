@@ -60,22 +60,13 @@ Notre projet se découpe donc en deux sous-problèmes : l'estimation automatique
 \newpage
 \section{Objectifs}
 
+Notre objectif est de réussir à résoudre le problème évoqué précédemment, en une mais aussi en deux dimensions. Pour cela, l'idée est d'interpoler des données en tenant compte des points aberrants, c'est à dire de trouver une ou plusieurs méthodes pour les détecter et les traiter.
 
-L'idée sera d'interpoler des données en tenant compte des erreurs de mesure, des points aberrantset de trouver une ou plusieurs méthodes pour les détecter et les traiter suivant qu’elles soient uniformes ou non.
+Pour commencer, nous interpolerons des données à une dimension en utilisant les splines naturelles cubiques $C^2$. Une spline naturelle cubique $C^2$ est une fonction définie par morceaux par des polynômes cubiques, dont la dérivée seconde est continue et dont les dérivées secondes aux extrémités de l'intervalle de définition sont nulles. 
 
-Ensuite, on introduira la notion de spline de lissage pour aborder le cas des données imprécises en fonction d’un paramètre qui permet de contrôler le rapport entre les points et le lissage de la fonction. On cherchera à trouver automatiquement ce paramètre de lissage en fonction de nos entrées.
+Puis, nous implémenterons une ou plusieurs méthodes permettant de créer des splines de lissage en tenant compte des données aberrantes. Les splines de lissage sont des fonctions qui minimisent une certaine quantité liée à la différence entre la courbe et les données mesurées. L'identification des valeurs aberrantes sera implémentée pour ensuite les supprimer avant de créer la spline, ou pour leur attribuer un poids faible lors de la minimisation de la quantité.
 
-Pour commencer, on interpolera des points une dimension en utilisant les splines naturelles C2 qui consistent à faire passer entre chaque point un polynôme de degré inférieur ou égal à 3 et qui soit de classe C2 dans le cas uniforme et non uniforme.
-
-Pour tenir compte des fluctuations des mesures, on implémentera une méthode de splines naturelles de lissages, qui permettent de minimiser une certaine quantité représentant la différence entre la courbe et les points mesurés.
-
-Les données peuvent contenir des valeurs aberrantes, il faudra identifier ces valeurs, les supprimer ou leur attribuer un poids faible.
-
-Enfin, on adaptera ces méthodes au cas paramétrique (2D).
-
-
-Une spline naturelle est une fonction définie par morceau par des polynômes cubiques, dont la dérivée seconde est continue, et dont les dérivées secondes aux extrémités de l'intervalle de définition sont nulles.
-Le but du projet est de pouvoir créer automatiquement une spline de lissage approximant un ensemble de données contenant des points aberrants, à une dimension puis à deux dimensions (splines naturelles paramétriques).
+Enfin, nous adapterons ces méthodes au cas paramétrique (données à 2 dimensions).
 
 \newpage 
 \subsection*{Contenu}
@@ -83,7 +74,7 @@ Le projet sera livré sous la forme d'une archive contenant :
 \begin{itemize}
 \item[•] Plusieurs fichiers python regroupant les différentes fonctionnalités décrites à la section \ref{Fonctions}  : 
 \begin{itemize}
-\item Une librairie "Splines une dimension" (nommée $"Splinesune dimension.py"$), qui regroupe les méthodes de création des splines à une dimension
+\item Une librairie "Splines une dimension" (nommée $"Splines1D.py"$), qui regroupe les méthodes de création des splines à une dimension
 \item Une librairie "Splines Paramétriques" (nommée $"SplinesParametriques.py"$), qui regroupe les méthodes de création des splines paramétriques
 \item Une librairie "Données Aberrantes" (nommée $"DonneesAberrantes.py"$), qui regroupe les méthodes de gestion des points aberrants
 \item Une librairie "Automatisation" (nommée $"Automatisation.py"$), qui regroupe les méthodes de configuration automatique des paramètres des splines
@@ -96,19 +87,10 @@ Le projet sera livré sous la forme d'une archive contenant :
 \newpage
 \section{Limites}
 
--          Pour les splines de lissages on minimise une quantité composé de deux parties, une qui assure le passage de la spline par la proximités de nos données  et l’autre assure le lissage de la spline, d’où  il faut faire un choix selon le paramètre de lissage , donc en prend soit une spline qui suit bien le nuage des points mais qui n’est pas très lisse, soit une spline qui est bien lisse mais qui suit pas tous le nuage généré par l’ensemble de nos données   .
- 
--          Dans le cas 2D il y a plusieurs façons d’interpoler les données donc il faut trouver la méthode la plus optimale .
- 
--          Les points aberrants : la détection de ces points dépend de la méthode choisie, donc une même donnée peut considérer comme donnée aberrante dans un modèle cependant qui n’est pas dans un autre modèle, donc il faut trouver une méthode qui gère bien les données aberrantes   
-
-
-Restriction de la solution proposée (cadrage) :
+Voici les limites du projet :
 \begin{itemize}
-\item Les points donnés en entrée seront défini dans un ordre précis (pour le paramétrique).
-\item Pour les splines de lissages on minimise une quantité composé de deux parties, une qui assure le passage de la spline par la proximités de nos données et l’autre qui assure le lissage de la spline. Il faut faire un choix selon le paramètre de lissage , donc on prend soit une spline qui suit bien le nuage des points mais qui n’est pas très lisse, soit une spline qui est bien lisse mais qui suit pas tous le nuage généré par l’ensemble de nos données.
-\item Dans le cas 2D il y a plusieurs façons d’interpoler les données : il faut trouver la méthode la plus optimale.
-\item Les points aberrants : la détection de ces points dépend de la méthode choisie, donc une même donnée peut considérer comme donnée aberrante dans un modèle cependant qui n’est pas dans un autre modèle. Il faut trouver une méthode qui gère bien les données aberrantes.
+\item Le choix automatique du paramètre de lissage ne pourra pas être idéal pour tous les cas. En effet, la quantité minimisée pour les splines de lissages est composée de deux parties : une qui assure le passage de la spline à proximité de nos données, et l’autre qui assure le lissage de la spline. Nous ne pouvons pas, dans la plupart des cas, avoir une spline qui suit bien le nuage de points et qui est bien lisse. Il faut donc faire un choix de pondération, qui pourrait ne pas être le même dans deux contextes différents avec les mêmes données.
+\item La robustesse de la gestion des points aberrants dépendra des données. En effet, chaque méthode possède ses points faibles, et possèdera donc au moins un jeu de données pour lequel elle ne sera pas efficace : une même donnée peut être considérée comme donnée aberrante par une méthode mais pas par une autre. 
 \end{itemize}
 
 \section{Description fonctionnelle}
@@ -145,9 +127,9 @@ Exemple :
 
 Ce fichier donnera en abcisses  $\{0,1,2,3\}$, et en ordonnées $\{0,1,6,9\}$.
 
-Puis il renseigne la dimension de ses données (une dimension ou paramétriques) : En une dimension, l'ordre des points donnés n'a pas d'importance. En paramétrique, l'ordre des points forme un paramètre de plus : pour des points $(x_i,y_i),i\in \llbracket 0; n \rrbracket$, la spline sera définie par sa valeur en un paramètre $t \in [0,1]$ tel que si $t = f(i,n) $, alors $S(t) = (x_i,y_i)$, avec $f(i,n)$ dépendant de la répartition utilisée (par exemple, en répartition uniforme donne $f(i,n) = \frac{i}{n}$). 
+Puis il renseigne la dimension de ses données (une dimension ou deux dimensions) : En une dimension, l'ordre des points donnés n'a pas d'importance. En paramétrique (deux dimensions), l'ordre des points forme un paramètre de plus : pour $n+1$ points $(x_i,y_i),i\in \llbracket 0; n \rrbracket$, la spline sera définie par sa valeur en un paramètre $t \in [0,1]$ tel que si $t = f(i,n) $, alors $S(t) = (x_i,y_i)$, avec $f(i,n)$ dépendant de la répartition utilisée (par exemple, la répartition uniforme donne $f(i,n) = \frac{i}{n}$). Il faut donc que les points soient rentrés dans l'ordre dans le cas paramétrique.
 
-Il choisit ensuite le type de sortie qu'il souhaite, entre une spline exacte et une spline de lissage.
+L'utilisateur choisit ensuite le type de sortie qu'il souhaite, entre une spline exacte et une spline de lissage.
 
 Enfin, l'utilisateur peut demander au programme de gérer les points aberrants, avec l'une des méthodes proposées.
 
@@ -170,10 +152,11 @@ Exemple :
 \end{lstlisting}
 
 \section{Organisation temporelle}
-% A FAIRE
 \begin{itemize}
-\item Mercredi 18 décembre : présentation du cahier des charges et de l'organisation du projet.
-\item Jeudi 30 avril : soutenance du projet et rendu des codes.
+\item Du mardi 10 au mercredi 18 décembre : organisation du projet, écriture du cahier des charges
+\item Mercredi 18 décembre : présentation du cahier des charges et de l'organisation du projet
+\item Du lundi 6 au jeudi 30 avril : réalisation du projet
+\item Jeudi 30 avril : soutenance du projet et rendu des codes
 \end{itemize}
 
 
