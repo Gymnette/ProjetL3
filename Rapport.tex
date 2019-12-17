@@ -1,4 +1,4 @@
-\documentclass[a4paper,10pt]{article} % Changer la taille de police c'est ici
+\documentclass[a4paper,12pt]{article} % Changer la taille de police c'est ici
 
 \usepackage{framed} % Marges
 \usepackage[utf8]{inputenc} %francais
@@ -12,7 +12,7 @@
 \usepackage{amssymb} % symboles ?
 \usepackage{bclogo} % ?????
 \usepackage{stmaryrd}
-\usepackage[top=2cm, bottom=2cm, left=2.5cm, right=2.5cm]{geometry} %Marges
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry} %Marges
 
 \renewcommand{\baselinestretch}{1.3} %Interligne
 
@@ -111,11 +111,91 @@ Le cahier des charges est l'annexe n\degre4. Nous y avons détaillé le projet, 
 
 Ce document est censé être le lien entre notre équipe et le client, mais il est ici le lien entre notre équipe et l'équipe d'enseignants responsables du stage applicatif. Nous allons l'utiliser durant la seconde fin du projet. Notre objectif est de réaliser tous les objectifs qui y sont définis, dans les délais impartis.
 
+\newpage
 \section{Planification des tâches}
 
-	\subsection{Organisation des tâches}
+  \subsection{Organisation des tâches}
 
-	\subsection{Répartition des tâches}
+	\subsubsection{Construction du diagramme de Gantt}
+
+Il  nous faut donc planifier de façon la plus optimale possible nos tâches à accomplir sur les dates qui nous sont allouées pour le projet. Le diagramme de Gantt sera notre principal outil.
+
+La construction du diagramme fut basée sur un développement par prototypes successifs, c’est-à-dire de façon itérative, nous sommes “revenus dessus” plusieurs fois pour l’affiner tout en déterminant et analysant les dépendances des tâches.
+
+Ci-joint en annexe 1 notre diagramme de Gantt terminé.
+
+Nous l’avons représenté sous la forme d’un tableau à double entrée comprenant le détail des tâches (et leur numéro de tâche respectif) en ordonnée et la chronologie représentée par les jours de projet en abscisse.
+
+La hiérarchie des tâches est montrée. Ainsi la tâche 1 regroupe 1a et 1b et 5a contenue dans la 5 regroupe 5aa, 5ab, 5ac et 5ad. La durée de ces tâches de haut niveau sont représentées par des bandelettes jaunes sur le diagramme. Les tâches de niveau inférieur sont planifiées par des cases grises contenant un chiffre désignant le nombre de personne nous paraissant indispensable pour sa réalisation.
+
+Pour gérer les ressources humaines, nous avons ajouté une ligne à la fin du diagramme pour contrôler les effectifs affectés et aider à la prise de décision pour la répartition du travail.
+
+Un diagramme de Gantt “réduit” comprenant uniquement les tâches de plus haut niveau est également fourni en annexe 2.
+
+\newpage
+	\subsubsection{Graphe des dépendances}
+
+Le graphe des dépendances a pour objectif de représenter ces dépendances de la façon la plus claire possible. Malgré les nombreuses dépendances, nous avons trouvé un moyen pour rendre ce graphe lisible et facilement compréhensible.
+
+\paragraph{Tâches "parents" :\\}
+
+Pour trouver les tâches nécessaires au début d’une, il suffit de remonter dans l’arborescence. Par exemple dans l’exemple ci-dessous, la tâche 6d a besoin de 6bb, 6c et 6aa.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=8cm]{tacheparent.png} 
+\end{center}
+\caption{Exemple de tâches "parents"}
+\end{figure}
+
+\paragraph{Tâches "fils" :\\}
+
+De même, pour trouver les tâches découlant de la réalisation d’une précédente, il suffit de descendre dans le graphe.
+
+Par exemple dans l’exemple ci-après, la réalisation de 4b permet de commencer 4c et 5bb
+(même si 5bb aura également besoin de la réalisation de 5ba).
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=8cm]{tachefils.png} 
+\end{center}
+\caption{Exemple de tâches "fils"}
+\end{figure}
+
+\newpage
+\paragraph{Tâches “à-multiples-apparitions” :\\}
+
+Le meilleur moyen que nous avons trouvé pour éviter le surplus de connexions dans le graphe dû aux multiples dépendances, est de faire apparaître une tâche plusieurs fois.
+Voilà pourquoi un jeu de couleur à été employé pour permettre une meilleure visibilité de ces tâches “complexes”.
+
+Par exemple dans le cas ci-dessous, la tâche 3c dépend de la fin des tâches 0a,5ac,5bc et 3b et sa réalisation est nécessaire pour commencer 6bb et 6aa.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=17cm]{tachemul.png} 
+\end{center}
+\caption{Exemple de tâches "à-multiples-apparitions"}
+\end{figure}
+
+Le graphe des dépendances complet est visible en annexe 4 .
+
+\paragraph{Moyens de communication :\\}
+
+Même si nous avons sérieusement planifié notre projet, nous avons conscience qu’il est rare que tout se passe comme prévu. Pour éviter l’effet tunnel, autrement dit anticiper les retards et réagir au plus vite sur les ressources nécessaires sur une même tâche, nous mettrons en place des bilans sur le travail de chacun lors que chaque demi-journée et ainsi leur permettre de partager au groupe leur avancée. Des réunions plus complète sur celle du projet seront également mises en place, cette fois-ci tous les deux jours.
+\\
+
+Nous utiliserons Discord comme moyen de communication inter-groupe. Pour ce qui est des fichiers du projet, nous utiliserons le service web d’hébergement Github (et également les applis de Google drive pour la mise en commun  et la modification en temps réel sur les fichiers destinés au rapport final).
+
+
+\newpage
+  \subsection{Répartition des tâches}
+
+Pour éviter les risques, la répartition du travail s’est effectuée dans l’optique d’avoir un minimum de demi-journées où la totalité des membres de groupe est responsable d’une tâche, de sorte à pouvoir répondre aux risques de retard sur l’avancée d’une tâche.
+
+Le groupe entier a pu participer à la réunion visant à répartir le travail, pour que les membres puissent choisir de travailler sur les tâches où ils sentiront les plus efficients, pour également limiter les risques de retard.
+
+Le tableau légendé fourni en annexe 3 est le résultat de cette réunion.
+
 
 \section{Risques}
 
@@ -130,11 +210,10 @@ Lors de cette semaine travail nous avons remarqué qu‘au final, nous avons eu 
 \addcontentsline{toc}{section}{Annexes}
 
 \begin{itemize}
-\item[1.] Diagramme de Gantt (partie 1)
-\item[2.] Diagramme de Gantt (partie 2)
-\item[3.] Diagramme de Gantt simplifié et répartition des tâches
-\item[4.] Graphe de dépendance des tâches
-\item[5.] Cahier des charges
+\item[1.] Diagramme de Gantt (en 2 parties)
+\item[2.] Diagramme de Gantt simplifié et répartition des tâches
+\item[3.] Graphe de dépendance des tâches
+\item[4.] Cahier des charges
 \end{itemize}
 \begin{figure}
 \begin{center}
