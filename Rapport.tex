@@ -52,11 +52,13 @@ Tous les membres du groupes ont participé à la rédaction du rapport basé sur
 \section{Contexte et objectifs}
 Ce stage applicatif est un court projet permettant de mettre en pratique des connaissances acquises durant la troisième année de licence en parcours mathématiques-informatique, et par ailleurs d’en acquérir sur des notions annexes au programme pédagogique de la licence, au cours de sa réalisation. Le sujet principal du projet sera l’interpolation (par spline de lissage) de données contenant des points aberrants, consistant en particulier en l'apprentissage de la gestion de ces derniers, en une et deux dimensions.
 Notre projet ne possède pas de client, mais le  travail effectué sera évalué par une équipe d’enseignants en charge de superviser notre stage applicatif. Ces enseignants feront partie de notre jury lors de la soutenance finale. La seule hiérarchie apparente au sein de notre groupe sera notre chef de projet, Beryl PIASENTIN. Ci-dessous le reste de l’équipe :
-Clément CORBILLE 
-Mohamed DOUMBOUYA
-Zakaria EL BOUCHOUARI
-Bilel HEDDIA
-Amelys RODET
+\begin{itemize}
+\item Clément CORBILLE 
+\item Mohamed DOUMBOUYA
+\item Zakaria EL BOUCHOUARI
+\item Bilel HEDDIA
+\item Amelys RODET
+\end{itemize}
 
 Ce stage applicatif sera effectué dans son intégralité dans le bâtiment IM$^2$AG à l’UFR. L’essentiel du travail sera réalisé sur les postes informatiques du bâtiment, aucune expérience particulière n’est prévue.
 Le sujet du projet ne nécessite pas circonstances temporelles autre que les périodes qui sont prévues : nous avons une semaine consacrée à la gestion de notre projet du 10 au 18 décembre puis 3 semaines en avril consacrées à sa réalisation (du 6 au 10, du 14 au 17 puis du 27 au 30).
@@ -65,12 +67,13 @@ Il n’est pas question de budget dans ce projet. La seule ressource (autre que 
 
 Un objectif à court terme de ce stage applicatif est de le terminer dans les temps imposés par le corps enseignant. Un objectif à long terme est d’acquérir de la pratique concernant la gestion d’un projet similaire à celui d’un stage.
 
-
+\newpage
 \section{Définition des tâches}
 
 	\subsection{Création des tâches}
 	Dans le but d'interpoler des données en utilisant des splines de lissage tenant compte des valeurs aberrantes, nous nous devions de savoir comment aborder le sujet. En discutant entre membres du groupe, nous avons convenu qu'il fallait dans un premier temps approfondir les notions générales sur les splines naturelles et de lissage en fonction de la répartition des points et trouver un moyen d'automatiser l'estimation du paramètre de lissage. Puis nous avons prévu d'étudier des méthodes d'identification des valeurs aberrantes que l'on souhaite à terme implémenter en deux dimensions, mais aussi des méthodes permettant d'interpoler des splines sans commencer par détecter les valeurs aberrantes.
-\newpage
+
+
 	\subsection{Contenu des tâches}
 	Les tâches sont les suivantes :
 \begin{itemize}
@@ -84,8 +87,8 @@ Un objectif à court terme de ce stage applicatif est de le terminer dans les te
 \item Redéfinition d'autres fonctions d'erreur à minimiser
 \item Finalisation du projet
 \end{itemize}
+Voici quelques explications du contenu scientifique constituant la base des tâches listées précédemment.
 
-Voici quelques explications du contenu scientifique constituant la base des tâches listées ci-dessus.
 \subsubsection*{Splines naturelles}
 L’interpolation est une opération mathématique consistant à déterminer une fonction passant par un nombre fini de points donnés.
 
@@ -93,10 +96,12 @@ Soient $(x_i,y_i)$ les $n+1$ données, $i\in\llbracket 0; n \rrbracket$.
 Une spline est une fonction définie par morceaux sur chaque intervalle $[x_i, x_{i+1}]$, $i\in\llbracket 0; n-1 \rrbracket$.
 Le principe d'une spline est de combiner plusieurs morceaux de fonctions (en général on utilise des polynômes de petit degré) pour former une fonction d'une classe définie.
 
+\newpage
 Les splines cubiques $C^2$ sont les splines définies par des polynômes cubiques dont la dérivée seconde est continue. On appelle spline naturelle la spline cubique $C^2$ dont les dérivées secondes aux extrémités de l'intervalle de définition sont nulles. La spline naturelle existe toujours pour des données distinctes, et est unique. Le principe de la spline cubique naturelle permet d'obtenir un système tridiagonal simple qui peut être résolu facilement, afin d'obtenir les coefficients des polynômes.
 
 \subsubsection*{Splines de lissage}
 Les splines de lissage sont des splines cubiques naturelles dont chaque polynôme cubique est une approximation des données se trouvant sur son intervalle de définition. Cette spline ne passera dans la plupart des cas pas par tous les points, mais est la spline qui minimise une quantité liée à la distance entre les données et la spline. En général, la spline approximant les données cherche à minimiser l'erreur au carré : c'est l'approximation aux moindres carrés. 
+
 Les splines de lissage permettent d'éviter les oscillations qui seraient présentes avec une spline naturelle passant par tous les points, provoquées avec un nombre de données très grand.
 
 \subsubsection*{Paramètre de lissage}
@@ -107,7 +112,7 @@ La quantité à minimiser pour construire la spline approximant des données est
 En statistiques, une donnée aberrante est une valeur ou une observation qui est « distante » des autres observations effectuées sur le même phénomène, c'est-à-dire que c’est une valeur qui s'écarte fortement des valeurs des autres observations : elle est anormalement faible ou élevée par rapport à celles qui lui sont proches. Sur un graphe on peut les visualiser comme des points qui se situent loin du nuage de points principal.
 
 Les  méthodes pour créer une spline de lissage malgré les données aberrantes sont variées : certaines déterminent les points aberrants pour ensuite les supprimer ou leur associer un poids faible tandis que d'autres créent la spline tout en gérant les points aberrants, sans les détecter auparavant. 
-
+\newpage
 \subsubsection*{RANSAC}
 
 RANSAC est l'abréviation de RANdom SAmple Consensus, c'est à dire consensus d'échantillons aléatoires. C'est le nom d'un algorithme qui gère les points aberrants sans prendre le temps de les détecter dans un premier temps. Cet algorithme est itératif, et non-déterministe. Un algorithme non déterministe est un algorithme qui ne produit pas toujours la même sortie pour une même entrée.
