@@ -26,7 +26,7 @@
 
 \title{Cahier des charges}
 \author{\textbf{Interpolaspline}\\Stage Applicatif L3 MIN}
-\date{Année 2019-2020}
+\date{\emph{Année 2019-2020}}
 
 \begin{document}
 
@@ -39,9 +39,9 @@
 
 \subsection{Motivations}
 
-Lors d'expériences scientifiques, des données sont acquises. Cependant, ces données sont très souvent discrètes ce qui ne permet pas d'établir facilement une loi (fonction de $\IR$ dans $\IRex{n}$ suivie par ces données, $n$ étant la dimension dans laquelle l'interpolation est faite) continue. C'est le principe de l'interpolation.
+Lors d'expériences scientifiques, des données sont acquises. Cependant, ces données sont très souvent discrètes ce qui ne permet pas d'établir facilement une loi continue (fonction continue de $\IR$ dans $\IRex{n}$ suivie par ces données, $n$ étant la dimension dans laquelle l'interpolation est faite). C'est le principe de l'interpolation.
 
-Cependant, dans la majorité des expériences, une fonction passant par toutes les données oscillerait trop. On trouve donc une fonction minimisant une certaine quantité, liée à la distance entre les données et la fonction établie. Dans ce cas, on parle d'approximation.
+Cependant, dans la majorité des expériences, une fonction passant par toutes les données oscillerait trop. La minimisation d'une certaine quantité liée à la distance entre les données et la fonction établie permet de créer une spline la plus proche possible des données. Dans ce cas, on parle d'approximation.
 
 Lors des expériences, si une donnée est très éloignée des autres, on peut souhaiter l'ignorer. Cela peut-être une erreur de mesure, un changement de conditions, une grosse imprécision, etc. Ces données sont dites aberrantes, et c'est ce cas qui nous intéresse dans ce projet.
 \\ \\
@@ -52,33 +52,32 @@ Voici quelques exemples d'utilisation de l'interpolation et de l'approximation :
 \item Identification de données incohérentes : une faute de frappe, un produit défectueux
 \end{itemize}
 
-\newpage
 \subsection{Problème}
 
-L'idée sera d'interpoler des données en tenant compte des erreurs de mesure, des points aberrants, et de trouver une ou plusieurs méthodes pour les détecter et les traiter suivant qu’elles soient uniformes ou non.
-\\
-
-Ensuite, on introduira la notion de spline de lissage pour aborder le cas des données imprécises en fonction d’un paramètre qui permet de contrôler le rapport entre les points et le lissage de la fonction. On cherchera à trouver automatiquement ce paramètre de lissage en fonction de nos entrées.
-\\
-
-Pour commencer, on interpolera des points une dimension en utilisant les splines naturelles C2 qui consistent à faire passer entre chaque point un polynôme de degré inférieur ou égal à 3 et qui soit de classe C2 dans le cas uniforme et non uniforme.
-\\
-
-Pour tenir compte des fluctuations des mesures, on implémentera une méthode de splines naturelles de lissages, qui permettent de minimiser une certaine quantité représentant la différence entre la courbe et les points mesurés.
-\\
-
-Les données peuvent contenir des valeurs aberrantes, il faudra identifier ces valeurs, les supprimer ou leur attribuer un poids faible.
-\\
-
-Enfin, on adaptera ces méthodes au cas paramétrique (2D).
+Le problème au coeur de notre projet est la création automatique d'une spline de lissage interpolant des données, en minimisant l'impact des données aberrantes sur la spline. En effet nous savons créer une spline de lissage, mais celle-ci tient compte de toutes les données de la même manière et nécessite un paramètre de lissage explicite.
+Notre projet se découpe donc en deux sous-problèmes : l'estimation automatique d'un paramètre de lissage en fonction des données, et la gestion des données aberrantes.
 
 \newpage
 \section{Objectifs}
 
 
+L'idée sera d'interpoler des données en tenant compte des erreurs de mesure, des points aberrantset de trouver une ou plusieurs méthodes pour les détecter et les traiter suivant qu’elles soient uniformes ou non.
+
+Ensuite, on introduira la notion de spline de lissage pour aborder le cas des données imprécises en fonction d’un paramètre qui permet de contrôler le rapport entre les points et le lissage de la fonction. On cherchera à trouver automatiquement ce paramètre de lissage en fonction de nos entrées.
+
+Pour commencer, on interpolera des points une dimension en utilisant les splines naturelles C2 qui consistent à faire passer entre chaque point un polynôme de degré inférieur ou égal à 3 et qui soit de classe C2 dans le cas uniforme et non uniforme.
+
+Pour tenir compte des fluctuations des mesures, on implémentera une méthode de splines naturelles de lissages, qui permettent de minimiser une certaine quantité représentant la différence entre la courbe et les points mesurés.
+
+Les données peuvent contenir des valeurs aberrantes, il faudra identifier ces valeurs, les supprimer ou leur attribuer un poids faible.
+
+Enfin, on adaptera ces méthodes au cas paramétrique (2D).
+
+
 Une spline naturelle est une fonction définie par morceau par des polynômes cubiques, dont la dérivée seconde est continue, et dont les dérivées secondes aux extrémités de l'intervalle de définition sont nulles.
 Le but du projet est de pouvoir créer automatiquement une spline de lissage approximant un ensemble de données contenant des points aberrants, à une dimension puis à deux dimensions (splines naturelles paramétriques).
 
+\newpage 
 \subsection*{Contenu}
 Le projet sera livré sous la forme d'une archive contenant :
 \begin{itemize}
@@ -96,6 +95,13 @@ Le projet sera livré sous la forme d'une archive contenant :
 
 \newpage
 \section{Limites}
+
+-          Pour les splines de lissages on minimise une quantité composé de deux parties, une qui assure le passage de la spline par la proximités de nos données  et l’autre assure le lissage de la spline, d’où  il faut faire un choix selon le paramètre de lissage , donc en prend soit une spline qui suit bien le nuage des points mais qui n’est pas très lisse, soit une spline qui est bien lisse mais qui suit pas tous le nuage généré par l’ensemble de nos données   .
+ 
+-          Dans le cas 2D il y a plusieurs façons d’interpoler les données donc il faut trouver la méthode la plus optimale .
+ 
+-          Les points aberrants : la détection de ces points dépend de la méthode choisie, donc une même donnée peut considérer comme donnée aberrante dans un modèle cependant qui n’est pas dans un autre modèle, donc il faut trouver une méthode qui gère bien les données aberrantes   
+
 
 Restriction de la solution proposée (cadrage) :
 \begin{itemize}
@@ -115,7 +121,7 @@ Le programme permettra de créer une approximation de données stockées dans un
 \item Créer la spline naturelle qui interpole exactement tous les points, en une dimension ou en paramétrique
 \item Créer la spline de lissage associée aux données, en une dimension ou en paramétrique
 \item Créer la spline de lissage, en tenant compte des points aberrants
-\item Choisir la quantité à minimiser dans une liste
+\item Choisir la quantité à minimiser dans une liste de fonctions
 \end{itemize}
 
 \newpage

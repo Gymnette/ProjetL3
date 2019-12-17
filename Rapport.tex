@@ -27,6 +27,16 @@
 \newpage
 
 \section*{Introduction}
+Dans le cadre  de la licence 3 mention  informatique à l’université de GRENOBLE ALPES ,les étudiant du parcours Mathématique et informatique doivent effectuer un stage applicatif à l’UFR IMA2G, c'est une étape indispensable pour mettre en pratique les connaissances acquises durant cette formation et aussi d’acquérir de nouvelles compétences de recherche. Ce stage effectuer sur une période de 4 semaines et réalisé par un Groupe de 6 personnes dont les noms sont :
+                - EL BOUCHOUARI ZAKARIA
+                - CORBILLE CLEMENT
+                - DOUMBOUYA MOHAMED
+                - HEDDIA BILEL
+                - PIASENTIN BERYL
+                - RODET AMELYS
+Plus largement  ce stage  nous donne l’opportunité d’approfondir nos connaissance  en Mathématiques appliquées plus précisément dans le domaine d’interpolation des données ,  et la programmation en langage  python, en plus ce stage nous donne un grand sens de responsabilité et nous permet aussi à  s’adapter au travail de groupe ce qui va nous aider dans les prochaines expériences .
+
+
 
 Le groupe est composé de 6 personnes intéressées par le sujet.
 
@@ -34,9 +44,9 @@ Le groupe est composé de 6 personnes intéressées par le sujet.
 
 L'objectif de cette semaine de stage était de mettre en place l'organisation nécessaire à la réalisation du projet, qui aura lieu en avril.
 
-Nous avons commencé par désigner un chef de projet : Béryl a été choisie à cet effet. PHRASE PARTICULIEREMENT FOIREUSE A MODIFIER La chef de projet veille sur le bon déroulement de chaque tâche en plus de sa participation aux différentes tâches. Nous avons ensuite défini un nom pour le projet, en rapport avec le contenu mais également percutant. "Interpolaspline" a été le nom retenu, en tant que fusion du mot "interpolation" et du mot "spline", deux notions principales du sujet.
+Nous avons commencé par désigner un chef de projet : Béryl a été choisie à cet effet. La chef de projet veille sur le bon déroulement de chaque tâche en plus de sa participation aux différentes tâches. Nous avons ensuite défini un nom pour le projet, en rapport avec le contenu mais également percutant. "Interpolaspline" a été le nom retenu, en tant que fusion du mot "interpolation" et du mot "spline", deux notions principales du sujet.
 
-Durant cette semaine d'organisation, chaque membre du groupe a été responsable d’une ou de plusieurs tâche. Etre responsable d'une tâche signifie s'assurer que celle-ci est correctement réalisée et terminée dans les délais fixés, mais pas obligatoirement qu'elle doit être réalisée seul.
+Durant cette semaine d'organisation, chaque membre du groupe a été responsable d’une ou de plusieurs tâches. Etre responsable d'une tâche signifie s'assurer que celle-ci est correctement réalisée et terminée dans les délais fixés, mais pas obligatoirement qu'elle doit être réalisée seul.
 
 Les premiers jours ont été mis à profit pour comprendre le sujet et trouver ce sur quoi nous allions travailler pendant trois semaines. Il a fallu ensuite établir un plan de travail. Cette reflexion nous a permis de construire un diagramme de Gantt et un graphe de dépendances des tâches, mais aussi de répartir les tâches entre les différents membres du groupe. Chacun sait donc de quelle tâche il est responsable et peut se projeter dans la semaine de réalisation.
 
@@ -72,8 +82,16 @@ Spline de lissage :
 -          Le paramètre de lissage  :
             La quantité à minimiser est composée de deux parties, la première assure le passage de la spline par nos données  et l’autre assure le lissage  de la courbe. Donc plus qu’on augmente la valeur du paramètre de lissage plus qu’on donne un poid à la partie de lissage, ce qui nous donne par suite une spline continue et lisse .
  
+Données aberrantes :   
+            En statistique, une donnée aberrante est une valeur ou une observation qui est « distante » des autres observations effectuées sur le même phénomène, c'est-à-dire que c’est une valeur qui s'écarte fortement des valeurs des autres observation anormalement faible ou élevée
+                Sur un graphe on peut les visualisées comme des points qui n’appartient pas aux nuage des points totales
+-          Détermination des points aberrants   :
+Il existe plusieurs  méthodes variées pour la détection des données aberrantes ; on a prévenu plusieurs méthodes de recherche on implémente ceux qui sont plus intéressante en fonction du temps .
+                Cependant  il y a des méthodes qui suppriment les points aberrants sans les détecter comme l’algorithme RANSAC qui s'agit d'un algorithme non-déterministe dans le sens où il produit un résultat correct avec une certaine probabilité seulement .
  
-Donnée aberrantes :  
+Conclusion :
+            L’objectif de ce projet c’est de développer et adapter  des méthodes qui interpellent des points donnés en utilisant des splines de lissages qui sont basé sur la minimisation des 
+quantités dont les  moindres carrées et d’autre qu’on le précisera par la suite, en traitant les cas des points aberrants et en trouvant  le meilleurs paramètre de lissage  .
 
 
 
