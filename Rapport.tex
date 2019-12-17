@@ -30,11 +30,11 @@
 \section*{Introduction}
 Dans le cadre de notre troisième année de licence mathématiques-informatique à l’Université Grenoble Alpes, nous devons effectuer un stage applicatif à l’UFR IM$^2$AG. Ce stage, qui consiste en un projet, est une étape indispensable pour mettre en pratique les connaissances acquises durant cette formation et pour acquérir de nouvelles compétences de recherche. Les projets ont lieu durant quatre semaines, réparties en deux périodes de respectivement une puis trois semaines. Des groupes de six étudiants ont été construits en fonction des affinités de chacun pour les différents sujets proposés.
 
-Le sujet de notre projet est l'interpolation avec données aberrantes. Il nous donne l’opportunité d’approfondir nos connaissance en Mathématiques appliquées, plus précisément d'approfondir l'enseignement d'algèbre linéaire pour le graphique et la CAO (Conception A ssistée par Ordinateur) que nous avons reçu, ainsi que la programmation en langage  python. De plus, ce stage va nous permettre d'acquérir des compétences en travail de groupe.
+Le sujet de notre projet est l'interpolation avec données aberrantes. Il nous donne l’opportunité d’approfondir nos connaissance en Mathématiques appliquées, plus précisément d'approfondir l'enseignement d'algèbre linéaire pour le graphique et la CAO (Conception Assistée par Ordinateur) que nous avons reçu, ainsi que la programmation en langage  python. De plus, ce stage va nous permettre d'acquérir des compétences en travail de groupe.
 
 \section{Organisation de la semaine}
 
-L'objectif de cette semaine de stage était de mettre en place l'organisation nécessaire à la réalisation du projet, qui aura lieu en avril.
+L'objectif de cette semaine de stage était de mettre en place l'organisation nécessaire à la réalisation du projet qui aura lieu en avril.
 
 Nous avons commencé par désigner un chef de projet : Béryl a été choisie à cet effet. La chef de projet veille sur le bon déroulement de chaque tâche en plus de sa participation aux différentes tâches. Nous avons ensuite défini un nom pour le projet, en rapport avec le contenu mais également percutant. "Interpolaspline" a été le nom retenu, en tant que fusion du mot "interpolation" et du mot "spline", deux notions principales du sujet.
 
@@ -63,12 +63,12 @@ Tous les membres du groupes ont participé à la rédaction du rapport basé sur
 \item Estimation automatique du paramètre de lissage
 \item Identification des points aberrants
 \item Etude des splines de lissage avec points aberrants
-\item Etude de l'algorithme RanSac
+\item Etude de l'algorithme RANSAC
 \item Redéfinition d'autres fonctions d'erreur à minimiser
 \item Finalisation du projet
 \end{itemize}
 
-Voici quelques explications du contenu scientifique, caractérisant les tâches listées ci-dessus.
+Voici quelques explications du contenu scientifique constituant la base des tâches listées ci-dessus.
 \subsubsection*{Splines naturelles}
 L’interpolation est une opération mathématique consistant à déterminer une fonction passant par un nombre fini de points donnés.
 
@@ -79,50 +79,29 @@ Le principe d'une spline est de combiner plusieurs morceaux de fonctions (en gé
 Les splines cubiques $C^2$ sont les splines définies par des polynômes cubiques dont la dérivée seconde est continue. On appelle spline naturelle la spline cubique $C^2$ dont les dérivées secondes aux extrémités de l'intervalle de définition sont nulles. La spline naturelle existe toujours pour des données distinctes, et est unique. Le principe de la spline cubique naturelle permet d'obtenir un système tridiagonal simple qui peut être résolu facilement, afin d'obtenir les coefficients des polynômes.
 
 \subsubsection*{Splines de lissage}
+Les splines de lissage sont des splines cubiques naturelles dont chaque polynôme cubique est une approximation des données se trouvant sur son intervalle de définition. Cette spline ne passera dans la plupart des cas pas par tous les points, mais est la spline qui minimise une quantité liée à la distance entre les données et la spline. En général, la spline approximant les données cherche à minimiser l'erreur au carré : c'est l'approximation aux moindres carrés. 
+Les splines de lissage permettent d'éviter les oscillations qui seraient présentes avec une spline naturelle passant par tous les points, provoquées avec un nombre de données très grand.
 
 \subsubsection*{Paramètre de lissage}
+La quantité à minimiser pour construire la spline approximant des données est composée de deux parties dont la seconde est pondérée par un paramètre de lissage : la première assure le passage de la spline par nos données tandis que la seconde assure le lissage de la courbe. Cela signifie que plus on augmente la valeur du paramètre de lissage, plus le lissage sera fort ce qui donne par suite une spline passant de moins en moins proche des données.
 
-\subsubsection*{Identification des points aberrants}
+\subsubsection*{Données aberrantes}
 
-\subsubsection*{Splines de lissage avec points aberrants}
+En statistiques, une donnée aberrante est une valeur ou une observation qui est « distante » des autres observations effectuées sur le même phénomène, c'est-à-dire que c’est une valeur qui s'écarte fortement des valeurs des autres observation : elle est anormalement faible ou élevée par rapport à celles qui lui sont proches. Sur un graphe on peut les visualiser comme des points qui se situent loin du nuage de points principal.
 
-\subsubsection*{RanSac}
+Les  méthodes pour créer une spline de lissage malgré les données aberrantes sont variées : certaines déterminent les points aberrants pour ensuite les supprimer ou leur associer un poids faible tandis que d'autres créent la spline tout en gérant les points aberrants, sans les détecter auparavant. 
 
-\subsubsection*{Minimisation de nouvelles quantités}
+\subsubsection*{RANSAC}
 
-\subsubsection*{Paramétrique}
+RANSAC est l'abréviation de RANdom SAmple Consensus, c'est à dire consensus d'échantillons aléatoires. C'est le nom d'un algorithme qui gère les points aberrants sans prendre le temps de les détecter dans un premier temps. Cet algorithme est itératif, et non-déterministe. Un algorithme non déterministe est un algorithme qui ne produit pas toujours la même sortie pour une même entrée.
+
+\subsubsection*{Interpolation paramétrique}
 
 L'objectif de l'interpolation paramétrique est de trouver un polynôme paramétrique qui interpole les données. Pour ce faire, deux méthodes sont possibles :
 \begin{itemize}
-\item L'interpolation séparée des $n$ données $(t_i,x_i)$ et des $n$ données $(t_i,y_i)$, $i\in\llbracket 0; n \rrbracket$, avec t un paramètre bien choisi. En associant les deux splines obtenues grâce au paramètre t, on obtient une spline paramétrique interpolant les données de départ.
-\item L'interpolation e
+\item L'interpolation séparée des $n$ données $(t_i,x_i)$ et des $n$ données $(t_i,y_i)$, $i\in\llbracket 0; n \rrbracket$, avec t un paramètre bien choisi. On obtient deux splines P et Q interpolant respectivement les données $(t_i,x_i)$ et $(t_i,y_i)$,$i\in\llbracket 0; n \rrbracket$. En associant les deux splines obtenues grâce au paramètre t, on obtient une spline paramétrique S interpolant les données de départ, $S(t) = (Q(t),R(t))$. En particulier, $P(t_i) = (x_i,y_i)$, $i\in\llbracket 0; n \rrbracket$.
+\item L'interpolation en une fois des données, sans appliquer la méthode à une dimension sur chaque dimension.
 \end{itemize}
--          Soit on interpole les données directement,  en cherchant un polynôme paramétrique qui passe par les points de coordonnées (Xi,Yi )   pour   i =  1,… N .
--          Soit en interpolant deux polynômes Q et R par les données (ti,Xi) et (ti,Yi) pour i= 1,… N, avec ti est un paramètre bien choisi. En regroupant les résultat, on obtient un polynôme paramétrique P qui interpole les données (Xi,Yi ) .
-                P(t) = ( Q(t) , R(t) )
-                         Avec      P(ti) = ( Q(ti) = Xi , R(ti) = Yi )     pour  i= 1,… N .
- 
-
-\subsubsection*{Finalisation du projet}
-
- L’interpolation paramétrique :
-             
-Spline de lissage :
-            Les splines de lissage sont des estimations de fonction, obtenues à partir d'un ensemble d'observations bruyantes Yi de la cible f (Xi), afin de trouver la spline minimale qui suit le nuage des points (Xi,Yi) mais qui passe pas forcément par tous les points, cette méthode vise à éviter l’oscillation de la courbe de la spline quand n est très grand   
--          Le paramètre de lissage  :
-            La quantité à minimiser est composée de deux parties, la première assure le passage de la spline par nos données  et l’autre assure le lissage  de la courbe. Donc plus qu’on augmente la valeur du paramètre de lissage plus qu’on donne un poid à la partie de lissage, ce qui nous donne par suite une spline continue et lisse .
- 
-Données aberrantes :   
-            En statistique, une donnée aberrante est une valeur ou une observation qui est « distante » des autres observations effectuées sur le même phénomène, c'est-à-dire que c’est une valeur qui s'écarte fortement des valeurs des autres observation anormalement faible ou élevée
-                Sur un graphe on peut les visualisées comme des points qui n’appartient pas aux nuage des points totales
--          Détermination des points aberrants   :
-Il existe plusieurs  méthodes variées pour la détection des données aberrantes ; on a prévenu plusieurs méthodes de recherche on implémente ceux qui sont plus intéressante en fonction du temps .
-                Cependant  il y a des méthodes qui suppriment les points aberrants sans les détecter comme l’algorithme RANSAC qui s'agit d'un algorithme non-déterministe dans le sens où il produit un résultat correct avec une certaine probabilité seulement .
- 
-Conclusion :
-            L’objectif de ce projet c’est de développer et adapter  des méthodes qui interpellent des points donnés en utilisant des splines de lissages qui sont basé sur la minimisation des 
-quantités dont les  moindres carrées et d’autre qu’on le précisera par la suite, en traitant les cas des points aberrants et en trouvant  le meilleurs paramètre de lissage  .
-
 
 
 \section{Cahier des charges}
