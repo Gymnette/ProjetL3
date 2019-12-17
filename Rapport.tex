@@ -31,7 +31,7 @@
 \addcontentsline{toc}{section}{Introduction}
 Dans le cadre de notre troisième année de licence mathématiques-informatique à l’Université Grenoble Alpes, nous devons effectuer un stage applicatif à l’UFR IM$^2$AG. Ce stage, qui consiste en un projet, est une étape indispensable pour mettre en pratique les connaissances acquises durant cette formation et pour acquérir de nouvelles compétences de recherche. Les projets ont lieu durant quatre semaines, réparties en deux périodes de respectivement une puis trois semaines. Des groupes de six étudiants ont été construits en fonction des affinités de chacun pour les différents sujets proposés.
 
-Le sujet de notre projet est l'interpolation avec données aberrantes. Il nous donne l’opportunité d’approfondir nos connaissance en Mathématiques appliquées, plus précisément d'approfondir l'enseignement d'algèbre linéaire pour le graphique et la CAO (Conception Assistée par Ordinateur) que nous avons reçu, ainsi que la programmation en langage  python. De plus, ce stage va nous permettre d'acquérir des compétences en travail de groupe.
+Le sujet de notre projet est l'interpolation avec données aberrantes. Il nous donne l’opportunité d’approfondir nos connaissance en mathématiques appliquées, plus précisément d'approfondir l'enseignement d'algèbre linéaire pour le graphique et la CAO (Conception Assistée par Ordinateur) que nous avons reçu, ainsi que la programmation en langage  python. De plus, ce stage va nous permettre d'acquérir des compétences en travail de groupe.
 
 \section{Organisation de la semaine}
 
@@ -50,8 +50,11 @@ Tous les membres du groupes ont participé à la rédaction du rapport basé sur
 
 \newpage
 \section{Contexte et objectifs}
-Ce stage applicatif est un court projet permettant de mettre en pratique des connaissances acquises durant la troisième année de licence en parcours mathématiques-informatique, et par ailleurs d’en acquérir sur des notions annexes au programme pédagogique de la licence, au cours de sa réalisation. Le sujet principal du projet sera l’interpolation (par spline de lissage) de données contenant des points aberrants, consistant en particulier en l'apprentissage de la gestion de ces derniers, en une et deux dimensions.
-Notre projet ne possède pas de client, mais le  travail effectué sera évalué par une équipe d’enseignants en charge de superviser notre stage applicatif. Ces enseignants feront partie de notre jury lors de la soutenance finale. La seule hiérarchie apparente au sein de notre groupe sera notre chef de projet, Beryl PIASENTIN. Ci-dessous le reste de l’équipe :
+Ce stage applicatif est un court projet permettant de mettre en pratique des connaissances acquises durant la troisième année de licence en parcours mathématiques-informatique, et par ailleurs d’en acquérir sur des notions annexes au programme pédagogique de la licence, au cours de sa réalisation. Le sujet principal du projet sera l’interpolation (par spline de lissage) de données contenant des points aberrants. Il consiste en particulier en l'apprentissage de la gestion de ces derniers, en une et deux dimensions.
+
+Notre projet ne possède pas de client, mais le  travail effectué sera évalué par une équipe d’enseignants en charge de superviser notre stage applicatif. Ces enseignants feront partie de notre jury lors de la soutenance finale. 
+
+Il n'y a pas de hiérarchie au sein de notre groupe. Le seul rôle particulier sera notre chef de projet, Beryl PIASENTIN. Ci-dessous le reste de l’équipe :
 \begin{itemize}
 \item Clément CORBILLE 
 \item Mohamed DOUMBOUYA
@@ -61,9 +64,9 @@ Notre projet ne possède pas de client, mais le  travail effectué sera évalué
 \end{itemize}
 
 Ce stage applicatif sera effectué dans son intégralité dans le bâtiment IM$^2$AG à l’UFR. L’essentiel du travail sera réalisé sur les postes informatiques du bâtiment, aucune expérience particulière n’est prévue.
-Le sujet du projet ne nécessite pas circonstances temporelles autre que les périodes qui sont prévues : nous avons une semaine consacrée à la gestion de notre projet du 10 au 18 décembre puis 3 semaines en avril consacrées à sa réalisation (du 6 au 10, du 14 au 17 puis du 27 au 30).
+Le sujet du projet ne nécessite pas de circonstances temporelles autres que les périodes qui sont prévues : nous avons une semaine consacrée à la gestion de notre projet du 10 au 18 décembre puis 3 semaines en avril consacrées à sa réalisation (du 6 au 10, du 14 au 17 puis du 27 au 30).
 
-Il n’est pas question de budget dans ce projet. La seule ressource (autre que humaine) sera matérielle. Le materiel nécessaire comprend les postes informatiques (un par personne) et les logiciels intégrés dans ceux-ci qui nous permettront de réaliser le travail demandé. Nous avons besoin de Python, dont les librairies usuelles de mathématiques (numpy), d'affichage (matplotlib), et d'interface graphique (tkinter).
+Il n’est pas question de budget dans ce projet. La seule ressource (autre qu'humaine) sera matérielle. Le materiel nécessaire comprend les postes informatiques (un par personne) et les logiciels intégrés dans ceux-ci qui nous permettront de réaliser le travail demandé. Nous avons besoin de Python, dont les librairies usuelles de mathématiques (numpy), d'affichage (matplotlib), et d'interface graphique (tkinter).
 
 Un objectif à court terme de ce stage applicatif est de le terminer dans les temps imposés par le corps enseignant. Un objectif à long terme est d’acquérir de la pratique concernant la gestion d’un projet similaire à celui d’un stage.
 
@@ -71,7 +74,7 @@ Un objectif à court terme de ce stage applicatif est de le terminer dans les te
 \section{Définition des tâches}
 
 	\subsection{Création des tâches}
-	Dans le but d'interpoler des données en utilisant des splines de lissage tenant compte des valeurs aberrantes, nous nous devions de savoir comment aborder le sujet. En discutant entre membres du groupe, nous avons convenu qu'il fallait dans un premier temps approfondir les notions générales sur les splines naturelles et de lissage en fonction de la répartition des points et trouver un moyen d'automatiser l'estimation du paramètre de lissage. Puis nous avons prévu d'étudier des méthodes d'identification des valeurs aberrantes que l'on souhaite à terme implémenter en deux dimensions, mais aussi des méthodes permettant d'interpoler des splines sans commencer par détecter les valeurs aberrantes.
+	Dans le but d'interpoler des données en utilisant des splines de lissage tenant compte des valeurs aberrantes, nous nous devions de savoir comment aborder le sujet. En discutant entre membres du groupe, nous avons convenu qu'il fallait dans un premier temps approfondir les notions générales sur les splines naturelles et de lissage en fonction de la répartition des points, ainsi que trouver un moyen d'automatiser l'estimation du paramètre de lissage. Puis nous avons prévu d'étudier des méthodes d'identification des valeurs aberrantes que l'on souhaite à terme implémenter en deux dimensions, mais aussi des méthodes permettant d'interpoler des splines sans commencer par détecter les valeurs aberrantes.
 
 
 	\subsection{Contenu des tâches}
@@ -121,14 +124,14 @@ RANSAC est l'abréviation de RANdom SAmple Consensus, c'est à dire consensus d'
 
 L'objectif de l'interpolation paramétrique est de trouver un polynôme paramétrique qui interpole les données. Pour ce faire, deux méthodes sont possibles :
 \begin{itemize}
-\item L'interpolation séparée des $n$ données $(t_i,x_i)$ et des $n$ données $(t_i,y_i)$, $i\in\llbracket 0; n \rrbracket$, avec t un paramètre bien choisi. On obtient deux splines P et Q interpolant respectivement les données $(t_i,x_i)$ et $(t_i,y_i)$,$i\in\llbracket 0; n \rrbracket$. En associant les deux splines obtenues grâce au paramètre t, on obtient une spline paramétrique S interpolant les données de départ, $S(t) = (Q(t),R(t))$. En particulier, $P(t_i) = (x_i,y_i)$, $i\in\llbracket 0; n \rrbracket$.
+\item L'interpolation séparée des $n+1$ données $(t_i,x_i)$ et des $n+1$ données $(t_i,y_i)$, $i\in\llbracket 0; n \rrbracket$, avec t un paramètre bien choisi. On obtient deux splines P et Q interpolant respectivement les données $(t_i,x_i)$ et $(t_i,y_i)$,$i\in\llbracket 0; n \rrbracket$. En associant les deux splines obtenues grâce au paramètre t, on obtient une spline paramétrique S interpolant les données de départ : $S(t) = (P(t),Q(t))$. En particulier, $S(t_i) = (x_i,y_i)$, $i\in\llbracket 0; n \rrbracket$.
 \item L'interpolation en une fois des données, sans appliquer la méthode à une dimension sur chaque dimension.
 \end{itemize}
 
 
 \section{Cahier des charges}
 
-Le cahier des charges est l'annexe n\degre4. Nous y avons détaillé le projet, du sujet à l'archive rendue, en passant par sa réalisation. Ce cahier des charges représente notre compréhension globale du sujet ainsi que les principales idées d'organisation et de réalisation.
+Le cahier des charges est l'annexe 4. Nous y avons détaillé le projet, du sujet à l'archive rendue, en passant par sa réalisation. Ce cahier des charges représente notre compréhension globale du sujet ainsi que les principales idées d'organisation et de réalisation.
 
 Ce document est censé être le lien entre notre équipe et le client, mais il est ici le lien entre notre équipe et l'équipe d'enseignants responsable du stage applicatif. Nous allons l'utiliser durant la seconde fin du projet. Notre objectif est de réaliser tous les objectifs qui y sont définis, dans les délais impartis.
 
@@ -189,7 +192,7 @@ Par exemple dans l’exemple ci-après, la réalisation de 4b permet de commence
 Le meilleur moyen que nous avons trouvé pour éviter le surplus de connexions dans le graphe dû aux multiples dépendances, est de faire apparaître une tâche plusieurs fois.
 Voilà pourquoi un jeu de couleur à été employé pour permettre une meilleure visibilité de ces tâches “complexes”.
 
-Par exemple dans le cas ci-dessous, la tâche 3c dépend de la fin des tâches 0a,5ac,5bc et 3b et sa réalisation est nécessaire pour commencer 6bb et 6aa.
+Par exemple dans le cas ci-dessous, la tâche 3c dépend de la fin des tâches 0a, 5ac, 5bc et 3b et sa réalisation est nécessaire pour commencer 6bb et 6aa.
 
 \begin{figure}[h]
 \begin{center}
@@ -202,10 +205,10 @@ Le graphe des dépendances complet est visible en annexe 4 .
 
 \paragraph{Moyens de communication :\\}
 
-Même si nous avons sérieusement planifié notre projet, nous avons conscience qu’il est rare que tout se passe comme prévu. Pour éviter l’effet tunnel, autrement dit anticiper les retards et réagir au plus vite sur les ressources nécessaires sur une même tâche, nous mettrons en place des bilans sur le travail de chacun lors que chaque demi-journée et ainsi leur permettre de partager au groupe leur avancée. Des réunions plus complète sur celle du projet seront également mises en place, cette fois-ci tous les deux jours.
+Même si nous avons sérieusement planifié notre projet, nous avons conscience qu’il est rare que tout se passe comme prévu. Pour éviter l’effet tunnel, autrement dit anticiper les retards et réagir au plus vite sur les ressources nécessaires sur une même tâche, nous mettrons en place des bilans sur le travail de chacun lors de chaque demi-journée et ainsi leur permettre à chacun de partager au groupe son avancée. Des réunions plus complètes seront également mises en place, cette fois-ci tous les deux jours.
 \\
 
-Nous utiliserons Discord comme moyen de communication inter-groupe. Pour ce qui est des fichiers du projet, nous utiliserons le service web d’hébergement Github (et également les applis de Google drive pour la mise en commun  et la modification en temps réel sur les fichiers destinés au rapport final).
+Nous utiliserons Discord comme moyen de communication intra-groupe. Pour ce qui est des fichiers du projet, nous utiliserons le service web d’hébergement Github (et également les applis de Google drive pour la mise en commun  et la modification en temps réel sur les fichiers destinés au rapport final).
 
 
 \newpage
@@ -213,7 +216,7 @@ Nous utiliserons Discord comme moyen de communication inter-groupe. Pour ce qui 
 
 Pour éviter les risques, la répartition du travail s’est effectuée dans l’optique d’avoir un minimum de demi-journées où la totalité des membres de groupe est responsable d’une tâche, de sorte à pouvoir répondre aux risques de retard sur l’avancée d’une tâche.
 
-Le groupe entier a pu participer à la réunion visant à répartir le travail, pour que les membres puissent choisir de travailler sur les tâches où ils sentiront les plus efficients, pour également limiter les risques de retard.
+Le groupe entier a pu participer à la réunion visant à répartir le travail, pour que les membres puissent choisir de travailler sur les tâches où ils se sentiront les plus efficients, pour également limiter les risques de retard.
 
 Le tableau légendé fourni en annexe 3 est le résultat de cette réunion.
 
