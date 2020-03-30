@@ -45,9 +45,9 @@ def HermiteC1(x0,y0,y0p,x1,y1,y1p,label="",color = 'g'):
         som+= y1*H3((t-x0)/(x1-x0))
         y.append(som)
     if label != "" :
-        plt.plot(x,y,color+'--',lw=2,label = label)
+        plt.plot(x,y,color,lw=2,label = label)
     else:
-        plt.plot(x,y,color+'--',lw=2)
+        plt.plot(x,y,color,lw=2)
     
 def HermiteC1_non_affiche(x0,y0,y0p,x1,y1,y1p):
     """ Cubic Hermite interpolation of order 1 over 2 points x0 < x1
@@ -144,7 +144,7 @@ def Affiche_Spline_NU(X,Y,a,b,n,label="",color='r'):
     HermiteC1(X[i],Y[i],float(Yp[i]),X[i+1],Y[i+1],float(Yp[i+1]),label,color)
     
 
-def Affiche_Spline_Para(type_repartition,a,b,X,Y,label="",color="r"):
+def Affiche_Spline_Para(a,b,X,Y,label="",color="r",type_repartition = ""):
     '''
     Affichage de la courbe paramétrique spline interpolant les points dans l'intervalle [a,b],
     sur n points d'interpolation répartis uniformément, façon chebyshev ou chordale
@@ -156,13 +156,10 @@ def Affiche_Spline_Para(type_repartition,a,b,X,Y,label="",color="r"):
     n = len(X)
     plt.scatter(X,Y)
     if type_repartition == "chordale":
-        color = "r"
         T =  Repartition_chordale(X,Y,a,b)
     elif type_repartition == "chebyshev":
-        color = "g"
         T =  Repartition_chebyshev(a,b,n)
     else:
-        color = "b"
         T = Equirepartis(0,1,n)
     #Spline des (ti,xi)
     H = [T[i+1]-T[i] for i in range(n-1)]
@@ -182,7 +179,7 @@ def Affiche_Spline_Para(type_repartition,a,b,X,Y,label="",color="r"):
     #affichage
     for i in range(0,n-2):
         plt.plot(Sx[i][1],Sy[i][1],color)
-    plt.plot(Sx[n-2][1],Sy[n-2][1],color,label = type_repartition+"parametrization")
+    plt.plot(Sx[n-2][1],Sy[n-2][1],color,label = label)
     
 def Repartition_chordale(X,Y,a,b):
     '''
@@ -251,30 +248,32 @@ if __name__ == "__main__":
         """
         plt.figure()
         
-        Affiche_Spline_Para("equi",a,b,U,Z,label="",color="r")
+        Affiche_Spline_Para(a,b,U,Z,label="pas de tri",color="r")
+
         plt.legend(fontsize="10")
         
     elif mode == '2' :
         """
         Mode tri sur l'axe X : les donnees sont triees selon l'axe X
         """
-        plt.figure()
+        #plt.figure()
         #Tri sur X
         X,Y = sortpoints(U,Z)
         
-        Affiche_Spline_NU(X,Y,a,b,n,label = "Spline NU",color='r')
+        Affiche_Spline_NU(X,Y,a,b,n,label = "tri selon l'axe des abcisses",color='b')
    
+        
         plt.legend(fontsize="10")
     
     elif mode == '3' :
         """
         Mode tri sur l'axe X : les donnees sont triees selon l'axe Y
         """
-        plt.figure()
+        #plt.figure()
         #Tri sur Y
         Y,X = sortpoints(Z,U)
 
-        Affiche_Spline_Para("equi",a,b,X,Y,label="",color="r")
+        Affiche_Spline_Para(a,b,X,Y,label="tri selon l'axe des ordonnées",color="g")
    
         plt.legend(fontsize="10")
     
