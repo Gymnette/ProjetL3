@@ -36,13 +36,20 @@ def quartile(x):
     
     return q1-1.5*inter_q, q3+1.5*inter_q
 
-def Grubbs(x,alpha=5/100):
-    # Ce test n'est pas recommandé dans le cas où il y a plus d'une valeur aberrante.
-    # Par intervalle étudié, il n'y en a que très peu, on peu supposer qu'il n'y en a qu'une.
-    # On est donc dans un cas d'application de ce test.
+
+
+# Le test de Grubbs n'est pas recommandé dans le cas où il y a plus d'une valeur aberrante.
+# Par intervalle étudié, il n'y en a normalement que très peu.
+# Grubbs : appliqué que sur le point le plus éloigné (il doit être itéré)
+# Grubbs modifié : appliqué sur tous les points.
+    
+def Grubbs(x,alpha=5/100,modifie=False):
     """
     Test de Grubbs.
     La fonction prend une liste de valeurs (ordonnées de points) et un paramètre alpha, le risque d'erreur qu'on accepte.
+    Si modifie est faux, l'algorithme de Grubbs est appliqué à la lettre : on applique la formule uniquement sur la valeur la plus éloignée.
+    Dans ce cas il faut appeler cette méthode tant qu'il y a un "vrai" dans le vecteur renvoyé.
+    Sinon, on applique la formule sur tous les points, peu importe la distance à la moyenne. Cette seconde version est sûrement moins fiable.
     Elle renvoie une liste de booléens indiquant si la valeur associée est considérée comme aberrante selon le test de Grubbs.
     C'est le cas si la distance à la moyenne empirique est supérieure à un certain seuil.
     
@@ -80,9 +87,22 @@ def Grubbs(x,alpha=5/100):
     tcrit = stat.t.ppf(1-(alpha/(2*n)),n-2)# Valeur critique selon la loi de Student avec n-2 degrés de liberté et une confiance de alpha/2N    
     dist_lim = (n-1)/sqrt(n) * sqrt(tcrit**2 / (n-2+tcrit**2))
     
-    aberrant = []
-    for i in range(n):
-        aberrant.append((dist[i] > dist_lim))
+    if modifie :
+        aberrant = []
+        for i in range(n):
+            aberrant.append((dist[i] > dist_lim))
+    else :
+        aberrant = [False]*n
+        # On cherche la distance maximum avec son indice
+        imax = 0
+        dmax = 0
+        for i in range(n):
+            if dist[i] > dmax :
+                dmax = dist[i]
+                imax = i
+        # Si cette distance est plus grande que la limite, la valeur est aberrante.
+        aberrant[imax] = (dmax > dist_lim)
+            
     return aberrant
     
     
