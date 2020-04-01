@@ -37,7 +37,6 @@ def quartile(x):
     return q1-1.5*inter_q, q3+1.5*inter_q
 
 def Grubbs(x,alpha=5/100):
-    ###### NECESSITE QUE LES DONNEES SOIENT REPARTIES SELON UNE LOI NORMALE
     """
     Test de Grubbs.
     La fonction prend une liste de valeurs (ordonnées de points) et un paramètre alpha, le risque d'erreur qu'on accepte.
@@ -82,7 +81,6 @@ def Grubbs(x,alpha=5/100):
     for i in range(n):
         aberrant.append((dist[i] > dist_lim))
     return aberrant
-    
     
     
 def deviation_extreme_student():
