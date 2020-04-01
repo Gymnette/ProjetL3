@@ -37,6 +37,9 @@ def quartile(x):
     return q1-1.5*inter_q, q3+1.5*inter_q
 
 def Grubbs(x,alpha=5/100):
+    # Ce test n'est pas recommandé dans le cas où il y a plus d'une valeur aberrante.
+    # Par intervalle étudié, il n'y en a que très peu, on peu supposer qu'il n'y en a qu'une.
+    # On est donc dans un cas d'application de ce test.
     """
     Test de Grubbs.
     La fonction prend une liste de valeurs (ordonnées de points) et un paramètre alpha, le risque d'erreur qu'on accepte.
