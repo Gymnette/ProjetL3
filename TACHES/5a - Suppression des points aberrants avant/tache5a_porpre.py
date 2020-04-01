@@ -1,16 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 31 17:08:06 2020
-
-@author: amely
-"""
-
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 30 10:43:04 2020
-
-@author: zakaria
-"""
 
 
 import load_tests as ldt
