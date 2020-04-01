@@ -1,14 +1,20 @@
 # -*- coding: utf-8 -*-
 import load_tests as ldt
-
+import scipy.stats as stat
+from math import sqrt
+import matplotlib.pyplot as plt
 
 #############################################
 # Méthodes de détection de points aberrants #
 #############################################
 
+# Problème de local/global
+# Pour avoir des résultats fiables (dans le cas contraire, on risque de ne pas détecter certaines valeurs aberrantes)
+# Plus les valeurs sont denses, plus il faudrait en considérer localement.
+    
 def quartile(x):
     """
-    Méthode inter-quartile.
+    Méthode inter-quartiles.
     La fonction prend une liste de valeurs (ordonnées de points) et renvoie un intervalle [a,b] associé.
     Un point sera considéré comme aberrant si son ordonnée n'appartient pas à l'intervalle [a,b]
     
@@ -30,6 +36,75 @@ def quartile(x):
     
     return q1-1.5*inter_q, q3+1.5*inter_q
 
+def Grubbs(x,alpha=5/100):
+    ###### NECESSITE QUE LES DONNEES SOIENT REPARTIES SELON UNE LOI NORMALE
+    """
+    Test de Grubbs.
+    La fonction prend une liste de valeurs (ordonnées de points) et un paramètre alpha, le risque d'erreur qu'on accepte.
+    Elle renvoie une liste de booléens indiquant si la valeur associée est considérée comme aberrante selon le test de Grubbs.
+    C'est le cas si la distance à la moyenne empirique est supérieure à un certain seuil.
+    
+    type des entrees :
+        x : vecteur de float ou vecteur d'int
+        alpha : float
+        
+    type des sorties :
+        vecteur de boolean de la longueur de x
+    """
+    n = len(x)
+    
+    # Calculs de la moyenne et de l'écart type empiriques
+    moyenne = 0.0
+    for val in x :
+        moyenne += val
+    moyenne = moyenne / n
+    
+    # Calculs des "distances" en parallèle de l'écart type
+    dist = [0]*n
+    ecart_type = 0.0
+    for i in range(n) :
+        val = x[i]
+        ecart_type += (val-moyenne)**2
+        dist[i] = abs(val-moyenne)
+    ecart_type = 1/n * ecart_type
+    ecart_type = sqrt(ecart_type)
+    
+    if (ecart_type == 0): #Les valeurs sont toutes identiques
+        return [False]*n
+    
+    dist = [d/ecart_type for d in dist]
+    
+    # Calcul de la distance limite
+    tcrit = stat.t.ppf(1-(alpha/(2*n)),n-2)# Valeur critique selon la loi de Student avec n-2 degrés de liberté et une confiance de alpha/2N    
+    dist_lim = (n-1)/sqrt(n) * sqrt(tcrit**2 / (n-2+tcrit**2))
+    
+    aberrant = []
+    for i in range(n):
+        aberrant.append((dist[i] > dist_lim))
+    return aberrant
+    
+    
+    
+def deviation_extreme_student():
+    """
+    En anglais : extreme Studentized deviate (ESD)
+    """
+    
+def Tietjen_Moore():
+    """
+    Test de Tietjen Moore. C'est une généralisation du test de Grubbs.
+    """
+    return
+    
+def Cook():
+    return
+    
+def Peirce():
+    return
+    
+def Mahalanobis():
+    return
+    
 
 
 ###############################################
@@ -120,6 +195,28 @@ def supprime_un(x,v_poids,i,methode,sup_poids= 2,poids=1/100):
     return x_sup,v_poids
 
 if __name__ == "__main__":
-    X,Y = ldt.load_points("test.txt")
-
+    #X,Y = ldt.load_points("droite_nulle_pasaberrant.txt") # Fonctionne avec Grubbs
+    #X,Y = ldt.load_points("droite_nulle_un_aberrant.txt") # Fonctionne avec Grubbs
+    #X,Y = ldt.load_points("droite_environ_nulle_pasaberrant.txt") # Fonctionne, mais tellement petits qu'un considéré comme aberrant : ça dépend de l'échelle !
+    #X,Y = ldt.load_points("droite_environ_nulle_aberrant.txt") # Fonctionne avec Grubbs
+    #X,Y = ldt.load_points("droite_identite.txt") # Fonctionne avec Grubbs
+    #X,Y = ldt.load_points("droite_identite_environ_pasaberrant.txt") # Fonctionne avec Grubbs
     
+    #X,Y = ldt.load_points("droite_identite_environ_aberrant.txt") # Ne fonctionne pas : problème du local/global. On devrait prendre ici les points 2 par 2 car peu denses
+    
+    
+    res = Grubbs(Y)
+    # Pour mes tests : rouge = aberrants, bleu = non aberrant
+    x_rouge = []
+    y_rouge = []
+    x_bleu = []
+    y_bleu = []
+    for i in range(len(X)):
+        if res[i] :
+            x_rouge.append(X[i])
+            y_rouge.append(Y[i])
+        else :
+            x_bleu.append(X[i])
+            y_bleu.append(Y[i])
+    plt.plot(x_rouge,y_rouge,color="red",linestyle = 'none',marker="o")
+    plt.plot(x_bleu,y_bleu,color="blue",linestyle = 'none',marker="+")
