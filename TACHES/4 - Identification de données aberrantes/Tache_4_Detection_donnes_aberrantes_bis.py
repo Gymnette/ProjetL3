@@ -1,17 +1,25 @@
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 30 10:43:04 2020
+# Récupération des tests par fichier ou directement des signaux
+import load_tests as ldt
+from signaux_splines import *
 
-@author: zakaria
-"""
-
-
-import numpy as np 
+# Affichage - A MODIFIER AFIN D UTILISER LA LIBRAIRIE D AMELYS
 import matplotlib.pyplot as plt
-import scipy.stats as stat
 
-def quartile(x,i,Q=0.1):
+# Fonctions utiles
+import numpy as np 
+import scipy.stats as stat
+from math import sqrt,floor
+
+####################
+# Fonctions utiles #
+####################
+
+#############################################
+# Méthodes de détection de points aberrants #
+#############################################
+
+def quartile(x,i,Q=0.01):
     """
     Méthode inter-quartiles, calcul de l'intervalle.
     La fonction prend une liste de valeurs (ordonnées de points) et renvoie un intervalle [a,b] associé.
@@ -56,9 +64,16 @@ def quartile(x,i,Q=0.1):
 
 def test_Chauvenet(x,i):
     """
-    cette fonction prend un vecteur x et un indice i 
-    et qui revoie True si le pois x[i] est consideré comme un point
-    aberrant selon le test de Chauvenet, et renvoie False sinon
+    Test de Chauvenet
+    Renvoie vrai si et seulement si le point x[i] est considéré comme aberrant au regard des autres valeurs de x,
+    selon le test de Chauvenet.
+    
+    type des entrées :
+        x : vecteur de float ou vecteur d'int
+        i : int
+    
+    type des sorties :
+        booléen
     """
     n = len(x) 
     x_barre = sum(x)/n
@@ -74,9 +89,18 @@ def test_Chauvenet(x,i):
     
 def thompson(x,i,alpha=0.001):
     """
-    cette fonction prend un vecteur x, un indice i et un parametre alpha
-    et qui revoie True si le pois x[i] est un point aberrant, et 
-    renvoie False sinon
+    Test Tau de Thompson
+    Renvoie vrai si et seulement si le point x[i] est considéré comme aberrant au regard des autres valeurs de x,
+    en considérant une erreur alpha comme acceptable,
+    selon le test Tau de Thompson.
+    
+    type des entrées :
+        x : vecteur de float ou vecteur d'int
+        i : int
+        alpha : float
+        
+    type des sorties :
+        booléen
     """
     n =len(x)
     x_barre = sum(x)/n
@@ -96,7 +120,7 @@ def thompson(x,i,alpha=0.001):
 
 def supp_aberr(x,y,M=1) :
     """
-    cette fonction supprime les points (xi,yi) s'ils sont considérés comme 
+    cette foction supprime les points (xi,yi) s'ils sont considéré comment 
     des points aberrants
     le parametre M prend trois valeurs {1,2,3}, 1 si on veut utiliser 
     la méthode de Chauvenet, 2 la méthode de thompson, 3 la méthode 
@@ -125,29 +149,34 @@ def supp_aberr(x,y,M=1) :
  
 def pas_inter(y,epsilon=0.1):
     """
-    cette fonction prend un vecteur y et un parametre de variation epsilon
-    et qui renvoie des intervalles sur lesquels la variation de y est 
-    inferieure à epsilon
+    Cette fonction prend un vecteur y et un paramètre de variation epsilon,
+    et renvoie des intervalles sur lesquels la variation de y est inferieure à epsilon.
+    Les intervalles sont représentés par une liste d'entiers, dont l'ordre est important :
+    chaque entier représente un intervalle en indiquant le début de celui ci, excepté la dernière valeur indiquant la fin du dernier, exclue.
+    L'intervalle représenté à l'indice i est donc [p[i],p[i+1][
+
+    Type des entrées :
+        y : vecteur de float ou vecteur d'int
+        epsilon : float
+        
+    Type des sorties :
+        liste[int]
     """
-    p = []
-    ind =[0]
+    p = [0]
     n = len(y)
-    c = 0
     for i in range(n-2):
         d_yi = y[i+1]-y[i]
         d_yi_1 = y[i+2]-y[i+1]
         delta = abs(d_yi - d_yi_1)
         
-        if delta < epsilon :
-            c+=1
-        else:
-            ind.append(i)
-            p.append(c)
-            c +=1
-            
-    p.append(c)       
+        if delta > epsilon :
+           # c +=1
+            p.append(i+1)
+        
+    # Les deux derniers points appartiendront toujours au dernier intervalle.
+    p.append(n)
 
-    return p    
+    return p   
 
 
 if __name__ == "__main__" :
@@ -159,24 +188,24 @@ if __name__ == "__main__" :
     """
     
     n =len(uk)
-    p = pas_inter(uz,epsilon=0.001)
-    a = 0
+    p = pas_inter(uz,epsilon=0.07)
     b = p[0]
     X = []
     Y = []
-    M = 2
+    M = 1
     i=1
-    while i < len(p) :
+    while i < len(p) : # Tant que i < len(p), il reste une borne droite d'intervalle non utilisée
+        a = b
+        b = p[i] #On récupère cette borne après avoir décalé
+        
         j = uk[a:b]
         g = uz[a:b]
         
         xd, yd = supp_aberr(j,g,M)
         X = X + xd
         Y = Y + yd
-
-        a = b
-        b += p[i]
-        i+=1
+        
+        i+=1 # On se décale d'un cran à droite
         
 
 
@@ -187,6 +216,7 @@ if __name__ == "__main__" :
     elif M==3 :
         lab ="quartile"
         
+    plt.close('all')
     plt.figure(lab)
     plt.plot(uk,uz,'rx',color='b',label="données aberrantes")
     plt.plot(X,Y,'or',color='r',label="données non aberrantes")
