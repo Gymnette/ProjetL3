@@ -68,6 +68,26 @@ def ecart_type(x,moy,invisibles=None):
     res = 1/n * res
     return sqrt(res)
 
+def calcul_reel(i, indices):
+    """
+    Calcul l'indice réel de i en sachant que les indices présents dans indices ont été retirés avant, et n'ont donc pas été comptabilisé.
+    
+    type des entrées :
+        i : int
+        indices : list[int]
+        
+    type des sorties :
+        int
+    """
+    indices.sort() # Pas très optimisé mais pas très gênant car normalement "peu" de points aberrants donc peu d'appels à cette fonction
+    i_reel = i
+    for k in indices :
+        if k <= i_reel :
+            i_reel += 1
+        else :
+            break #L'indice relatif est avant tous ceux enlevés : ça ne change plus rien. Les autres indices non étudiés dans cette boucle sont encore plus grands.
+    return i_reel
+
 #############################################
 # Méthodes de détection de points aberrants #
 #############################################
@@ -176,13 +196,14 @@ def thompson(x,i,alpha=0.001):
     else :
         return False
         
-def grubbs(x,alpha=5/100):
+def grubbs(x,alpha=10/100):
     """
     Test de Grubbs.
     Grubbs est un cas particulier de la déviation extreme de Student.
     La fonction prend une liste de valeurs (ordonnées de points) et un paramètre alpha, le risque d'erreur qu'on accepte.
     L'algorithme de Grubbs est appliqué à la lettre : on applique la formule uniquement sur la valeur la plus éloignée.
-    C'est pourquoi il faut appeler cette méthode tant qu'il y a un "vrai" dans le vecteur renvoyé.
+    C'est pourquoi il faut appeler cette méthode tant que la valeur renvoyée est vrai mais qu'on n'est pas dans un cas spécial.
+    l'indice renvoyé est celui de la valeur extrême, et vaut -1 ou -2 dans les cas spéciaux : écart type nul ou 0 valeurs.
     Elle renvoie une liste de booléens indiquant si la valeur associée est considérée comme aberrante selon le test de Grubbs.
     C'est le cas si la distance à la moyenne empirique est supérieure à un certain seuil.
     
@@ -191,29 +212,33 @@ def grubbs(x,alpha=5/100):
         alpha : float
         
     type des sorties :
-        vecteur de booléens de la longueur de x
+        booléen, int
     """
     n = len(x)
+    
+    if n == 0 :
+        return False, -2 # False ou True, les deux peuvent être mis ici, aucune coïncidence sur le programme.
+    
     
     # Calculs de la moyenne et de l'écart type empiriques
     moy = moyenne(x)
     e_t = ecart_type(x,moy)
     
-    if (e_t == 0): #Les valeurs sont toutes identiques, il n'y a pas de points aberrants
-        return [False]*n
+    if (e_t == 0 ): # L'égalité à 0 n'est pas exacte avec les calculs.
+        #Les valeurs sont toutes identiques, il n'y a pas de points aberrants
+        return False, -1
     
     # Calculs des distances à la moyennes, normalisées par l'écart type
     dist = [0]*n
     for i in range(n) :
         dist[i] = abs(x[i]-moy)
-    
+        
     dist = [d/e_t for d in dist]
     
     # Calcul de la distance limite
     tcrit = stat.t.ppf(1-(alpha/(2*n)),n-2)# Valeur critique selon la loi de Student avec n-2 degrés de liberté et une confiance de alpha/2N    
     dist_lim = (n-1)/sqrt(n) * sqrt(tcrit**2 / (n-2+tcrit**2))
     
-    aberrant = [False]*n
     # On cherche la distance maximum avec son indice
     imax = 0
     dmax = 0
@@ -222,8 +247,7 @@ def grubbs(x,alpha=5/100):
             dmax = dist[i]
             imax = i
     # Si cette distance est plus grande que la limite, la valeur est aberrante.
-    aberrant[imax] = (dmax > dist_lim)
-    return aberrant
+    return (dmax > dist_lim),imax
 
 # Le test de Tietjen Moore est une généralisation du test de Grubbs.
 # Il peut être appliqué peu importe le nombre de valeurs aberrantes
@@ -304,7 +328,7 @@ def deviation_extreme_student(x,alpha=5/100, borne_max=0):
 ###############################################
 
     
-def supprime(x,methode,sup_poids= True,poids=1/100):
+def supprime(x,methode,sup_poids= True,poids=1/100): #A AJOUTER (AMELYS) : OPTIONS DES METHODES
     """
     Parcours toutes les valeurs de x afin de toutes les traiter.
     La fonction supprime prend un vecteur x d'ordonnées de points, une methode de
@@ -333,21 +357,40 @@ def supprime(x,methode,sup_poids= True,poids=1/100):
     if methode == eval_quartile :
         a,b = quartile(x)
         
-    for i in range(n):
-        aberrant = False
-        if methode == test_Chauvenet or methode == thompson:
-            if methode(x,i):
-                aberrant = True             
-        else : #methode == eval_quartile:
-            if eval_quartile(x,i,a,b):
-                aberrant = True
-       
-        if aberrant :
-            indices.append(i)
+    if methode == grubbs :
+        res, ind = grubbs(x)
+        x_cpy = list(x)
+        while (ind >=0 and res ) : #Un point aberrant a été trouvé de manière "classique".
+            ind_reel = calcul_reel(ind,indices)
+            indices.append(ind_reel)
             if sup_poids:
-                x_sup[i] = None
+                x_sup[ind_reel] = None
             else :
-                v_poids[i] = poids   
+                v_poids[ind_reel] = poids  
+            
+            x_cpy.pop(ind) # c'est bien ici le relatif
+            res, ind = grubbs(x_cpy)
+        # Si c'est res qui est faux, pas de soucis, on a notre résultat.
+        # Si l'indice est négatif, le résultat sera faux, donc c'est bon, pas de point aberrant détecté.
+                
+        
+    else :
+        
+        for i in range(n):
+            aberrant = False
+            if methode == test_Chauvenet or methode == thompson:
+                if methode(x,i):
+                    aberrant = True             
+            else : #methode == eval_quartile:
+                if eval_quartile(x,i,a,b):
+                    aberrant = True
+           
+            if aberrant :
+                indices.append(i)
+                if sup_poids:
+                    x_sup[i] = None
+                else :
+                    v_poids[i] = poids   
     
     while None in x_sup:
         x_sup.remove(None)
@@ -441,13 +484,13 @@ if __name__ == "__main__" :
     ############################
     
     #x,y = ldt.load_points("droite_nulle_pasaberrant.txt")
-    #x,y = ldt.load_points("droite_nulle_un_aberrant.txt")
+    x,y = ldt.load_points("droite_nulle_un_aberrant.txt")
     #x,y = ldt.load_points("droite_environ_nulle_pasaberrant.txt")
     #x,y = ldt.load_points("droite_environ_nulle_aberrant.txt")
     #x,y = ldt.load_points("droite_identite.txt")
     #x,y = ldt.load_points("droite_identite_environ_pasaberrant.txt")
     #x,y = ldt.load_points("droite_identite_environ_aberrant.txt")
-    x,y = np.loadtxt('data_CAO.txt')
+    #x,y = np.loadtxt('data_CAO.txt')
     
     # signaux de tests (stationnaires uniquement pour l'instant) provenant du générateur
     nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
@@ -463,10 +506,10 @@ if __name__ == "__main__" :
     # Choix de la méthode #
     #######################
     
-    M = eval_quartile
+    #M = eval_quartile
     #M = test_Chauvenet
     #M = thompson
-    #M = grubbs
+    M = grubbs
     #M = deviation_extreme_student
     
     ##########################
@@ -478,7 +521,8 @@ if __name__ == "__main__" :
     """
     
     n =len(x) #même longueur que y
-    p = pas_inter(y,epsilon=0.07)
+    p = pas_inter(y,epsilon=10)
+    print(p)
     b = p[0]
     X = []
     Y = []
