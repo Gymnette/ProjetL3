@@ -87,7 +87,7 @@ def thompson(x,i,alpha=0.001):
 
 def supp_aberr(x,y,M=1) :
     """
-    cette foction supprime les points (xi,yi) s'ils sont considéré comment 
+    cette fonction supprime les points (xi,yi) s'ils sont considérés comme 
     des points aberrants
     le parametre M prend trois valeurs {1,2,3}, 1 si on veut utiliser 
     la méthode de Chauvenet, 2 la méthode de thompson, 3 la méthode 

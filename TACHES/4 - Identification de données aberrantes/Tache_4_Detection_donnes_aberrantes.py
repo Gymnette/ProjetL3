@@ -91,22 +91,23 @@ def quartile(x,coeff=1.5):
     """
     x_s = sorted(x)
     n = len(x_s)
-    k = n/4
-    if (n/4)-int(n/4) != 0 :
-        k =int(n/4) +1
+    if n <3 :
+        return 1,0 # Intervalle vide : tous les points seront aberrants
+    elif n == 3 :
+        return min(x),max(x) #Intervalle contenant tous les points, aucun ne sera aberrant
     else:
-        k =n//4 +1
-    
-    # le premier quartile
-    q1 = x_s[k-1]
-    # le 3éme quartile
-    q3 = x_s[3*k-1]
-    # l'inter-quartile
-    inter_q = q3-q1
+        
+        k = n//4
+        # le premier quartile
+        q1 = x_s[k-1]
+        # le 3éme quartile
+        q3 = x_s[3*k-1]
+        # l'inter-quartile
+        inter_q = q3-q1
     
     return (q1-coeff*inter_q,q3+coeff*inter_q)
 
-def eval_quartile(x,i,a,b)
+def eval_quartile(x,i,a,b):
     """
     Méthode inter-quartiles, test d'aberrance du point.
     Si x[i] appartient à l'intervalle [a,b], renvoie faux, sinon renvoie vrai.
@@ -150,7 +151,7 @@ def test_Chauvenet(x,i):
 def thompson(x,i,alpha=0.01):
     """
     Test Tau de Thompson
-    Renvoie vrai si et selement si le point x[i] est considéré comme aberrant au regard des autres valeurs de x,
+    Renvoie vrai si et seulement si le point x[i] est considéré comme aberrant au regard des autres valeurs de x,
     en considérant une erreur alpha comme acceptable,
     selon le test Tau de Thompson.
     
@@ -176,7 +177,7 @@ def thompson(x,i,alpha=0.01):
         return False
         
     
-def Grubbs(x,alpha=5/100):
+def grubbs(x,alpha=5/100):
     """
     Test de Grubbs.
     Grubbs est un cas particulier de la déviation extreme de Student.
@@ -324,19 +325,43 @@ def supprime(x,methode,sup_poids= True,poids=1/100):
         v_poids : vecteur de float
         indices : vecteur d'int
     """
-    
     n = len(x)
-    a,b = methode(x)
-    x_sup = list(x)
-    v_poids = [1]*n
-    indices = []
-    for i,e in enumerate(x):
-        if e <a or e>b:
-            indices.append(i)
-            if sup_poids:
-                x_sup[i] = None
-            else :
-                v_poids[i] = poids
+    
+    if M == grubbs or M == deviation_extreme_student :
+        est_aberrant = M(x)
+        x_sup = list(x)
+        v_poids = [1]*n
+        indices = []
+        for i in range(n) :
+            if est_aberrant[i] :
+                indices.append(i)
+                if sup_poids:
+                    x_sup[i] = None
+                else :
+                    v_poids[i] = poids
+    else :
+        a,b = 0,0 # Si a et b ne sont déclarées que dans le if, elles n'ont pas la bonne portée
+        if M == eval_quartile :
+            (a,b) = quartile(x)
+        
+        x_sup = list(x)
+        v_poids = [1]*n
+        indices = []
+        for i in range(n):
+            aberrant = False
+            if M == eval_quartile:
+                if M(x,i,a,b) :
+                    aberrant = True
+            else : #M == test_Chauvenet or M == thompson :
+                if M(x,i) :
+                    aberrant = True
+            
+            if aberrant :
+                indices.append(i)
+                if sup_poids:
+                    x_sup[i] = None
+                else :
+                    v_poids[i] = poids   
     
     while None in x_sup:
         x_sup.remove(None)
@@ -387,43 +412,133 @@ def supprime_un(x,v_poids,i,methode,sup_poids= 2,poids=1/100):
 
     return x_sup,v_poids
 
+###################################
+# Gestion des intervalles d'étude #
+###################################
+    
+def pas_inter(y,epsilon=0.1):
+    """
+    Cette fonction prend un vecteur y et un paramètre de variation epsilon,
+    et renvoie des intervalles sur lesquels la variation de y est inferieure à epsilon.
+    Les intervalles sont représentés par une liste d'entiers, dont l'ordre est important :
+    chaque entier représente un intervalle et indique le nombre de points de y qui y sont présents.
+
+    Type des entrées :
+        y : vecteur de float ou vecteur d'int
+        epsilon : float
+        
+    Type des sorties :
+        liste[int]
+    """
+    p = []
+    ind =[0]
+    n = len(y)
+    c = 0
+    for i in range(n-2):
+        d_yi = y[i+1]-y[i]
+        d_yi_1 = y[i+2]-y[i+1]
+        delta = abs(d_yi - d_yi_1)
+        
+        if delta < epsilon :
+            c+=1
+        else:
+            ind.append(i)
+            p.append(c)
+            c +=1
+            
+    p.append(c)       
+
+    return p    
+
 if __name__ == "__main__":
-    #X,Y = ldt.load_points("droite_nulle_pasaberrant.txt")
-    #X,Y = ldt.load_points("droite_nulle_un_aberrant.txt")
-    #X,Y = ldt.load_points("droite_environ_nulle_pasaberrant.txt")
-    X,Y = ldt.load_points("droite_environ_nulle_aberrant.txt")
-    #X,Y = ldt.load_points("droite_identite.txt")
-    #X,Y = ldt.load_points("droite_identite_environ_pasaberrant.txt")
     
-    #X,Y = ldt.load_points("droite_identite_environ_aberrant.txt")
+    ############################
+    # Récupération des données #
+    ############################
     
-    # signaux de tests provenant du générateur
+    #x,y = ldt.load_points("droite_nulle_pasaberrant.txt")
+    #x,y = ldt.load_points("droite_nulle_un_aberrant.txt")
+    #x,y = ldt.load_points("droite_environ_nulle_pasaberrant.txt")
+    #x,y = ldt.load_points("droite_environ_nulle_aberrant.txt")
+    #x,y = ldt.load_points("droite_identite.txt")
+    #x,y = ldt.load_points("droite_identite_environ_pasaberrant.txt")
+    #x,y = ldt.load_points("droite_identite_environ_aberrant.txt")
+    x,y = np.loadtxt('data_CAO.txt')
+    
+    # signaux de tests (stationnaires uniquement pour l'instant) provenant du générateur
     nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
     
-    #X, Y, f = stationary_signal((30,), 0.9, noise_func=nfunc)
-    #X,Y, f = stationary_signal((30,), 0.5, noise_func=nfunc)
+    #x,y, f = stationary_signal((30,), 0.9, noise_func=nfunc)
+    #x,y, f = stationary_signal((30,), 0.5, noise_func=nfunc)
     
     # Décommenter ces deux lignes pour faire apparaitre le signal associé
     #xi = np.linspace(0, 1, 100)
     #plt.plot(xi,f(xi))
     
-    #res = Grubbs(Y)
-    #res = Grubbs(Y,1/100)
-    res = deviation_extreme_student(Y)
-    #res = deviation_extreme_student(Y,borne_max = 1)
+    #######################
+    # Choix de la méthode #
+    #######################
     
-    # Pour mes tests : rouge = aberrants, bleu = non aberrant
-    x_rouge = []
-    y_rouge = []
-    x_bleu = []
-    y_bleu = []
-    for i in range(len(X)):
-        if res[i] :
-            x_rouge.append(X[i])
-            y_rouge.append(Y[i])
-        else :
-            x_bleu.append(X[i])
-            y_bleu.append(Y[i])
-    plt.plot(x_rouge,y_rouge,color="red",linestyle = 'none',marker="o")
-    plt.plot(x_bleu,y_bleu,color="blue",linestyle = 'none',marker="+")
+    M = eval_quartile
+    #M = test_Chauvenet
+    #M = thompson
+    #M = grubbs
+    #M = deviation_extreme_student
+    
+    ##########################
+    # Traitement des données #
+    ##########################
+    
+    n = len(x) # C'est la même que la longueur de Y
+    
+    # Création des intervalles
+    p = pas_inter(y,epsilon=0.1)
+    
+    # Parcours des intervalles et application des méthodes de détection de points aberrants
+    # Intervalle d'indices considéré : |[a,b]|   (intervalle d'entiers)  
+    a = 0
+    b = p[0]
 
+    X = [] # Va stocker les points retenus, c'est à dire les points non aberrants.
+    Y = []
+    i=1
+    while i < len(p) :
+        j = x[a:b]
+        g = y[a:b]
+        
+        yd, poids, indices_aberrants = supprime(g,M)
+        # On ne garde que les x associés aux y.
+        xd = list(j)
+        for ind in range(len(indices_aberrants)-1,-1,-1): #On part de la fin pour ne pas avoir de décalage d'indices
+            xd.pop(indices_aberrants[ind])
+        
+        X = X + xd
+        Y = Y + yd
+
+        a = b
+        b += p[i]
+        i+=1
+    if M == eval_quartile:
+        lab = "Méthode interquartile"
+    elif M == test_Chauvenet:
+        lab = "Test de Chauvenet"
+    elif M == thompson:
+        lab = "Méthode Tau de Thompson"
+    elif M == grubbs :
+        lab = "Test de Grubbs"
+    elif M == deviation_extreme_student:
+        lab = "Test de la déviation extreme de student"
+    else :
+        print("Méthode inconnue")
+        exit(1)
+        
+    ###########################
+    # Affichage des résultats #
+    ###########################
+    plt.close('all')
+    plt.figure(lab)
+    plt.plot(x,y,'xb',label="données")
+    plt.plot(X,Y,'xr',label="données conservées")
+    plt.legend(loc='best')
+    plt.show()
+    
