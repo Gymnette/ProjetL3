@@ -479,7 +479,7 @@ if __name__ == "__main__":
     # Choix de la méthode #
     #######################
     
-    M = eval_quartile
+    #M = eval_quartile
     #M = test_Chauvenet
     #M = thompson
     #M = grubbs
@@ -492,7 +492,7 @@ if __name__ == "__main__":
     n = len(x) # C'est la même que la longueur de Y
     
     # Création des intervalles
-    p = pas_inter(y,epsilon=0.1)
+    p = pas_inter(y,epsilon=0.01)
     
     # Parcours des intervalles et application des méthodes de détection de points aberrants
     # Intervalle d'indices considéré : |[a,b]|   (intervalle d'entiers)  
