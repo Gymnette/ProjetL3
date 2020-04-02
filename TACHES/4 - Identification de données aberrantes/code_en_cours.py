@@ -3,6 +3,7 @@ import load_tests as ldt
 import scipy.stats as stat
 from math import sqrt,floor
 import matplotlib.pyplot as plt
+from 
 
 ####################
 # Fonctions utiles #
@@ -175,8 +176,8 @@ def deviation_extreme_student(x,alpha=5/100, borne_max=0):
         borne_max = floor(0.1 * len(x))+1
         
     while borne_max != 0 :
-         moy = moyenne(x,ind_candidats)
-         e_t = ecart_type(x,moy,ind_candidats)
+        moy = moyenne(x,ind_candidats)
+        e_t = ecart_type(x,moy,ind_candidats)
     
         # On calcule la distance des points de la même manière que pour Grubbs, sauf qu'on ne récupère que la distance maximale
         dmax = 0
