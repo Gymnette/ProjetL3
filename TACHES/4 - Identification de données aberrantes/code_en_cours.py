@@ -3,7 +3,7 @@ import load_tests as ldt
 import scipy.stats as stat
 from math import sqrt,floor
 import matplotlib.pyplot as plt
-from 
+from signaux_splines import *
 
 ####################
 # Fonctions utiles #
@@ -30,7 +30,7 @@ def moyenne(x,invisibles=None):
         moyenne = 0.0
         for i in range(len(x)):
             if i not in invisibles :
-                moyenne += val
+                moyenne += x[i]
     
     moyenne = moyenne / n
     return moyenne
@@ -55,7 +55,6 @@ def ecart_type(x,moy,invisibles=None):
         for val in x :
             res += (val-moy)**2
     else :
-        moyenne = 0.0
         for i in range(len(x)):
             if i not in invisibles :
                 res += (x[i]-moy)**2
@@ -171,13 +170,19 @@ def deviation_extreme_student(x,alpha=5/100, borne_max=0):
     
     ind_candidats = []
     dist_candidats = []
+    n = len(x)
     
     if borne_max == 0 :
-        borne_max = floor(0.1 * len(x))+1
+        borne_max = floor(len(x)/10)+1
+        if len(x)%10 == 0 :
+            borne_max -= 1
         
+    
     while borne_max != 0 :
         moy = moyenne(x,ind_candidats)
         e_t = ecart_type(x,moy,ind_candidats)
+        if (e_t == 0) :
+            break # Tous les points sont égaux, on ne trouvera pas de points aberrants dans ceux qui restent
     
         # On calcule la distance des points de la même manière que pour Grubbs, sauf qu'on ne récupère que la distance maximale
         dmax = 0
@@ -195,7 +200,7 @@ def deviation_extreme_student(x,alpha=5/100, borne_max=0):
     
     i = 0
     # le i des formules devient i-1 car on est ici indicés en 0
-    while i != len(candidats):
+    while i != len(ind_candidats):
         # Calculs à partir de Ri
         p = 1 - alpha/(2*(n-i))
         tcrit = stat.t.ppf(p,n-i-2)
@@ -313,12 +318,12 @@ def supprime_un(x,v_poids,i,methode,sup_poids= 2,poids=1/100):
     return x_sup,v_poids
 
 if __name__ == "__main__":
-    #X,Y = ldt.load_points("droite_nulle_pasaberrant.txt") # Fonctionne avec Grubbs
-    #X,Y = ldt.load_points("droite_nulle_un_aberrant.txt") # Fonctionne avec Grubbs
+    #X,Y = ldt.load_points("droite_nulle_pasaberrant.txt") # Fonctionne avec Grubbs, ESD
+    #X,Y = ldt.load_points("droite_nulle_un_aberrant.txt") # Fonctionne avec Grubbs, ESD
     #X,Y = ldt.load_points("droite_environ_nulle_pasaberrant.txt") # Fonctionne, mais tellement petits qu'un considéré comme aberrant : ça dépend de l'échelle !
-    #X,Y = ldt.load_points("droite_environ_nulle_aberrant.txt") # Fonctionne avec Grubbs
-    #X,Y = ldt.load_points("droite_identite.txt") # Fonctionne avec Grubbs
-    #X,Y = ldt.load_points("droite_identite_environ_pasaberrant.txt") # Fonctionne avec Grubbs
+    #X,Y = ldt.load_points("droite_environ_nulle_aberrant.txt") # Fonctionne avec Grubbs, ESD
+    #X,Y = ldt.load_points("droite_identite.txt") # Fonctionne avec Grubbs, ESD
+    #X,Y = ldt.load_points("droite_identite_environ_pasaberrant.txt") # Fonctionne avec Grubbs, EDS
     
     #X,Y = ldt.load_points("droite_identite_environ_aberrant.txt") # Ne fonctionne pas : problème du local/global. On devrait prendre ici les points 2 par 2 car peu denses
     
@@ -326,13 +331,20 @@ if __name__ == "__main__":
     # definition de la fonction de bruit avec ecart type à 0.05 et probabilité de switch à 15%
     nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
     
-    # signal stationnaire bruité de 30 points et régularité à 0.9
-    X, Y, f = stationary_signal((30,), 0.9, noise_func=nfunc)
+    # signal stationnaire bruité de 30 points et régularité à 0.
+    
+    #X, Y, f = stationary_signal((30,), 0.9, noise_func=nfunc)
     # signal stationnaire bruité de 30 points et régularité à 0.5
     #X,Y, f = stationary_signal((30,), 0.5, noise_func=nfunc)
 
+    #xi = np.linspace(0, 1, 100)
+    #plt.plot(xi,f(xi))
     
-    res = Grubbs(Y)
+    #res = Grubbs(Y)
+    #res = Grubbs(Y,1/100)
+    res = deviation_extreme_student(Y)
+    #res = deviation_extreme_student(Y,borne_max = 1)
+    
     # Pour mes tests : rouge = aberrants, bleu = non aberrant
     x_rouge = []
     y_rouge = []
@@ -345,7 +357,5 @@ if __name__ == "__main__":
         else :
             x_bleu.append(X[i])
             y_bleu.append(Y[i])
-    xi = np.linspace(0, 1, 100)
-    plt.plot(xi,f(xi))
     plt.plot(x_rouge,y_rouge,color="red",linestyle = 'none',marker="o")
     plt.plot(x_bleu,y_bleu,color="blue",linestyle = 'none',marker="+")
