@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stat
 
-def quartile(x,i,Q=0.1):
+def quartile(x,i,Q=0.01):
     """
     cette fonction prend un vecteur x, un indice i et un parametre Q
     et qui revoie True si le pois x[i] est un point aberrant, et 
@@ -87,7 +87,7 @@ def thompson(x,i,alpha=0.001):
 
 def supp_aberr(x,y,M=1) :
     """
-    cette fonction supprime les points (xi,yi) s'ils sont considérés comme 
+    cette foction supprime les points (xi,yi) s'ils sont considéré comment 
     des points aberrants
     le parametre M prend trois valeurs {1,2,3}, 1 si on veut utiliser 
     la méthode de Chauvenet, 2 la méthode de thompson, 3 la méthode 
@@ -120,25 +120,20 @@ def pas_inter(y,epsilon=0.1):
     et qui renvoie des intervalles sur lesquels la variation de y est 
     inferieure à epsilon
     """
-    p = []
-    ind =[0]
+    p = [0]
     n = len(y)
-    c = 0
     for i in range(n-2):
         d_yi = y[i+1]-y[i]
         d_yi_1 = y[i+2]-y[i+1]
         delta = abs(d_yi - d_yi_1)
         
-        if delta < epsilon :
-            c+=1
-        else:
-            ind.append(i)
-            p.append(c)
-            c +=1
+        if delta > epsilon :
+           # c +=1
+            p.append(i+1)
             
-    p.append(c)       
+    p.append(n-1)       
 
-    return p    
+    return p   
 
 
 if __name__ == "__main__" :
@@ -150,13 +145,13 @@ if __name__ == "__main__" :
     """
     
     n =len(uk)
-    p = pas_inter(uz,epsilon=0.001)
-    a = 0
-    b = p[0]
+    p = pas_inter(uz,epsilon=0.07)
+    a = p[0]
+    b = p[1]
     X = []
     Y = []
-    M = 2
-    i=1
+    M = 1
+    i=2
     while i < len(p) :
         j = uk[a:b]
         g = uz[a:b]
@@ -166,7 +161,7 @@ if __name__ == "__main__" :
         Y = Y + yd
 
         a = b
-        b += p[i]
+        b = p[i]
         i+=1
         
 
