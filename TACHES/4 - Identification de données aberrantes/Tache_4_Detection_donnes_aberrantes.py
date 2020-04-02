@@ -343,6 +343,7 @@ def supprime(x,methode,sup_poids= True,poids=1/100):
         a,b = 0,0 # Si a et b ne sont déclarées que dans le if, elles n'ont pas la bonne portée
         if M == eval_quartile :
             (a,b) = quartile(x)
+            print(a,b)
         
         x_sup = list(x)
         v_poids = [1]*n
@@ -421,7 +422,7 @@ def pas_inter(y,epsilon=0.1):
     Cette fonction prend un vecteur y et un paramètre de variation epsilon,
     et renvoie des intervalles sur lesquels la variation de y est inferieure à epsilon.
     Les intervalles sont représentés par une liste d'entiers, dont l'ordre est important :
-    chaque entier représente un intervalle et indique le nombre de points de y qui y sont présents.
+    chaque entier représente un intervalle en indiquant le début de celui ci (le premier commencera à 0, mais n'est pas indiqué).
 
     Type des entrées :
         y : vecteur de float ou vecteur d'int
@@ -431,7 +432,6 @@ def pas_inter(y,epsilon=0.1):
         liste[int]
     """
     p = []
-    ind =[0]
     n = len(y)
     c = 0
     for i in range(n-2):
@@ -442,12 +442,13 @@ def pas_inter(y,epsilon=0.1):
         if delta < epsilon :
             c+=1
         else:
-            ind.append(i)
             p.append(c)
             c +=1
-            
-    p.append(c)       
 
+    p.append(c)
+    
+    while len(p) != 0 and p[0] == 0:
+        p.pop(0)
     return p    
 
 if __name__ == "__main__":
@@ -479,7 +480,7 @@ if __name__ == "__main__":
     # Choix de la méthode #
     #######################
     
-    #M = eval_quartile
+    M = eval_quartile
     #M = test_Chauvenet
     #M = thompson
     #M = grubbs
@@ -492,7 +493,7 @@ if __name__ == "__main__":
     n = len(x) # C'est la même que la longueur de Y
     
     # Création des intervalles
-    p = pas_inter(y,epsilon=0.01)
+    p = pas_inter(y,epsilon=0.1)
     
     # Parcours des intervalles et application des méthodes de détection de points aberrants
     # Intervalle d'indices considéré : |[a,b]|   (intervalle d'entiers)  
@@ -501,8 +502,11 @@ if __name__ == "__main__":
 
     X = [] # Va stocker les points retenus, c'est à dire les points non aberrants.
     Y = []
-    i=1
+    print(p)
+    print(len(x))
+    i = 1
     while i < len(p) :
+        print(a,b)
         j = x[a:b]
         g = y[a:b]
         
@@ -511,13 +515,14 @@ if __name__ == "__main__":
         xd = list(j)
         for ind in range(len(indices_aberrants)-1,-1,-1): #On part de la fin pour ne pas avoir de décalage d'indices
             xd.pop(indices_aberrants[ind])
+        print(indices_aberrants)
         
         X = X + xd
         Y = Y + yd
 
         a = b
-        b += p[i]
-        i+=1
+        b = p[i]
+        i += 1
     if M == eval_quartile:
         lab = "Méthode interquartile"
     elif M == test_Chauvenet:
