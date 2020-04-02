@@ -176,6 +176,128 @@ def thompson(x,i,alpha=0.001):
     else :
         return False
         
+def grubbs(x,alpha=5/100):
+    """
+    Test de Grubbs.
+    Grubbs est un cas particulier de la déviation extreme de Student.
+    La fonction prend une liste de valeurs (ordonnées de points) et un paramètre alpha, le risque d'erreur qu'on accepte.
+    L'algorithme de Grubbs est appliqué à la lettre : on applique la formule uniquement sur la valeur la plus éloignée.
+    C'est pourquoi il faut appeler cette méthode tant qu'il y a un "vrai" dans le vecteur renvoyé.
+    Elle renvoie une liste de booléens indiquant si la valeur associée est considérée comme aberrante selon le test de Grubbs.
+    C'est le cas si la distance à la moyenne empirique est supérieure à un certain seuil.
+    
+    type des entrees :
+        x : vecteur de float ou vecteur d'int
+        alpha : float
+        
+    type des sorties :
+        vecteur de booléens de la longueur de x
+    """
+    n = len(x)
+    
+    # Calculs de la moyenne et de l'écart type empiriques
+    moy = moyenne(x)
+    e_t = ecart_type(x,moy)
+    
+    if (e_t == 0): #Les valeurs sont toutes identiques, il n'y a pas de points aberrants
+        return [False]*n
+    
+    # Calculs des distances à la moyennes, normalisées par l'écart type
+    dist = [0]*n
+    for i in range(n) :
+        dist[i] = abs(x[i]-moy)
+    
+    dist = [d/e_t for d in dist]
+    
+    # Calcul de la distance limite
+    tcrit = stat.t.ppf(1-(alpha/(2*n)),n-2)# Valeur critique selon la loi de Student avec n-2 degrés de liberté et une confiance de alpha/2N    
+    dist_lim = (n-1)/sqrt(n) * sqrt(tcrit**2 / (n-2+tcrit**2))
+    
+    aberrant = [False]*n
+    # On cherche la distance maximum avec son indice
+    imax = 0
+    dmax = 0
+    for i in range(n):
+        if dist[i] > dmax :
+            dmax = dist[i]
+            imax = i
+    # Si cette distance est plus grande que la limite, la valeur est aberrante.
+    aberrant[imax] = (dmax > dist_lim)
+    return aberrant
+
+# Le test de Tietjen Moore est une généralisation du test de Grubbs.
+# Il peut être appliqué peu importe le nombre de valeurs aberrantes
+# Mais il faut connaître ce nombre exactement : on n'implémente donc pas cette méthode.
+    
+def deviation_extreme_student(x,alpha=5/100, borne_max=0):
+    """
+    En anglais : extreme Studentized deviate (ESD)
+    C'est la généralisation du test de Grubbs, sans avoir besoin d'itérer.
+    D'après des études de Rosner (Rosner, Bernard (May 1983), Percentage Points for a Generalized ESD Many-Outlier Procedure,Technometrics, 25(2), pp. 165-172.) 
+    , ce test est très précis pour n >= 25 et reste correct pour n>=15.
+    Il faut donc faire attention : ne pas l'appeler sur un intervalle avec peu de points !
+    Ce test permet de détecter un ou plusieurs points aberrants, c'est en quelques sortes une généralisation de Grubbs.
+    Il nécessite simplement une borne maximale de points aberrants. (qui peut être donnée arbitrairement, par exemple 10% du nombre de points total)
+    L'algorithme est appliqué sur les données x. Si la borne maximale vaut 0, alors on considère que c'est 10% du nombre de données (arrondi au supérieur)
+    Cette fonction renvoie une liste de booléens indiquant si la valeur associée est considérée comme aberrante.
+    Alpha est le risque d'erreur que l'on accepte.
+    
+    type des entrees :
+        x : vecteur de float ou vecteur d'int
+        alpha : float
+        borne_max : int > 0
+        
+    type des sorties :
+        vecteur de booléens de la longueur de x
+    """
+    
+    ind_candidats = []
+    dist_candidats = []
+    n = len(x)
+    
+    if borne_max == 0 :
+        borne_max = floor(len(x)/10)+1
+        if len(x)%10 == 0 :
+            borne_max -= 1
+        
+    
+    while borne_max != 0 :
+        moy = moyenne(x,ind_candidats)
+        e_t = ecart_type(x,moy,ind_candidats)
+        if (e_t == 0) :
+            break # Tous les points sont égaux, on ne trouvera pas de points aberrants dans ceux qui restent
+    
+        # On calcule la distance des points de la même manière que pour Grubbs, sauf qu'on ne récupère que la distance maximale
+        dmax = 0
+        ind = 0
+        for i in range(n) :
+            if i not in ind_candidats :
+                dtemp = abs(x[i]-moy)
+                if dtemp > dmax :
+                    ind = i
+                    dmax = dtemp
+        ind_candidats.append(ind)
+        dist_candidats.append(dmax/e_t)
+    
+        borne_max -= 1
+    
+    i = 0
+    # le i des formules devient i-1 car on est ici indicés en 0
+    while i != len(ind_candidats):
+        # Calculs à partir de Ri
+        p = 1 - alpha/(2*(n-i))
+        tcrit = stat.t.ppf(p,n-i-2)
+        seuil = (n-i-1)*tcrit / sqrt((n-i)*(n-i-2+tcrit**2))
+        if dist_candidats[i] <= seuil :
+            break;
+        i += 1
+    # i-1 est l'indice du dernier point considéré comme aberrant par ce test.
+    
+    aberrant = [False]*n
+    for j in range(i):
+        aberrant[ind_candidats[j]] = True
+    return aberrant
+
 
 ###############################################
 # Fonctions de supression de points aberrants #
@@ -276,25 +398,27 @@ def supp_aberr(x,y,M=1) :
     """
     x_d = []
     y_d = []
-    if M == 3 :
-        (a,b) = quartile(y)
+    if M == eval_quartile :
+        a,b = quartile(y)
     for i in range(len(x)):
-        if M==1:
+        if M == test_Chauvenet:
             if test_Chauvenet(y,i) == False :
                 x_d.append(x[i])
                 y_d.append(y[i])
                 
-        elif M==2 :
+        elif M == thompson :
             if thompson(y,i) == False :
                 x_d.append(x[i])
                 y_d.append(y[i])
                 
-        elif M==3:
+        elif M == eval_quartile:
             if eval_quartile(y,i,a,b) == False :
                 x_d.append(x[i])
                 y_d.append(y[i])  
                 
     return x_d, y_d
+
+
 
 ###################################
 # Gestion des intervalles d'étude #
@@ -360,7 +484,7 @@ if __name__ == "__main__" :
     # Choix de la méthode #
     #######################
     
-    #M = eval_quartile
+    M = eval_quartile
     #M = test_Chauvenet
     #M = thompson
     #M = grubbs
@@ -379,7 +503,6 @@ if __name__ == "__main__" :
     b = p[0]
     X = []
     Y = []
-    M = 3
     i=1
     while i < len(p) : # Tant que i < len(p), il reste une borne droite d'intervalle non utilisée
         a = b
@@ -394,12 +517,19 @@ if __name__ == "__main__" :
         
         i+=1 # On se décale d'un cran à droite
 
-    if M==1:
-        lab = "chauvenet"
-    elif M==2 :
-        lab ="thompson"
-    elif M==3 :
-        lab ="quartile"
+    if M == eval_quartile:
+        lab = "Méthode interquartile"
+    elif M == test_Chauvenet:
+        lab = "Test de Chauvenet"
+    elif M == thompson:
+        lab = "Méthode Tau de Thompson"
+    elif M == grubbs :
+        lab = "Test de Grubbs"
+    elif M == deviation_extreme_student:
+        lab = "Test de la déviation extreme de student"
+    else :
+        print("Méthode inconnue")
+        exit(1)
         
     plt.close('all')
     plt.figure(lab)
