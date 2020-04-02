@@ -179,14 +179,14 @@ def pas_inter(y,epsilon=0.1):
 
 if __name__ == "__main__" :
 
-    (uk,uz) = np.loadtxt('data_CAO.txt')
+    (x,y) = np.loadtxt('data_CAO.txt')
     
     """
     _________CAS_NON_UNIFORME__________
     """
     
-    n =len(uk)
-    p = pas_inter(uz,epsilon=0.07)
+    n =len(x) #même longueur que y
+    p = pas_inter(y,epsilon=0.07)
     b = p[0]
     X = []
     Y = []
@@ -196,8 +196,8 @@ if __name__ == "__main__" :
         a = b
         b = p[i] #On récupère cette borne après avoir décalé
         
-        j = uk[a:b]
-        g = uz[a:b]
+        j = x[a:b]
+        g = y[a:b]
         
         xd, yd = supp_aberr(j,g,M)
         X = X + xd
@@ -216,8 +216,8 @@ if __name__ == "__main__" :
         
     plt.close('all')
     plt.figure(lab)
-    plt.plot(uk,uz,'rx',color='b',label="données aberrantes")
-    plt.plot(X,Y,'or',color='r',label="données non aberrantes")
+    plt.plot(x,y,'b+',label="données aberrantes")
+    plt.plot(X,Y,'r+',label="données non aberrantes")
     plt.legend(loc='best')
         
 
