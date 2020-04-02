@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import load_tests as ldt
 import scipy.stats as stat
+import scipy.special
 from math import sqrt,floor
 import matplotlib.pyplot as plt
 from signaux_splines import *
@@ -214,21 +215,7 @@ def deviation_extreme_student(x,alpha=5/100, borne_max=0):
     for j in range(i):
         aberrant[ind_candidats[j]] = True
     return aberrant
-        
-        
-        
     
-    
-def Cook():
-    return
-    
-def Peirce():
-    return
-    
-def Mahalanobis():
-    return
-    
-
 
 ###############################################
 # Fonctions de supression de points aberrants #
