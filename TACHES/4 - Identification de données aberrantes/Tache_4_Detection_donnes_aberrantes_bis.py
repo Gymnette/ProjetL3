@@ -325,24 +325,35 @@ def supprime(x,methode,sup_poids= True,poids=1/100):
         v_poids : vecteur de float
         indices : vecteur d'int
     """
-    
     n = len(x)
-    a,b = methode(x)
     x_sup = list(x)
     v_poids = [1]*n
     indices = []
-    for i,e in enumerate(x):
-        if e <a or e>b:
+    
+    if methode == eval_quartile :
+        a,b = quartile(x)
+        
+    for i in range(n):
+        aberrant = False
+        if methode == test_Chauvenet or methode == thompson:
+            if methode(x,i):
+                aberrant = True             
+        else : #methode == eval_quartile:
+            if eval_quartile(x,i,a,b):
+                aberrant = True
+       
+        if aberrant :
             indices.append(i)
             if sup_poids:
                 x_sup[i] = None
             else :
-                v_poids[i] = poids
+                v_poids[i] = poids   
     
     while None in x_sup:
         x_sup.remove(None)
     
     return x_sup,v_poids,indices
+    
             
 
 def supprime_un(x,v_poids,i,methode,sup_poids= 2,poids=1/100): #COMMENTAIRE BERYL : PAS TOUCHEE, JE TE LE LAISSE AMELYS
@@ -388,7 +399,7 @@ def supprime_un(x,v_poids,i,methode,sup_poids= 2,poids=1/100): #COMMENTAIRE BERY
     return x_sup,v_poids
 
 
-def supp_aberr(x,y,M=1) :
+def supp_aberr(x,y,M) :
     """
     cette foction supprime les points (xi,yi) s'ils sont considéré comment 
     des points aberrants
@@ -415,6 +426,8 @@ def supp_aberr(x,y,M=1) :
             if eval_quartile(y,i,a,b) == False :
                 x_d.append(x[i])
                 y_d.append(y[i])  
+            else :
+                print("point aberrant zak :",i)
                 
     return x_d, y_d
 
@@ -511,7 +524,13 @@ if __name__ == "__main__" :
         j = x[a:b]
         g = y[a:b]
         
-        xd, yd = supp_aberr(j,g,M)
+        yd,v_poids,indices_aberrants = supprime(g,M) #AMELYS : IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
+        indices_aberrants.sort()
+        # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
+        # On ne garde que les x associés aux y.
+        xd = list(j)
+        for ind in range(len(indices_aberrants)-1,-1,-1): #On part de la fin pour ne pas avoir de décalage d'indices
+            xd.pop(indices_aberrants[ind])
         X = X + xd
         Y = Y + yd
         
@@ -533,8 +552,8 @@ if __name__ == "__main__" :
         
     plt.close('all')
     plt.figure(lab)
-    plt.plot(x,y,'b+',label="données aberrantes")
-    plt.plot(X,Y,'r+',label="données non aberrantes")
+    plt.plot(x,y,'b+',label="données")
+    plt.plot(X,Y,'r+',label="données conservées, dites \" non aberrantes\" ")
     plt.legend(loc='best')
         
 
