@@ -498,7 +498,6 @@ if __name__ == "__main__" :
         for ind in range(len(indices_aberrants)-1,-1,-1): #On part de la fin pour ne pas avoir de décalage d'indices
             xd.pop(indices_aberrants[ind])
             
-        xd,yd = supp_aberr(j,g,M)
         X = X + xd
         Y = Y + yd
         
