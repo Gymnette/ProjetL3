@@ -399,40 +399,6 @@ def supprime_un(x,v_poids,i,methode,sup_poids= 2,poids=1/100): #COMMENTAIRE BERY
     return x_sup,v_poids
 
 
-def supp_aberr(x,y,M) :
-    """
-    cette foction supprime les points (xi,yi) s'ils sont considéré comment 
-    des points aberrants
-    le parametre M prend trois valeurs {1,2,3}, 1 si on veut utiliser 
-    la méthode de Chauvenet, 2 la méthode de thompson, 3 la méthode 
-    d'inter-quartile
-    """
-    x_d = []
-    y_d = []
-    if M == eval_quartile :
-        a,b = quartile(y)
-    for i in range(len(x)):
-        if M == test_Chauvenet:
-            if test_Chauvenet(y,i) == False :
-                x_d.append(x[i])
-                y_d.append(y[i])
-                
-        elif M == thompson :
-            if thompson(y,i) == False :
-                x_d.append(x[i])
-                y_d.append(y[i])
-                
-        elif M == eval_quartile:
-            if eval_quartile(y,i,a,b) == False :
-                x_d.append(x[i])
-                y_d.append(y[i])  
-            else :
-                print("point aberrant zak :",i)
-                
-    return x_d, y_d
-
-
-
 ###################################
 # Gestion des intervalles d'étude #
 ###################################
@@ -531,6 +497,8 @@ if __name__ == "__main__" :
         xd = list(j)
         for ind in range(len(indices_aberrants)-1,-1,-1): #On part de la fin pour ne pas avoir de décalage d'indices
             xd.pop(indices_aberrants[ind])
+            
+        xd,yd = supp_aberr(j,g,M)
         X = X + xd
         Y = Y + yd
         
