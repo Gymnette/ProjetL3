@@ -11,15 +11,68 @@ import numpy as np
 import scipy.stats as stat
 from math import sqrt,floor
 
+
 ####################
 # Fonctions utiles #
 ####################
+
+def moyenne(x,invisibles=None):
+    """
+    Cette fonction renvoie la moyenne des valeurs de x
+    Les éléments dont l'indice est dans la liste d'invisibles sont ignorés
+    
+    type des entrées :
+        x : vecteur de float ou vecteur d'entiers
+        invisibles : list[int]
+    
+    type des sorties :
+        float
+    """
+    n = len(x)
+    moyenne = 0.0
+    if invisibles == None :
+        for val in x :
+            moyenne += val
+    else :
+        moyenne = 0.0
+        for i in range(len(x)):
+            if i not in invisibles :
+                moyenne += x[i]
+    
+    moyenne = moyenne / n
+    return moyenne
+    
+    
+def ecart_type(x,moy,invisibles=None):
+    """
+    Cette fonction renvoie l'écart type des valeurs de x, à partir de sa moyenne
+    Les éléments dont l'indice est dans la liste d'invisibles sont ignorés
+    
+    type des entrées :
+        x : vecteur de float ou vecteur d'entiers
+        moy : float
+        invisibles : list[int]
+    
+    type des sorties :
+        float
+    """
+    n = len(x)
+    res = 0.0
+    if invisibles == None :
+        for val in x :
+            res += (val-moy)**2
+    else :
+        for i in range(len(x)):
+            if i not in invisibles :
+                res += (x[i]-moy)**2
+    res = 1/n * res
+    return sqrt(res)
 
 #############################################
 # Méthodes de détection de points aberrants #
 #############################################
 
-def quartile(x,i,Q=0.01):
+def quartile(x,coeff=0.01):
     """
     Méthode inter-quartiles, calcul de l'intervalle.
     La fonction prend une liste de valeurs (ordonnées de points) et renvoie un intervalle [a,b] associé.
@@ -36,18 +89,12 @@ def quartile(x,i,Q=0.01):
     x_s = sorted(x)
     n = len(x_s)
     if n <3 :
-        return True
+        return 1,0 # Intervalle vide : tous les points seront aberrants
     elif n == 3 :
-        return False
+        return min(x),max(x) #Intervalle contenant tous les points, aucun ne sera aberrant
     else:
         
-        k = n//4 
-        """
-        if (n/4)-(n//4) != 0 :
-            k =(n//4) +1
-        else:
-            k =n//4 +1
-        """
+        k = n//4
         # le premier quartile
         q1 = x_s[k-1]
         # le 3éme quartile
@@ -55,12 +102,24 @@ def quartile(x,i,Q=0.01):
         # l'inter-quartile
         inter_q = q3-q1
     
-        if q1-Q*inter_q < x[i] < q3+Q*inter_q :
-            return False
-        else:
-            return True
+    return (q1-coeff*inter_q,q3+coeff*inter_q)
 
-
+def eval_quartile(x,i,a,b):
+    """
+    Méthode inter-quartiles, test d'aberrance du point.
+    Si x[i] appartient à l'intervalle [a,b], renvoie faux, sinon renvoie vrai.
+    Renvoie vrai si et seulement si le point n'appartient pas à l'intervalle
+    
+    type des entrées :
+        x : vecteur de float ou vecteur d'int
+        i : int
+        a : int
+        b : int
+    
+    type des sorties :
+        booléen
+    """
+    return (x[i] < a or x[i] > b)
 
 def test_Chauvenet(x,i):
     """
@@ -217,7 +276,8 @@ def supp_aberr(x,y,M=1) :
     """
     x_d = []
     y_d = []
-    
+    if M == 3 :
+        (a,b) = quartile(y)
     for i in range(len(x)):
         if M==1:
             if test_Chauvenet(y,i) == False :
@@ -229,12 +289,16 @@ def supp_aberr(x,y,M=1) :
                 x_d.append(x[i])
                 y_d.append(y[i])
                 
-        elif M==3:   
-            if quartile(y,i) == False :
+        elif M==3:
+            if eval_quartile(y,i,a,b) == False :
                 x_d.append(x[i])
                 y_d.append(y[i])  
                 
     return x_d, y_d
+
+###################################
+# Gestion des intervalles d'étude #
+###################################
  
 def pas_inter(y,epsilon=0.1):
     """
@@ -269,8 +333,42 @@ def pas_inter(y,epsilon=0.1):
 
 
 if __name__ == "__main__" :
-
-    (x,y) = np.loadtxt('data_CAO.txt')
+    ############################
+    # Récupération des données #
+    ############################
+    
+    #x,y = ldt.load_points("droite_nulle_pasaberrant.txt")
+    #x,y = ldt.load_points("droite_nulle_un_aberrant.txt")
+    #x,y = ldt.load_points("droite_environ_nulle_pasaberrant.txt")
+    #x,y = ldt.load_points("droite_environ_nulle_aberrant.txt")
+    #x,y = ldt.load_points("droite_identite.txt")
+    #x,y = ldt.load_points("droite_identite_environ_pasaberrant.txt")
+    #x,y = ldt.load_points("droite_identite_environ_aberrant.txt")
+    x,y = np.loadtxt('data_CAO.txt')
+    
+    # signaux de tests (stationnaires uniquement pour l'instant) provenant du générateur
+    nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
+    
+    #x,y, f = stationary_signal((30,), 0.9, noise_func=nfunc)
+    #x,y, f = stationary_signal((30,), 0.5, noise_func=nfunc)
+    
+    # Décommenter ces deux lignes pour faire apparaitre le signal associé
+    #xi = np.linspace(0, 1, 100)
+    #plt.plot(xi,f(xi))
+    
+    #######################
+    # Choix de la méthode #
+    #######################
+    
+    #M = eval_quartile
+    #M = test_Chauvenet
+    #M = thompson
+    #M = grubbs
+    #M = deviation_extreme_student
+    
+    ##########################
+    # Traitement des données #
+    ##########################
     
     """
     _________CAS_NON_UNIFORME__________
@@ -281,7 +379,7 @@ if __name__ == "__main__" :
     b = p[0]
     X = []
     Y = []
-    M = 1
+    M = 3
     i=1
     while i < len(p) : # Tant que i < len(p), il reste une borne droite d'intervalle non utilisée
         a = b
