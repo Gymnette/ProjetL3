@@ -78,10 +78,8 @@ def test_Chauvenet(x,i):
     n = len(x) 
     x_barre = sum(x)/n
     var_x = (1/n)*sum(np.array(x)**2) - x_barre**2
-    #print("var_x = ", var_x**0.5)
     a = abs(x[i]-x_barre)/var_x**(0.5)
     n_a = (2*stat.norm.cdf(a,loc = 0,scale = 1)-1)
-    #print("n_a = ", n_a)
     if n_a > 0.5 :
         return True
     else :
