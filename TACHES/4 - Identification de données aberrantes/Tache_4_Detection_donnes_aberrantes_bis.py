@@ -135,7 +135,7 @@ def test_Chauvenet(x,i):
         booléen
     """
     n = len(x) 
-    x_barre = sum(x)/n
+    x_barre = moyenne(x)
     var_x = (1/n)*sum(np.array(x)**2) - x_barre**2
     
     # Si la variance est nulle, tous les points sont égaux : aucun d'eux n'est aberrant.
@@ -165,7 +165,7 @@ def thompson(x,i,alpha=0.001):
         booléen
     """
     n =len(x)
-    x_barre = sum(x)/n
+    x_barre = moyenne(x)
     var_x = (1/n)*sum(np.array(x)**2) - x_barre**2
     sigma = var_x**(0.5)
     t_alpha = stat.t.ppf(alpha/2,n-1)
