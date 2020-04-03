@@ -11,6 +11,7 @@ import numpy as np
 import scipy.stats as stat
 from math import sqrt,floor
 
+
 ####################
 # Fonctions utiles #
 ####################
@@ -67,15 +68,31 @@ def ecart_type(x,moy,invisibles=None):
     res = 1/n * res
     return sqrt(res)
 
+def calcul_reel(i, indices):
+    """
+    Calcul l'indice réel de i en sachant que les indices présents dans indices ont été retirés avant, et n'ont donc pas été comptabilisé.
+    
+    type des entrées :
+        i : int
+        indices : list[int]
+        
+    type des sorties :
+        int
+    """
+    indices.sort() # Pas très optimisé mais pas très gênant car normalement "peu" de points aberrants donc peu d'appels à cette fonction
+    i_reel = i
+    for k in indices :
+        if k <= i_reel :
+            i_reel += 1
+        else :
+            break #L'indice relatif est avant tous ceux enlevés : ça ne change plus rien. Les autres indices non étudiés dans cette boucle sont encore plus grands.
+    return i_reel
+
 #############################################
 # Méthodes de détection de points aberrants #
 #############################################
 
-# Problème de local/global
-# Pour avoir des résultats fiables (dans le cas contraire, on risque de ne pas détecter certaines valeurs aberrantes)
-# Plus les valeurs sont denses, plus il faudrait en considérer localement.
-    
-def quartile(x,coeff=1.5):
+def quartile(x,coeff=0.01):
     """
     Méthode inter-quartiles, calcul de l'intervalle.
     La fonction prend une liste de valeurs (ordonnées de points) et renvoie un intervalle [a,b] associé.
@@ -123,7 +140,7 @@ def eval_quartile(x,i,a,b):
         booléen
     """
     return (x[i] < a or x[i] > b)
-    
+
 def test_Chauvenet(x,i):
     """
     Test de Chauvenet
@@ -140,6 +157,11 @@ def test_Chauvenet(x,i):
     n = len(x) 
     x_barre = moyenne(x)
     var_x = (1/n)*sum(np.array(x)**2) - x_barre**2
+    
+    # Si la variance est nulle, tous les points sont égaux : aucun d'eux n'est aberrant.
+    if var_x == 0 :
+        return False
+        
     a = abs(x[i]-x_barre)/var_x**(0.5)
     n_a = (2*stat.norm.cdf(a,loc = 0,scale = 1)-1)
     if n_a > 0.5 :
@@ -147,8 +169,7 @@ def test_Chauvenet(x,i):
     else :
         return False
     
-    
-def thompson(x,i,alpha=0.01):
+def thompson(x,i,alpha=0.001):
     """
     Test Tau de Thompson
     Renvoie vrai si et seulement si le point x[i] est considéré comme aberrant au regard des autres valeurs de x,
@@ -163,7 +184,6 @@ def thompson(x,i,alpha=0.01):
     type des sorties :
         booléen
     """
-    
     n =len(x)
     x_barre = moyenne(x)
     var_x = (1/n)*sum(np.array(x)**2) - x_barre**2
@@ -176,14 +196,14 @@ def thompson(x,i,alpha=0.01):
     else :
         return False
         
-    
 def grubbs(x,alpha=5/100):
     """
     Test de Grubbs.
     Grubbs est un cas particulier de la déviation extreme de Student.
     La fonction prend une liste de valeurs (ordonnées de points) et un paramètre alpha, le risque d'erreur qu'on accepte.
     L'algorithme de Grubbs est appliqué à la lettre : on applique la formule uniquement sur la valeur la plus éloignée.
-    C'est pourquoi il faut appeler cette méthode tant qu'il y a un "vrai" dans le vecteur renvoyé.
+    C'est pourquoi il faut appeler cette méthode tant que la valeur renvoyée est vrai mais qu'on n'est pas dans un cas spécial.
+    l'indice renvoyé est celui de la valeur extrême, et vaut -1 ou -2 dans les cas spéciaux : écart type nul ou 0 valeurs.
     Elle renvoie une liste de booléens indiquant si la valeur associée est considérée comme aberrante selon le test de Grubbs.
     C'est le cas si la distance à la moyenne empirique est supérieure à un certain seuil.
     
@@ -192,29 +212,33 @@ def grubbs(x,alpha=5/100):
         alpha : float
         
     type des sorties :
-        vecteur de booléens de la longueur de x
+        booléen, int
     """
     n = len(x)
+    
+    if n == 0 :
+        return False, -2 # False ou True, les deux peuvent être mis ici, aucune coïncidence sur le programme.
+    
     
     # Calculs de la moyenne et de l'écart type empiriques
     moy = moyenne(x)
     e_t = ecart_type(x,moy)
     
-    if (e_t == 0): #Les valeurs sont toutes identiques, il n'y a pas de points aberrants
-        return [False]*n
+    if (e_t == 0 ): # L'égalité à 0 n'est pas exacte avec les calculs.
+        #Les valeurs sont toutes identiques, il n'y a pas de points aberrants
+        return False, -1
     
     # Calculs des distances à la moyennes, normalisées par l'écart type
     dist = [0]*n
     for i in range(n) :
         dist[i] = abs(x[i]-moy)
-    
+        
     dist = [d/e_t for d in dist]
     
     # Calcul de la distance limite
     tcrit = stat.t.ppf(1-(alpha/(2*n)),n-2)# Valeur critique selon la loi de Student avec n-2 degrés de liberté et une confiance de alpha/2N    
     dist_lim = (n-1)/sqrt(n) * sqrt(tcrit**2 / (n-2+tcrit**2))
     
-    aberrant = [False]*n
     # On cherche la distance maximum avec son indice
     imax = 0
     dmax = 0
@@ -223,8 +247,7 @@ def grubbs(x,alpha=5/100):
             dmax = dist[i]
             imax = i
     # Si cette distance est plus grande que la limite, la valeur est aberrante.
-    aberrant[imax] = (dmax > dist_lim)
-    return aberrant
+    return (dmax > dist_lim),imax
 
 # Le test de Tietjen Moore est une généralisation du test de Grubbs.
 # Il peut être appliqué peu importe le nombre de valeurs aberrantes
@@ -298,13 +321,14 @@ def deviation_extreme_student(x,alpha=5/100, borne_max=0):
     for j in range(i):
         aberrant[ind_candidats[j]] = True
     return aberrant
-    
+
 
 ###############################################
 # Fonctions de supression de points aberrants #
 ###############################################
 
-def supprime(x,methode,sup_poids= True,poids=1/100):
+    
+def supprime(x,methode,sup_poids= True,poids=1/100): #A AJOUTER (AMELYS) : OPTIONS DES METHODES
     """
     Parcours toutes les valeurs de x afin de toutes les traiter.
     La fonction supprime prend un vecteur x d'ordonnées de points, une methode de
@@ -326,37 +350,41 @@ def supprime(x,methode,sup_poids= True,poids=1/100):
         indices : vecteur d'int
     """
     n = len(x)
+    x_sup = list(x)
+    v_poids = [1]*n
+    indices = []
     
-    if M == grubbs or M == deviation_extreme_student :
-        est_aberrant = M(x)
-        x_sup = list(x)
-        v_poids = [1]*n
-        indices = []
-        for i in range(n) :
-            if est_aberrant[i] :
-                indices.append(i)
-                if sup_poids:
-                    x_sup[i] = None
-                else :
-                    v_poids[i] = poids
-    else :
-        a,b = 0,0 # Si a et b ne sont déclarées que dans le if, elles n'ont pas la bonne portée
-        if M == eval_quartile :
-            (a,b) = quartile(x)
-            print(a,b)
+    if methode == eval_quartile :
+        a,b = quartile(x)
         
-        x_sup = list(x)
-        v_poids = [1]*n
-        indices = []
+    if methode == grubbs :
+        res, ind = grubbs(x)
+        x_cpy = list(x)
+        while (ind >=0 and res ) : #Un point aberrant a été trouvé de manière "classique".
+            ind_reel = calcul_reel(ind,indices)
+            indices.append(ind_reel)
+            if sup_poids:
+                x_sup[ind_reel] = None
+            else :
+                v_poids[ind_reel] = poids  
+            
+            x_cpy.pop(ind) # c'est bien ici le relatif
+            res, ind = grubbs(x_cpy)
+        # Si c'est res qui est faux, pas de soucis, on a notre résultat.
+        # Si l'indice est négatif, le résultat sera faux, donc c'est bon, pas de point aberrant détecté.
+                
+        
+    else :
+        
         for i in range(n):
             aberrant = False
-            if M == eval_quartile:
-                if M(x,i,a,b) :
+            if methode == test_Chauvenet or methode == thompson:
+                if methode(x,i):
+                    aberrant = True             
+            else : #methode == eval_quartile:
+                if eval_quartile(x,i,a,b):
                     aberrant = True
-            else : #M == test_Chauvenet or M == thompson :
-                if M(x,i) :
-                    aberrant = True
-            
+           
             if aberrant :
                 indices.append(i)
                 if sup_poids:
@@ -368,9 +396,10 @@ def supprime(x,methode,sup_poids= True,poids=1/100):
         x_sup.remove(None)
     
     return x_sup,v_poids,indices
+    
             
 
-def supprime_un(x,v_poids,i,methode,sup_poids= 2,poids=1/100):
+def supprime_un(x,v_poids,i,methode,sup_poids= 2,poids=1/100): #COMMENTAIRE BERYL : PAS TOUCHEE, JE TE LE LAISSE AMELYS
     """
     Traite une valeur de x, donnée par l'indice i.
     La fonction supprime prend un vecteur x d'ordonnées, le vecteur des poids associés,
@@ -380,7 +409,6 @@ def supprime_un(x,v_poids,i,methode,sup_poids= 2,poids=1/100):
     égal à 3 si on veut remplacer les points aberrants par les valeurs non aberrantes les plus proches (Méthode de Winsorising) :
         - Affecte le quartile le plus proche pour la méthode interquartile
         DECRIRE ICI CE QUI EST FAIT POUR LES AUTRES METHOOOOOOOOOOOOOOOODES
-        POUR AMELYYYYYYYYYYYYYYSSSSSSSSSSSSSSSSSs
     et égal à 0 si on veut affecter le poids "poids" aux points aberrants et un poids = 1 aux points normaux.
     
     type des entrees :
@@ -413,16 +441,18 @@ def supprime_un(x,v_poids,i,methode,sup_poids= 2,poids=1/100):
 
     return x_sup,v_poids
 
+
 ###################################
 # Gestion des intervalles d'étude #
 ###################################
-    
+ 
 def pas_inter(y,epsilon=0.1):
     """
     Cette fonction prend un vecteur y et un paramètre de variation epsilon,
     et renvoie des intervalles sur lesquels la variation de y est inferieure à epsilon.
     Les intervalles sont représentés par une liste d'entiers, dont l'ordre est important :
-    chaque entier représente un intervalle en indiquant le début de celui ci (le premier commencera à 0, mais n'est pas indiqué).
+    chaque entier représente un intervalle en indiquant le début de celui ci, excepté la dernière valeur indiquant la fin du dernier, exclue.
+    L'intervalle représenté à l'indice i est donc [p[i],p[i+1][
 
     Type des entrées :
         y : vecteur de float ou vecteur d'int
@@ -431,32 +461,29 @@ def pas_inter(y,epsilon=0.1):
     Type des sorties :
         liste[int]
     """
-    p = []
+    p = [0]
     n = len(y)
-    c = 0
     for i in range(n-2):
         d_yi = y[i+1]-y[i]
         d_yi_1 = y[i+2]-y[i+1]
         delta = abs(d_yi - d_yi_1)
         
-        if delta < epsilon :
-            c+=1
-        else:
-            p.append(c)
-            c +=1
+        if delta > epsilon :
+           # c +=1
+            p.append(i+1)
+        
+    # Les deux derniers points appartiendront toujours au dernier intervalle.
+    p.append(n)
 
-    p.append(c)
-    
-    while len(p) != 0 and p[0] == 0:
-        p.pop(0)
-    return p    
+    return p   
 
-if __name__ == "__main__":
-    
+
+if __name__ == "__main__" :
     ############################
     # Récupération des données #
     ############################
     
+    # POUR ZAKARIA : ATTENTION, LA PLUPART DE CES TESTS NE "FONCTIONNENT PAS", A REGARDER
     #x,y = ldt.load_points("droite_nulle_pasaberrant.txt")
     #x,y = ldt.load_points("droite_nulle_un_aberrant.txt")
     #x,y = ldt.load_points("droite_environ_nulle_pasaberrant.txt")
@@ -480,49 +507,43 @@ if __name__ == "__main__":
     # Choix de la méthode #
     #######################
     
-    M = eval_quartile
+    #M = eval_quartile
     #M = test_Chauvenet
     #M = thompson
-    #M = grubbs
+    M = grubbs
     #M = deviation_extreme_student
     
     ##########################
     # Traitement des données #
     ##########################
     
-    n = len(x) # C'est la même que la longueur de Y
-    
-    # Création des intervalles
-    p = pas_inter(y,epsilon=0.1)
-    
-    # Parcours des intervalles et application des méthodes de détection de points aberrants
-    # Intervalle d'indices considéré : |[a,b]|   (intervalle d'entiers)  
-    a = 0
-    b = p[0]
-
-    X = [] # Va stocker les points retenus, c'est à dire les points non aberrants.
-    Y = []
+    n =len(x) #même longueur que y
+    p = pas_inter(y,epsilon=0.09)
     print(p)
-    print(len(x))
-    i = 1
-    while i < len(p) :
-        print(a,b)
+    b = p[0]
+    X = []
+    Y = []
+    i=1
+    while i < len(p) : # Tant que i < len(p), il reste une borne droite d'intervalle non utilisée
+        a = b
+        b = p[i] #On récupère cette borne après avoir décalé
+        
         j = x[a:b]
         g = y[a:b]
         
-        yd, poids, indices_aberrants = supprime(g,M)
+        yd,v_poids,indices_aberrants = supprime(g,M) #AMELYS : IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
+        indices_aberrants.sort()
+        # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
         # On ne garde que les x associés aux y.
         xd = list(j)
         for ind in range(len(indices_aberrants)-1,-1,-1): #On part de la fin pour ne pas avoir de décalage d'indices
             xd.pop(indices_aberrants[ind])
-        print(indices_aberrants)
-        
+            
         X = X + xd
         Y = Y + yd
+        
+        i+=1 # On se décale d'un cran à droite
 
-        a = b
-        b = p[i]
-        i += 1
     if M == eval_quartile:
         lab = "Méthode interquartile"
     elif M == test_Chauvenet:
@@ -537,13 +558,14 @@ if __name__ == "__main__":
         print("Méthode inconnue")
         exit(1)
         
-    ###########################
-    # Affichage des résultats #
-    ###########################
     plt.close('all')
     plt.figure(lab)
-    plt.plot(x,y,'xb',label="données")
-    plt.plot(X,Y,'xr',label="données conservées")
+    plt.plot(x,y,'b+',label="données")
+    plt.plot(X,Y,'r+',label="données conservées, dites \" non aberrantes\" ")
     plt.legend(loc='best')
-    plt.show()
+        
+
     
+
+
+       
