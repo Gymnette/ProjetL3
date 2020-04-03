@@ -533,12 +533,16 @@ if __name__ == "__main__" :
     #x,y = ldt.load_points("droite_identite_environ_aberrant.txt")
     #x,y = np.loadtxt('data_CAO.txt')
     
-    # signaux de tests (stationnaires uniquement pour l'instant) provenant du générateur
+    # signaux de tests stationnaires provenant du générateur
     nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
     
     # Seed sert à "fixer" le test
-    x,y, f = stationary_signal((30,), 0.9, noise_func=nfunc,seed=0)
+    #x,y, f = stationary_signal((30,), 0.9, noise_func=nfunc,seed=0)
     #x,y, f = stationary_signal((30,), 0.5, noise_func=nfunc)
+    
+    # Signaux non stationnaires
+    #x, y, f = non_stationary_signal((30,), switch_prob=0.1, noise_func=nfunc)
+    #x, y, f = non_stationary_signal((30,), switch_prob=0.2, noise_func=nfunc)
     
     #######################
     # Choix de la méthode #
@@ -567,7 +571,7 @@ if __name__ == "__main__" :
     ##########################
     
     n =len(x) #même longueur que y
-    p = pas_inter(y,epsilon=0.3) #ESSAI
+    p = pas_inter(y,epsilon=0.5)
     b = p[0]
     X = []
     Y = []
