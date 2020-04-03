@@ -311,7 +311,21 @@ def Matdiag(n):
     d=np.append(d,2)
     Matdiag=np.diag(d)+np.diag(np.ones(n-1),-1)+np.diag(np.ones(n-1),1)
     return Matdiag
-
+    
+def Repartition_chebyshev(a,b,n):
+    '''
+    Renvoie un tableau de points de l'intervalle [a,b] répartis façon chebyshev
+    '''
+    T = []
+    t1 = float((a+b))/2
+    t2 = float((b-a))/2
+    for i in range (n):
+        T.append(t1+t2*(np.cos((2*i+1)*np.pi/(2*n+2))))
+    print(T)
+    T.sort()
+    T[0] = a
+    T[-1] = b
+    return T
 
 """------------------------------------------------------
 MAIN PROGRAM :   
@@ -334,6 +348,10 @@ if __name__ == '__main__':
     xi = [a]
     xi = np.append(xi,rdm*(b-a) + a)
     xi = np.append(xi,[b])
+    
+    #test précis :
+    #xi = np.linspace(a,b,n)
+    #xi = Repartition_chebyshev(a,b,n)
     plt.scatter(xi,[0]*n,label = 'noeuds')
     
     H = [xi[i+1]-xi[i] for i in range(len(xi)-1)] # vecteur des pas de la spline
