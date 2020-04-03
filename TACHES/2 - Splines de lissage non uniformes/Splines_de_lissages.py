@@ -218,7 +218,7 @@ def MatriceH(N,n,uk,xi,H):
         n : entier(nombre de neouds)
         uk : tableau de flottants(valeurs en abscisse de l'échantillon)
         xi : tableau d'entiers
-        H : vecteur de flottants (pas entre les xi)
+        h : vecteur de flottants (pas entre les xi)
     Return :
         H : Matrice n,n (de flottants)
     """
@@ -233,7 +233,7 @@ def MatriceS(n,H):
     
     Input : 
         n : entier(nombre de neouds)
-        H : vecteur de flottants (pas entre les xi)
+        h : vecteur de flottants (pas entre les xi)
     Output :
         S : Matrice n,n de flottants
     """

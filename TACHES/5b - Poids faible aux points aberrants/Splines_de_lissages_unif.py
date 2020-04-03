@@ -7,8 +7,8 @@ la présence des observations "bruyantes" et son raccord aux données présenté
 
 Ce qui fait qu'un lissage est considéré comme différent d'une interpolation
 """
-
-
+import load_tests as ldt
+import weight_function as weight
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -285,7 +285,7 @@ def Vecteur_y(uk,zk,N,xi,n,h,rho):
         xi : noeuds de lissage (flottants)
         n : entier(nombre de neouds)
         h : vecteur de flottants (pas entre les xi)
-        rho - float,  paramètre de lissage qui contrôle le compromis entre la fidélité des données et le caractère théorique de la fonction
+        rho : float,  paramètre de lissage qui contrôle le compromis entre la fidélité des données et le caractère théorique de la fonction
     Output : y contenant la transposée des yi
     """
     return np.linalg.solve(MatriceW(N,n,uk,xi,h,rho),Matricew(zk,N,n,uk,xi,h))
@@ -313,7 +313,7 @@ MAIN PROGRAM :
 ------------------------------------------------------"""
 
 
-
+X,Y = ldt.load_points("test.txt")  
 
 from statsmodels.tsa.holtwinters import SimpleExpSmoothing
 # prepare data
@@ -337,9 +337,12 @@ h = (b-a)/(n-1) # pas de la spline
 plt.scatter(xi,[0]*n,label = 'noeuds')
 
 
+yest = weight.lowess_ag(uk, [zk],yhat)
 
 
-Y = Vecteur_y(uk,[zk],N,xi,n,h,yhat)
+N = len(yest) # taille de l'échantillon
+print(N)
+Y = Vecteur_y(uk,[yest],N,xi,n,h,yhat)
 yi = np.transpose(Y)
 yip = np.transpose(np.linalg.solve(MatriceA(n),(np.dot(MatriceR(n,h),Y))))
 xx=[]
@@ -351,3 +354,13 @@ for i in range(n-1):
 plt.plot(xx,yy,lw=1,label='rho = '+str(yhat))
 plt.legend()
 plt.savefig('IMG_Tache3.png')
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,39 @@
+\documentclass[a4paper,12pt]{article} % Changer la taille de police c'est ici
+
+\usepackage{framed} % Marges
+\usepackage[utf8]{inputenc} %francais
+\usepackage[T1]{fontenc} %francais
+\usepackage[french]{babel}  %francais
+\usepackage{lmodern} % Pour changer le pack de police
+\usepackage{makeidx} % Index
+\usepackage{graphicx} % Figures
+\usepackage{wrapfig} % Figures
+\usepackage{amsmath} % Maths
+\usepackage{amssymb} % symboles ?
+\usepackage{bclogo} % ?????
+\usepackage{hyperref}
+\usepackage{stmaryrd}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry} %Marges
+
+\title{Rapport Interpolaspline}
+\author{Interpolaspline}
+\date{Avril 2020}
+
+ \begin{document}
+ \maketitle
+
+\section{Optimisation du paramètre de lissage}
+
+\subsection{Introduction}
+
+L'application des méthodes de lissage exponentiel requirent le parametre lissage d'être choisi. En particulier, dans le cas d'un lissage exponentiel simple, on  a besoin de selectionner sa valeur.
+Toutes les prévisions peuvent être calculées à partir des données une fois que nous connaissons ces valeurs. Pour les méthodes qui suivent, il y a généralement plus d’un paramètre de lissage et plus d’un composant initial à choisir.
+
+Dans certains cas, les paramètres de lissage peuvent être choisis de manière subjective, le prévisionniste spécifie la valeur des paramètres de lissage en fonction de l’expérience antérieure. Cependant, une façon plus fiable et objective d’obtenir une valeur pour ce paramètre inconnu est de l'estimer à partir des données observées. Et c'est cela que nous allons voir avec la méthode de holt'winters.
+
+\subsection{La méthode holt'winters}
+
+
+Premièrement,  nous avons estimé les coefficients d’un modèle de régression en minimisant la somme des résidus au carré (habituellement appelée PSE ou « somme des erreurs au carré »). De même, les paramètres inconnus et les valeurs initiales de toute méthode de lissage exponentiel peuvent être estimés en minimisant l’SSE (habituellement appelée PSE ou « somme des erreurs au carré »). Les résidus sont spécifiés comme . Par conséquent, nous trouvons les valeurs des paramètres inconnus et les valeurs initiales qui minimisent
+     \end{document}
+
