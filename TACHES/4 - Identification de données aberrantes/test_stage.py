@@ -10,36 +10,46 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stat
 
-def quartile(x,i,Q=0.1):
+def quartile(x,i,Q=0.01):
     """
-    la fonction prend un vecteur et qui renvoie un intervalle [a,b]
-    un point est considéré aberrant s'il n'appartient pas à intervalle [a,b]
+    cette fonction prend un vecteur x, un indice i et un parametre Q
+    et qui revoie True si le pois x[i] est un point aberrant, et 
+    renvoie False sinon
     """
     x_s = sorted(x)
     n = len(x_s)
-    k = n/4
-    if (n/4)-int(n/4) != 0 :
-        k =int(n/4) +1
-    else:
-        k =n//4 +1
-    
-    # le premier quartile
-    q1 = x_s[k-1]
-    # le 3éme quartile
-    q3 = x_s[3*k-1]
-    # l'inter-quartile
-    inter_q = q3-q1
-    
-    if q1-Q*inter_q < x[i] < q3+Q*inter_q :
+    if n <3 :
+        return True
+    elif n == 3 :
         return False
     else:
-        return True
+        
+        k = n//4 
+        """
+        if (n/4)-(n//4) != 0 :
+            k =(n//4) +1
+        else:
+            k =n//4 +1
+        """
+        # le premier quartile
+        q1 = x_s[k-1]
+        # le 3éme quartile
+        q3 = x_s[3*k-1]
+        # l'inter-quartile
+        inter_q = q3-q1
+    
+        if q1-Q*inter_q < x[i] < q3+Q*inter_q :
+            return False
+        else:
+            return True
 
 
 
 def test_Chauvenet(x,i):
     """
-    test de Chauvenet
+    cette fonction prend un vecteur x et un indice i 
+    et qui revoie True si le pois x[i] est consideré comme un point
+    aberrant selon le test de Chauvenet, et renvoie False sinon
     """
     n = len(x) 
     x_barre = sum(x)/n
@@ -53,7 +63,12 @@ def test_Chauvenet(x,i):
     else :
         return False
     
-def thompson(x,i,alpha=0.01):
+def thompson(x,i,alpha=0.001):
+    """
+    cette fonction prend un vecteur x, un indice i et un parametre alpha
+    et qui revoie True si le pois x[i] est un point aberrant, et 
+    renvoie False sinon
+    """
     n =len(x)
     x_barre = sum(x)/n
     var_x = (1/n)*sum(np.array(x)**2) - x_barre**2
@@ -70,39 +85,17 @@ def thompson(x,i,alpha=0.01):
         return False
         
 
-"""
-la fonction supprime prend un vecteur x, un indice i, le nom une methode de
-detection des points aberrants, un booléen sup_poid égale à 1 si on veut supprimer
-les points aberrants,égale à 2 si on veut garder la taille de x inchangée (None au lieu de points aberrants)
-égale à 3 si on veut remplacer les points aberrants par les valeurs des quantiles
-et égale à 0 si on veut affecter le poid "poid" aux pointx 
-aberrants et un poid = 1 aux points normaux 
-"""
-def supprime_un(x,v_poids,i,methode,sup_poid= 2,poids=1/100):
-    a,b = methode(x)
-    xk = x[i]
-    x_sup = list(x)
-    
-    if xk <a or xk>b:
-        if sup_poid == 1:
-            x_sup.pop(i)
-            v_poids.pop(i)
-        elif sup_poid == 2:
-            x_sup[i] = None
-            v_poids[i] = None
-        elif sup_poid == 3:
-            x_sup[i] = a if xk<a else b
-        else:
-            v_poids[i] = poids
-
-    return x_sup,v_poids
-
-#def local_global(x):
 def supp_aberr(x,y,M=1) :
-    
-    x_d =[]
+    """
+    cette foction supprime les points (xi,yi) s'ils sont considéré comment 
+    des points aberrants
+    le parametre M prend trois valeurs {1,2,3}, 1 si on veut utiliser 
+    la méthode de Chauvenet, 2 la méthode de thompson, 3 la méthode 
+    d'inter-quartile
+    """
+    x_d = []
     y_d = []
-    N = (np.array(x)**2 + np.array(y)**2)**0.5
+    
     for i in range(len(x)):
         if M==1:
             if test_Chauvenet(y,i) == False :
@@ -120,63 +113,46 @@ def supp_aberr(x,y,M=1) :
                 y_d.append(y[i])  
                 
     return x_d, y_d
-    
+ 
+def pas_inter(y,epsilon=0.1):
+    """
+    cette fonction prend un vecteur y et un parametre de variation epsilon
+    et qui renvoie des intervalles sur lesquels la variation de y est 
+    inferieure à epsilon
+    """
+    p = [0]
+    n = len(y)
+    for i in range(n-2):
+        d_yi = y[i+1]-y[i]
+        d_yi_1 = y[i+2]-y[i+1]
+        delta = abs(d_yi - d_yi_1)
+        
+        if delta > epsilon :
+           # c +=1
+            p.append(i+1)
+            
+    p.append(n-1)       
+
+    return p   
+
 
 if __name__ == "__main__" :
 
-    x = [5,7,10,15,19,21,21,22,23,23,23,23,23,24,24,24,24,25]
-    #print(x)
-    v_poids = [1]*len(x)
     (uk,uz) = np.loadtxt('data.txt')
-
-    """
-    i = 0
-    n = len(x)
-    while i<n :
-        x,v_poids = supprime_un(x,v_poids,i,quartile,sup_poid= 1,poids=1/100)
-        if len(x) == n:
-            i+=1
-        n = len(x)
-    print(x)
-    """
-    """
-    x_ecart = []
-    y_ecart = []
-    x_thomp = []
-    y_thomp = []
-    #N = (np.array(uk)**2 + np.array(uz)**2)**0.5
-    N = abs(np.array(uk) - np.array(uz))
-    print("x = ", x)
     
-    for i in range(len(uk)):
-        
-        if test_Chauvenet(uz,i) == False :
-            x_ecart.append(uk[i])
-            y_ecart.append(uz[i])
-        
-        if thompson(N,i) == False :
-            x_thomp.append(uk[i])
-            y_thomp.append(uz[i])
-           
-        if quartile(N,i) == False :
-            x_thomp.append(uk[i])
-            y_thomp.append(uz[i])
-            
-    plt.plot(x_thomp,y_thomp,'or',color='r')
-        
-    print("x_ecart = ",x_ecart)     
-    print("x_thomp = ",x_thomp)   
-    """    
-        
+    """
+    _________CAS_NON_UNIFORME__________
+    """
+    
     n =len(uk)
-    k = 0
-    pas = n//20
-    a = 0
-    b = pas
+    p = pas_inter(uz,epsilon=0.07)
+    a = p[0]
+    b = p[1]
     X = []
     Y = []
-    M = 3
-    while b <= n :
+    M = 1
+    i=2
+    while i < len(p) :
         j = uk[a:b]
         g = uz[a:b]
         
@@ -185,7 +161,11 @@ if __name__ == "__main__" :
         Y = Y + yd
 
         a = b
-        b += pas
+        b = p[i]
+        i+=1
+        
+
+
     if M==1:
         lab = "chauvenet"
     elif M==2 :
@@ -197,28 +177,9 @@ if __name__ == "__main__" :
     plt.plot(uk,uz,'rx',color='b',label="données aberrantes")
     plt.plot(X,Y,'or',color='r',label="données non aberrantes")
     plt.legend(loc='best')
+        
 
-    x_d1 =[]
-    x_d2 = []
-    x_d3 = []
     
-    for i in range(len(x)):
-        if test_Chauvenet(x,i) == False :
-            x_d1.append(x[i])
-                
-        if thompson(x,i) == False :
-            x_d2.append(x[i])
-                
-        if quartile(x,i) == False :
-            x_d3.append(x[i])
-                
-    print('x= ', x)
-    print('Chauvenet = ', x_d1)
-    print('thompson = ', x_d2)
-    print('quartile = ', x_d3)
-
-
-
 
 
        
