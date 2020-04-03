@@ -531,7 +531,7 @@ if __name__ == "__main__" :
     #x,y = ldt.load_points("droite_identite.txt")
     #x,y = ldt.load_points("droite_identite_environ_pasaberrant.txt")
     #x,y = ldt.load_points("droite_identite_environ_aberrant.txt")
-    #x,y = np.loadtxt('data_CAO.txt')
+    x,y = np.loadtxt('data_CAO.txt')
     
     # signaux de tests stationnaires provenant du générateur
     nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
@@ -559,8 +559,11 @@ if __name__ == "__main__" :
     ##########################
     
     n =len(x) #même longueur que y
-    p = pas_inter(y,epsilon=0.5)
+    p = pas_inter(y,epsilon=0.09)
+    
     b = p[0]
+    
+    
     X = []
     Y = []
     i=1
@@ -570,8 +573,7 @@ if __name__ == "__main__" :
         
         
         j = x[a:b]
-        g = y[a:b]
-        
+        g = y[a:b]     
         
         yd,v_poids,indices_aberrants = supprime(g,M) #AMELYS : IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
         indices_aberrants.sort()
@@ -602,12 +604,13 @@ if __name__ == "__main__" :
         
     plt.close('all')    
     plt.figure(lab)
+    plt.title(lab)
     plt.plot(x,y,'b+',label="données")
     plt.plot(X,Y,'r+',label="données conservées, dites \" non aberrantes\" ")
     plt.legend(loc='best')
     # Décommenter ces deux lignes pour faire apparaitre le signal associé
-    xi = np.linspace(0, 1, 100)
-    plt.plot(xi,f(xi))
+    #xi = np.linspace(0, 1, 100)
+    #plt.plot(xi,f(xi))
         
 
     
