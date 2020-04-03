@@ -259,7 +259,7 @@ def deviation_extreme_student(x,alpha=5/100, borne_max=0):
     C'est la généralisation du test de Grubbs, sans avoir besoin d'itérer.
     D'après des études de Rosner (Rosner, Bernard (May 1983), Percentage Points for a Generalized ESD Many-Outlier Procedure,Technometrics, 25(2), pp. 165-172.) 
     , ce test est très précis pour n >= 25 et reste correct pour n>=15.
-    Il faut donc faire attention : ne pas l'appeler sur un intervalle avec peu de points !
+    Il faut donc faire attention aux résultats obtenus si on l'appelle sur un intervalle avec peu de points !
     Ce test permet de détecter un ou plusieurs points aberrants, c'est en quelques sortes une généralisation de Grubbs.
     Il nécessite simplement une borne maximale de points aberrants. (qui peut être donnée arbitrairement, par exemple 10% du nombre de points total)
     L'algorithme est appliqué sur les données x. Si la borne maximale vaut 0, alors on considère que c'est 10% du nombre de données (arrondi au supérieur)
@@ -372,7 +372,15 @@ def supprime(x,methode,sup_poids= True,poids=1/100): #A AJOUTER (AMELYS) : OPTIO
             res, ind = grubbs(x_cpy)
         # Si c'est res qui est faux, pas de soucis, on a notre résultat.
         # Si l'indice est négatif, le résultat sera faux, donc c'est bon, pas de point aberrant détecté.
-                
+    elif methode == deviation_extreme_student :
+        est_aberrant = methode(x)
+        for i in range(n):
+            if est_aberrant[i] :
+                indices.append(i)
+                if sup_poids:
+                    x_sup[i] = None
+                else :
+                    v_poids[i] = poids  
         
     else :
         
@@ -496,21 +504,17 @@ if __name__ == "__main__" :
     # signaux de tests (stationnaires uniquement pour l'instant) provenant du générateur
     nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
     
-    #x,y, f = stationary_signal((30,), 0.9, noise_func=nfunc)
+    x,y, f = stationary_signal((30,), 0.9, noise_func=nfunc)
     #x,y, f = stationary_signal((30,), 0.5, noise_func=nfunc)
-    
-    # Décommenter ces deux lignes pour faire apparaitre le signal associé
-    #xi = np.linspace(0, 1, 100)
-    #plt.plot(xi,f(xi))
     
     #######################
     # Choix de la méthode #
     #######################
     
-    #M = eval_quartile
+    M = eval_quartile
     #M = test_Chauvenet
     #M = thompson
-    M = grubbs
+    #M = grubbs
     #M = deviation_extreme_student
     
     ##########################
@@ -518,7 +522,7 @@ if __name__ == "__main__" :
     ##########################
     
     n =len(x) #même longueur que y
-    p = pas_inter(y,epsilon=0.09)
+    p = pas_inter(y,epsilon=0.5)
     print(p)
     b = p[0]
     X = []
@@ -558,11 +562,14 @@ if __name__ == "__main__" :
         print("Méthode inconnue")
         exit(1)
         
-    plt.close('all')
+    plt.close('all')    
     plt.figure(lab)
     plt.plot(x,y,'b+',label="données")
     plt.plot(X,Y,'r+',label="données conservées, dites \" non aberrantes\" ")
     plt.legend(loc='best')
+    # Décommenter ces deux lignes pour faire apparaitre le signal associé
+    xi = np.linspace(0, 1, 100)
+    plt.plot(xi,f(xi))
         
 
     
