@@ -475,15 +475,47 @@ def pas_inter(y,epsilon=0.1):
         d_yi = y[i+1]-y[i]
         d_yi_1 = y[i+2]-y[i+1]
         delta = abs(d_yi - d_yi_1)
-        
         if delta > epsilon :
-           # c +=1
             p.append(i+1)
         
     # Les deux derniers points appartiendront toujours au dernier intervalle.
     p.append(n)
 
     return p   
+
+def pas_inter_essai(y,epsilon=0.1):
+    """
+    Cette fonction prend un vecteur y et un paramètre de variation epsilon,
+    et renvoie des intervalles sur lesquels la variation de y est inferieure à epsilon.
+    Les intervalles sont représentés par une liste d'entiers, dont l'ordre est important :
+    chaque entier représente un intervalle en indiquant le début de celui ci, excepté la dernière valeur indiquant la fin du dernier, exclue.
+    L'intervalle représenté à l'indice i est donc [p[i],p[i+1][
+
+    Type des entrées :
+        y : vecteur de float ou vecteur d'int
+        epsilon : float
+        
+    Type des sorties :
+        liste[int]
+    """
+    p = [0]
+    n = len(y)
+    for i in range(n-2):
+        d_yi = abs(y[i+1]-y[i])
+        d_yi_1 = abs(y[i+2]-y[i])
+        print(d_yi,d_yi_1,i)
+        
+        if (d_yi > epsilon and d_yi_1 > epsilon):
+            print(i)
+            p.append(i+1)
+        if d_yi > epsilon and d_yi_1 <= epsilon :
+            i += 1 # Il y a eu un point "aberrant"(c'est bête de ne pas le retirer tout de suite...)
+            
+        
+    # Les deux derniers points appartiendront toujours au dernier intervalle.
+    p.append(n)
+
+    return p  
 
 
 if __name__ == "__main__" :
@@ -499,31 +531,43 @@ if __name__ == "__main__" :
     #x,y = ldt.load_points("droite_identite.txt")
     #x,y = ldt.load_points("droite_identite_environ_pasaberrant.txt")
     #x,y = ldt.load_points("droite_identite_environ_aberrant.txt")
-    x,y = np.loadtxt('data_CAO.txt')
+    #x,y = np.loadtxt('data_CAO.txt')
     
     # signaux de tests (stationnaires uniquement pour l'instant) provenant du générateur
     nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
     
-    x,y, f = stationary_signal((30,), 0.9, noise_func=nfunc)
+    # Seed sert à "fixer" le test
+    x,y, f = stationary_signal((30,), 0.9, noise_func=nfunc,seed=0)
     #x,y, f = stationary_signal((30,), 0.5, noise_func=nfunc)
     
     #######################
     # Choix de la méthode #
     #######################
     
-    M = eval_quartile
+    #M = eval_quartile
     #M = test_Chauvenet
     #M = thompson
     #M = grubbs
-    #M = deviation_extreme_student
+    M = deviation_extreme_student
+    
+    #############################################################
+    # Epsilon à choisir en fonction des graines et des méthodes #
+    #############################################################
+    # Pour les signaux stationnaires de paramètres 30, et 0.9
+    # Pour les paramètres des méthodes par défaut
+    #           0      1       2       3       4        5
+    #Quartile  0.5
+    #Chauvenet
+    #Thompson
+    #Grubbs    0.3
+    #ESD       0.3
     
     ##########################
     # Traitement des données #
     ##########################
     
     n =len(x) #même longueur que y
-    p = pas_inter(y,epsilon=0.5)
-    print(p)
+    p = pas_inter(y,epsilon=0.3) #ESSAI
     b = p[0]
     X = []
     Y = []
@@ -532,8 +576,10 @@ if __name__ == "__main__" :
         a = b
         b = p[i] #On récupère cette borne après avoir décalé
         
+        
         j = x[a:b]
         g = y[a:b]
+        
         
         yd,v_poids,indices_aberrants = supprime(g,M) #AMELYS : IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
         indices_aberrants.sort()
