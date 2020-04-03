@@ -3,7 +3,7 @@ import scipy as sp
 import scipy.signal
 import matplotlib.pyplot as plt
 
-def stationary_signal(shape, regularity, noise_func=lambda x: x):
+def stationary_signal(shape, regularity, noise_func=lambda x: x, seed=None):
     """
     Create samples from stationary signal.
     
@@ -18,6 +18,8 @@ def stationary_signal(shape, regularity, noise_func=lambda x: x):
     noise_func : function
         Add noise to samples according to function, defaut is no 
         noise added.
+	seed : integer
+		Seed of the random generator, defaut is a random seed.
     
     Returns
     -------
@@ -39,6 +41,8 @@ def stationary_signal(shape, regularity, noise_func=lambda x: x):
     >>> plt.legend()
     """
     # init
+    if seed != None :
+        np.random.seed(seed)
     shape = (shape[0], 1) if len(shape)==1 else shape
     
     # node points value of spline surface
@@ -66,7 +70,7 @@ def stationary_signal(shape, regularity, noise_func=lambda x: x):
     return pts, noise_func(Zi), f
 
 
-def non_stationary_signal(shape, walk_prob=0.02, switch_prob=0.1, noise_func=lambda x: x):
+def non_stationary_signal(shape, walk_prob=0.02, switch_prob=0.1, noise_func=lambda x: x, seed = None):
     """
     Create stationary signal samples.
     
@@ -83,6 +87,8 @@ def non_stationary_signal(shape, walk_prob=0.02, switch_prob=0.1, noise_func=lam
     noise_func : function
         Add noise to samples according to function, defaut is no 
         noise added.
+	seed : integer
+		Seed of the random generator, defaut is a random seed.
     
     Returns
     -------
@@ -105,6 +111,8 @@ def non_stationary_signal(shape, walk_prob=0.02, switch_prob=0.1, noise_func=lam
     
     """
     # init
+    if seed != None :
+        np.random.seed(seed)
     shape = (shape[0], 1) if len(shape)==1 else shape
     
     # first dimension
