@@ -7,6 +7,8 @@ la présence des observations "bruyantes" et son raccord aux données présenté
 
 Ce qui fait qu'un lissage est considéré comme différent d'une interpolation
 """
+
+from signaux_splines import *
 import load_tests as ldt
 import weight_function as weight
 import numpy as np
@@ -313,36 +315,34 @@ MAIN PROGRAM :
 ------------------------------------------------------"""
 
 
-X,Y = ldt.load_points("test.txt")  
+#X,Y = ldt.load_points("test.txt")  
 
 from statsmodels.tsa.holtwinters import SimpleExpSmoothing
-# prepare data
-(uk,zk) =  np.loadtxt('data.txt')
-# create class
-model = SimpleExpSmoothing(zk)
-# fit model
-model_fit = model.fit()
-# make prediction
-yhat = model_fit.predict()
- # échantillon de valeurs fournies en txt
+
+(uk,zk) =  np.loadtxt('data.txt') # prépare les données
+model = SimpleExpSmoothing(zk) # crée la classe
+model_fit = model.fit() # met en forme le modèle
+yhat = model_fit.predict() # trouve la valeur optimale
+
+
 plt.plot(uk,zk,'rx',label='scattered data') # affichage des points de l'échantillon
 N = len(uk) # taille de l'échantillon
 
 n=15 # nombre des noeuds attendus pour la spline de lissage
 plt.title('Spline de lissage uniforme avec '+str(n)+' noeuds') # titre
 a = -2 # intervalle
-b = 8 # intervalle
+b = 22 # intervalle
 xi = np.linspace(a,b,n) # vecteur des valeurs en abscisse de la spline
 h = (b-a)/(n-1) # pas de la spline
 plt.scatter(xi,[0]*n,label = 'noeuds')
 
 
-yest = weight.lowess_ag(uk, [zk],yhat)
+y_estimated = weight.construct(uk, zk,yhat)
+N = len(y_estimated) # taille de l'échantillon
+plt.plot(uk,y_estimated,'bx',label='scattered data') # affichage des points de l'échantillon
 
 
-N = len(yest) # taille de l'échantillon
-print(N)
-Y = Vecteur_y(uk,[yest],N,xi,n,h,yhat)
+Y = Vecteur_y(uk,y_estimated,N,xi,n,h,yhat)
 yi = np.transpose(Y)
 yip = np.transpose(np.linalg.solve(MatriceA(n),(np.dot(MatriceR(n,h),Y))))
 xx=[]
@@ -353,7 +353,7 @@ for i in range(n-1):
     yy=np.append(yy,y)
 plt.plot(xx,yy,lw=1,label='rho = '+str(yhat))
 plt.legend()
-plt.savefig('IMG_Tache3.png')
+plt.savefig('IMG_Tache5b.png')
 
 
 
