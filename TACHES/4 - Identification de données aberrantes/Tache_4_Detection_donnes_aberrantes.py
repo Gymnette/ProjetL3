@@ -551,20 +551,8 @@ if __name__ == "__main__" :
     #M = eval_quartile
     #M = test_Chauvenet
     #M = thompson
-    #M = grubbs
-    M = deviation_extreme_student
-    
-    #############################################################
-    # Epsilon à choisir en fonction des graines et des méthodes #
-    #############################################################
-    # Pour les signaux stationnaires de paramètres 30, et 0.9
-    # Pour les paramètres des méthodes par défaut
-    #           0      1       2       3       4        5
-    #Quartile  0.5
-    #Chauvenet
-    #Thompson
-    #Grubbs    0.3
-    #ESD       0.3
+    M = grubbs
+    #M = deviation_extreme_student
     
     ##########################
     # Traitement des données #
