@@ -11,6 +11,7 @@
 \usepackage{amsmath} % Maths
 \usepackage{amssymb} % symboles ?
 \usepackage{bclogo} % ?????
+\usepackage{hyperref} % URL
 \usepackage{stmaryrd}
 \usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry} %Marges
 
@@ -47,8 +48,16 @@ Avec coeff un paramètre de la méthode.
 Cettefonctionprendenentréeunelistesuivantunedistributiondelanormale,pourchaque élément on applique le théorème central limite et on retourne la liste de valeurs aberrantes Le test s’eﬀectue sur un nombre qui est égale au produit de la longueur de liste par la probabilité que X soit plus grande que l’élément de liste centrée réduit, une valeur est aberrante si ce nombre est inférieur à 0.5
 
 \subsubsection{Test Tau de Thompson}
+ZAKARIA
 \subsubsection{Test de Grubbs}
+Cette méthode a été inventée par Frank E. Grubbs en 1969. Pour ce test, on n’étudie que la valeur extrême (celle dont la valeur absolue de l’écart à la moyenne est la plus grande). Si plusieurs existent, on peut itérer ce test plusieurs fois tant qu’on trouve des points aberrants, en retirant le point aberrant trouvé. On compare ensuite $\frac{v_{extreme}-moyenne}{ecart-type}$ avec le seuil critique donné par le test de Grubbs : $G_{crit} = \frac{n-1}{\sqrt{n}}\sqrt{\frac{t^2_{\frac{\alpha}{n},n-2}}{n-2+t^2_{\frac{\alpha}{n},n-2}}}$. (n est le nombre de données,$t_{a,b}$ est le résultat de la fonction quantile de Student avec un seuil de conﬁance a et b degrés de liberté, et $\alpha$ une certaine mesure de l’erreur que l’on accepte) Si la première valeur est plus grande que le seuil, alors la méthode de Grubbs considère que le point extrême est aberrant. $\alpha$ est un paramètre que nous décidons de passer à la fonction. Plus celui-ci est faible, plus la chance que les points détectés comme aberrants le soient réellements (mais dans ce cas, peu sont détectés, certains points pourtant aberrants peuvent ne pas être détectés)
 \subsubsection{Méthode de la déviation extrême de Student}
+Cette méthode a été inventée par Bernard Rosner en 1983. Ce test est une généralisation du test de Grubbs. En anglais, ce test appelé "extreme Studentized deviate" est abbrégé ESD. L’algorithme suit les étapes suivantes : \\
+- Récupération des valeurs extrêmes (même déﬁnition que dans le paragraphe précédent)\\
+- Comparaison des valeurs extrêmes normalisées avec le seuil critique, qui dépend du nombre de valeurs extrêmes déjà enlevées. Valeur normalisée : $\frac{v_{extreme}-moyenne}{ecart-type}$ . Seuil critique, avec i le nombre de valeurs déjà enlevées : 
+$\frac{    (n-i-1)*t _{     \frac{1-\alpha}{2(n-i)},n-i-2     }       }  {        \sqrt{       (n-i)*(n-i-2+t^2_{   \frac{1-\alpha}{2(n-i)},n-i-2} )      }     }  $ \\
+ - On ne compare pas les valeurs suivantessiunpointestdécrétécommenonaberrant:eneﬀet,ontraitelesvaleursdansl’ordre de leur "extrêmitude".
+
 \subsubsection{Méthode des k plus proches voisins}
 
 Calculer pour chaque observation la distance au K plus proche voisin k-distance; Ordonner les observations selon ces distances k-distance; Les données aberrantes ont les plus grandes distances k-distance; Les observations qui ont les n pourcent plus grandes distances k-distance sont des données aberrante, n étant un paramètre à ﬁxer. Dans un premier temps, nous avons crée un algorithme qui prend en entrée une liste et un indice, et retourne une liste contenant les distances de l’élément à la position i à aux éléments de la liste. Ensuite, un deuxième qui comme la précédente prend en entrée une liste, un indice et un entier k et retourne la k-distance de l’élément à la position indice qui représente la moyenne ses k petites distances. Enﬁn,undernierquielleprenduneliste,unentierketunentierncommeindiquéaudessus, retourne la liste contenant les valeurs de la liste qui ont les n pourcent plus grande k-distance.
@@ -60,10 +69,15 @@ Calculer pour chaque observation la distance au K plus proche voisin k-distance;
 Les tests ont été réalisés sur la définition des points aberrant suivante :
 
 \emph{Un point est dit aberrant lorsqu'il n'appartient pas à l'intervalle }
-\[[Q_1 - 1.5*(Q_3 - Q_1) , Q_3 +1.5*(Q_3 - Q_1)]\]
+\[[Q_1 - coeff*(Q_3 - Q_1) , Q_3 +coeff*(Q_3 - Q_1)]\]
 
 Le résultat est visible dans la figure \ref{suppr}.
 
+\subsection{Sources}
+\url{https://fr.wikipedia.org/wiki/Donn\%C3\%A9e_aberrante} : beaucoup de méthodes \\
+\url{https://lemakistatheux.wordpress.com/category/tests-statistique-indices-de-liaison-et-coefficients-de-correlation/ les-tests-pour-la-detection-doutliers/} Plusieurs méthodes expliquées permettant de détecter les outliers (Tukey, Test Q de Dixon, Chauvenet, Grubbs, Tietjen-Moore, Déviation extrême généralisée Student, modiﬁé de Thompson, critère de Peirce) + des exemples \\
+\url{ https://en.wikipedia.org/wiki/Grubbs\%27s_test_for_outliers} test de Grubbs \\
+\url{https://ellistat.com/guide-dutilisateur/statistiques-descriptives/tests-de-valeurs-aberrantes/ test-de-grubb/} test de Grubbs (pratique seulement, pas de théorie)
 
 \begin{figure}
 \begin{center}
