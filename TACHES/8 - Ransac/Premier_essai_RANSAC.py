@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Apr  7 13:09:26 2020
+
+@author: Béryl
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from signaux_splines import *
@@ -163,7 +170,7 @@ def calcul_Spline_NU(X,Y,a,b,n):
     Renvoie xres et yres, des vecteurs de réels donnant la discrétisation de la spline.
     '''
     H = [X[i+1]-X[i] for i in range(n-1)]
-    plt.scatter(X,Y,s=75,c='red',marker = 'o',label = "NU interpolation points")
+    #plt.scatter(X,Y,s=75,c='red',marker = 'o',label = "NU interpolation points")
     A = Matrix_NU(H)
     B = Matrix_NU_resulat(Y,H)
     Yp = np.linalg.solve(A,B)
@@ -496,14 +503,15 @@ def calcul_Spline_lissage(uk,zk,a,b,n,rho) :
 # http://w3.mi.parisdescartes.fr/~lomn/Cours/CV/SeqVideo/Material/RANSAC-tutorial.pdf 
 # Nombre minimal de points ? Essai avec 3. Interpolation à chaque étape (et non approximation)
     
-def ransac(x,y,nbitermax,err,dist,nbcorrect,nbpoints):
+def ransac(x,y,nbitermax,err,dist,nbcorrect,nbpoints,rho):
     """
     Application de l'algorithme de Ransac avec un modèle de splines cubiques
     Une approximation aux moindres carrés est effectuée à la fin.
     On a besoin des données, du nombre maximum d'itérations, 
     de l'erreur maximum acceptée entre un point et la spline, de la fonction distance associée, 
     du nombre de points nécessaires pour qu'un modèle soit considéré comme correct,
-    et du nombre de points pour créer la spline d'essai
+    du nombre de points pour créer la spline d'essai,
+    et du paramètre de lissage
     xres et yres représentent la spline qui interpole au mieux les données d'après RANSAC
 
     Type entrées :
@@ -550,6 +558,7 @@ def ransac(x,y,nbitermax,err,dist,nbcorrect,nbpoints):
                 continue
             else :
                 i_associe = trouver_ind(x[i],xres)
+                print(x[i],xres[i_associe])
                 if dist(x[i],y[i],xres[i_associe],yres[i_associe]) <= err :                
                     liste_inlier.append(i)
                     #plt.plot(x[i],y[i],"bo")
@@ -565,7 +574,7 @@ def ransac(x,y,nbitermax,err,dist,nbcorrect,nbpoints):
                 x_pour_spline.append(x[liste_inlier[i]])
                 y_pour_spline.append(y[liste_inlier[i]])
             x_pour_spline,y_pour_spline = sortpoints(x_pour_spline,y_pour_spline)
-            xtemp, ytemp = calcul_Spline_lissage(x_pour_spline, y_pour_spline,a,b,nbpoints,0.01)
+            xtemp, ytemp = calcul_Spline_lissage(x_pour_spline, y_pour_spline,a,b,nbpoints,rho)
             err_temp = 0
             for i in range(len(x_pour_spline)):
                 i_associe = trouver_ind(x_pour_spline[i],xtemp)
@@ -576,34 +585,203 @@ def ransac(x,y,nbitermax,err,dist,nbcorrect,nbpoints):
                 ymod = list(ytemp)
     return xmod, ymod
         
-def ransac_auto(x,y,nbitermax,err,dist,nbcorrect,nbpoints):
-    pass
+def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
+    """
+    Automatisation de l'algorithme de Ransac avec un modèle de splines cubiques :
+    le calcul de la proportion de points aberrants (outlier) ou non (inlier) est mise à jour au fur et à mesure.
+    Une approximation aux moindres carrés est effectuée à la fin.
+    On a besoin des données,
+    de l'erreur maximum acceptée entre un point et la spline, de la fonction distance associée,
+    du nombre de points pour créer la spline d'essai,
+    du paramètre de lissage,
+    et de la probabilité d'obtenir un résultat correct avec cet algorithme.
+    xres et yres représentent la spline qui interpole au mieux les données d'après RANSAC
+
+    Type entrées :
+        x : vecteur de float
+        y : vecteur de float
+        nbitermax : int
+        err : float
+        dist : function : (float,float)x(float,float) -> float
+        nbcorrect : int
+        nbpoints : int
+    Type sorties :
+        xres : vecteur de float
+        yres : vecteur de float
+    """
+    a = min(x)
+    b = max(x)
+    
+    prop_inlier = 0
+    nbitermax = 10000 # Sera ajusté en fonction de prop_inlier
+    nbcorrect = math.floor(prop_inlier*len(x))
+    
+    # Sauvegarde du meilleur modèle trouvé et de l'erreur associée
+    xmod = None
+    ymod = None
+    errmod = -1
+
+    k = 0
+    while k < nbitermax :
+        # Choix d'un échantillon
+        i_points = alea(len(x),nbpoints)
+        print(i_points)
+        x_selec = []
+        y_selec = []
+        for i in range(len(i_points)):
+            x_selec.append(x[i_points[i]])
+            y_selec.append(y[i_points[i]])
+        
+        # Création de la courbe à partir de l'échantillon
+        x_selec,y_selec = sortpoints(x_selec,y_selec)
+        xres,yres = calcul_Spline_NU(x_selec,y_selec,a,b,nbpoints)
+        
+        #plt.plot(x,y,"or")
+        #plt.plot(x_selec,y_selec,"og")
+        
+        # Calcul des erreurs
+        liste_inlier = list(i_points)
+        for i in range(len(x)):
+            if i in i_points :
+                # Inutile de calculer dans ce cas là, déjà compté
+                continue
+            else :
+                i_associe = trouver_ind(x[i],xres)
+                if dist(x[i],y[i],xres[i_associe],yres[i_associe]) <= err :      
+                    liste_inlier.append(i)
+                    #plt.plot(x[i],y[i],"bo")
+                #else :
+                    #print(i)
+                    #print(i_associe)
+                    #print(dist(x[i],y[i],xres[i_associe],yres[i_associe]))
+                    #print("fin")
+        
+        if len(liste_inlier) >= nbcorrect:
+            # Le modèle semble ne contenir que des inlier ! 
+            # On calcule la spline de lissage correspondante, avec l'erreur.
+            # On garde la spline de lissage ayant l'erreur la plus petite.
+            
+            x_pour_spline = []
+            y_pour_spline = []
+            for i in range(len(liste_inlier)):
+                x_pour_spline.append(x[liste_inlier[i]])
+                y_pour_spline.append(y[liste_inlier[i]])
+            x_pour_spline,y_pour_spline = sortpoints(x_pour_spline,y_pour_spline)
+            xtemp, ytemp = calcul_Spline_lissage(x_pour_spline, y_pour_spline,a,b,nbpoints,rho)
+            #xtemp,ytemp = calcul_Spline_NU(x_pour_spline,y_pour_spline,a,b,len(x_pour_spline))
+            # PARAMETRES :
+            # Si la graine vaut 0 (signal stationnaire) : 0.001
+            # Si elle vaut 1 ou 5 : 0.01
+            # Pour le second signal stationnaire :
+            # 0.0001 pour la graine qui vaut 0
+            
+            err_temp = 0
+            for i in range(len(x_pour_spline)):
+                i_associe = trouver_ind(x_pour_spline[i],xtemp)
+                err_temp += dist(x_pour_spline[i],y_pour_spline[i],xtemp[i_associe],ytemp[i_associe]) 
+            if errmod == -1 or err_temp < errmod :
+                
+                if not 1 in i_points and not 3 in i_points and not 7 in i_points :
+                    print(i_points)
+                    print("erreur diminuée !")
+                    print(ymod)
+                    print(ytemp)
+                else :
+                    print("erreur diminuée... :",err_temp,errmod)
+                errmod = err_temp
+                xmod = list(xtemp)
+                ymod = list(ytemp)
+                
+                #ESSAI D'AFFICHAGE DES POINTS ABERRANTS
+                plt.close('all')
+                plt.plot(x,y,"+b")
+                plt.plot(x_pour_spline,y_pour_spline,"+y")
+            
+            # Que le modèle soit retenu ou non, on met à jour la proportion d'inliers et ce qui est associé 
+   
+            if prop_inlier < len(liste_inlier)/len(x):
+                # Il y a plus d'inlier que ce qu'on pensait
+                prop_inlier = len(liste_inlier)/len(x)
+                if prop_inlier == 1 :
+                    print("ici")
+                    break; # On a trouvé un modèle correct, pour lequel il n'y aurait pas de points aberrants
+                nbitermax = np.log(1 - pcorrect)/np.log(1-prop_inlier**len(x)) # Sera ajusté en fonction de prop_inlier
+                nbcorrect = math.floor(prop_inlier*len(x))
+        k += 1
+    
+    return xmod, ymod
+
+def lancement_ransac(x,y,err,nconsidere,rho):
+    x,y = sortpoints(x,y)
+    xres,yres = ransac_auto(x,y,err,d_euclidienne,nconsidere,rho)
+    plt.plot(xres,yres,"r")
         
 if __name__ == "__main__":
     plt.close('all')
     plt.figure()
     
-    # signaux de tests stationnaires provenant du générateur
-    nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
-    x,y = np.loadtxt('data_CAO.txt')
+    ##########################################
+    # Tests fonctionnels (paramètres réglés) #
+    ##########################################
+    
+    # Utilisation : mettre le numéro de l'exemple ici. 0 <= num <= 9
+    num = 1
+    
+    if num == 0: # Données de CAO
+        plt.title("Ransac : données de CAO")
+        x,y = np.loadtxt('data_CAO.txt')
+        lancement_ransac(x,y,0.5,len(x)//10,0.1)
+        xreel,yreel = calcul_Spline_lissage(x,y,min(x),max(x),len(x),0.1)
+        plt.plot(xreel,yreel,"--b")
+        plt.legend(["Données aberrantes","Données non aberrantes","interpolation obtenue","interpolation attendue"])
+    elif num == 1 :
+        plt.title("Ransac : droite environ nulle, données aberrantes")
+        x,y = np.loadtxt('droite_environ_nulle_aberrant.txt')
+        lancement_ransac(x,y,10,2,0.1)
+        xreel = x
+        yreel = np.repeat(0,len(x))
+        plt.plot(xreel,yreel,"--b")
+        plt.legend(["Données aberrantes","Données non aberrantes","interpolation obtenue","interpolation attendue"])
+        
+    elif num == 2 :
+        x,y = np.loadtxt('droite_environ_nulle_pasaberrant.txt')
+    elif num == 3 :
+        x,y = np.loadtxt('droite_identite.txt')
+    elif num == 4 :
+        x,y = np.loadtxt('droite_identite_environ_aberrant.txt')
+    elif num == 5 :
+        x,y = np.loadtxt('droite_identite_environ_pasaberrant.txt')
+    elif num == 6 :
+        x,y = np.loadtxt('droite_nulle_un_aberrant.txt')
+    elif num == 7 :
+        x,y = np.loadtxt('droite_nulle_pasaberrant.txt')
+    elif num == 8:
+        pass
+    elif num == 9 :
+        pass
+    
+    #nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
+    
+    #x,y = np.loadtxt('data_CAO.txt')
     
     # Seed sert à "fixer" le test
-    #x,y, f = stationary_signal((30,), 0.9, noise_func=nfunc) #Fonctionne bien pour 5 et 1. A voir pour 0.
-    #x,y, f = stationary_signal((30,), 0.5, noise_func=nfunc)
+    #x,y, f = stationary_signal((30,), 0.9, noise_func=nfunc,seed=5) #Fonctionne bien pour 5 et 1, ainsi que 0 en fonction des paramètres
+    
+    #x,y, f = stationary_signal((30,), 0.5, noise_func=nfunc,seed=0)
     
     # Signaux non stationnaires
-    #x, y, f = non_stationary_signal((30,), switch_prob=0.1, noise_func=nfunc)
+    x, y, f = non_stationary_signal((30,), switch_prob=0.1, noise_func=nfunc,seed=0)
     #x, y, f = non_stationary_signal((30,), switch_prob=0.2, noise_func=nfunc)
     
-    a = min(x)
-    b = max(x)
-    n = len(x)
-    x,y = sortpoints(x,y)
-    xspline,yspline = calcul_Spline_NU(x,y,a,b,n)
+    
+    #xspline,yspline = calcul_Spline_NU(x,y,a,b,n)
     #plt.plot(xspline, yspline,"--y")
     
-    xres,yres = ransac(x,y,20,0.5, d_euclidienne,n-(n//5),n//10)
-    plt.plot(xres,yres)
+    #xres,yres = ransac(x,y,20,0.5, d_euclidienne,n-(n//5),n//10)
+    # Pour les signaux stationnaires générés avec la première commande : 0.5 d'erreur
+    # Pour les seconds : 1 pour la graine 0
+    #plt.plot(xres,f(xres))
+    
     # Faire varier le dernier nombre ! (nombre de points sélectionnés pour créer un modèle)
 
     
