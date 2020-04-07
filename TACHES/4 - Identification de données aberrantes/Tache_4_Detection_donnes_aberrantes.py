@@ -5,6 +5,7 @@ from signaux_splines import *
 
 # Affichage - A MODIFIER AFIN D UTILISER LA LIBRAIRIE D AMELYS
 import matplotlib.pyplot as plt
+import plotingv2 as plot
 
 # Fonctions utiles
 import numpy as np 
@@ -531,13 +532,13 @@ if __name__ == "__main__" :
     #x,y = ldt.load_points("droite_identite.txt")
     #x,y = ldt.load_points("droite_identite_environ_pasaberrant.txt")
     #x,y = ldt.load_points("droite_identite_environ_aberrant.txt")
-    x,y = np.loadtxt('data_CAO.txt')
+    #x,y = np.loadtxt('data_CAO.txt')
     
     # signaux de tests stationnaires provenant du générateur
     nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
     
     # Seed sert à "fixer" le test
-    #x,y, f = stationary_signal((30,), 0.9, noise_func=nfunc,seed=0)
+    x,y, f = stationary_signal((30,), 0.9, noise_func=nfunc,seed=0)
     #x,y, f = stationary_signal((30,), 0.5, noise_func=nfunc)
     
     # Signaux non stationnaires
@@ -601,16 +602,15 @@ if __name__ == "__main__" :
     else :
         print("Méthode inconnue")
         exit(1)
-        
-    plt.close('all')    
-    plt.figure(lab)
-    plt.title(lab)
-    plt.plot(x,y,'b+',label="données")
-    plt.plot(X,Y,'r+',label="données conservées, dites \" non aberrantes\" ")
-    plt.legend(loc='best')
-    # Décommenter ces deux lignes pour faire apparaitre le signal associé
-    #xi = np.linspace(0, 1, 100)
-    #plt.plot(xi,f(xi))
+    
+    plt.close('all')
+    plot.scatterdata(x,y,c='b+',legend = "données",title = lab,show = False)
+    plot.scatterdata(X,Y,c='r+',legend='données conservées, dites "non aberrantes" ',new_fig = False,show = False)
+   
+    #Décommenter ces deux lignes pour faire apparaitre le signal associé
+    xi = np.linspace(0, 1, 100)
+    plot.plot1d1d(xi,f(xi),new_fig = False,c = 'g')
+    
         
 
     

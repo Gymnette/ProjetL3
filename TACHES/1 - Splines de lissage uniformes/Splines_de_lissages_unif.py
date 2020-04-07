@@ -11,7 +11,6 @@ Ce qui fait qu'un lissage est considéré comme différent d'une interpolation
 
 import numpy as np
 import matplotlib.pyplot as plt
-
 # Les 4 polynomiales cubiques formant la base de Hermite sur [0,1]
 def H0(t) :
     """
@@ -311,19 +310,8 @@ def Matdiag(n):
 """------------------------------------------------------
 MAIN PROGRAM :   
 ------------------------------------------------------"""
-
-
-
-
-from statsmodels.tsa.holtwinters import SimpleExpSmoothing
 # prepare data
-(uk,zk) =  np.loadtxt('data.txt')
-# create class
-model = SimpleExpSmoothing(zk)
-# fit model
-model_fit = model.fit()
-# make prediction
-yhat = model_fit.predict()
+(uk,zk) =  np.loadtxt('data2.txt')
  # échantillon de valeurs fournies en txt
 plt.plot(uk,zk,'rx',label='scattered data') # affichage des points de l'échantillon
 N = len(uk) # taille de l'échantillon
