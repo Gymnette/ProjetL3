@@ -11,6 +11,7 @@ Ce qui fait qu'un lissage est considéré comme différent d'une interpolation
 
 import numpy as np
 import matplotlib.pyplot as plt
+import load_tests as ldt
 
 # Les 4 polynomiales cubiques formant la base de Hermite sur [0,1]
 def H0(t) :
@@ -173,17 +174,17 @@ def H03(N,n,uk,xi,H):
         xi : tableau d'entiers
         H : vecteur de flottants (pas entre les xi)
     Output : 
-        HO3 : Matrice n,n (de flottants)
+        HO3 : Matrice N,n (de flottants)
     """
-    M=np.zeros((N,n))
+    H03=np.zeros((N,n))
     j=0
     for i in range(n-1):
         for ki in range(N):
             if xi[i]<=uk[ki] and uk[ki]<=xi[i+1]:
-                M[j][i]=H0((uk[ki]-xi[i])/H[i])
-                M[j][i+1]=H3((uk[ki]-xi[i])/H[i])
+                H03[j][i]=H0((uk[ki]-xi[i])/H[i])
+                H03[j][i+1]=H3((uk[ki]-xi[i])/H[i])
                 j+=1
-    return M
+    return H03
 
 
 def H12(N,n,uk,xi,H):
@@ -196,7 +197,7 @@ def H12(N,n,uk,xi,H):
         xi : tableau d'entiers, h - entier(pas régulier des noeuds sur l'intervalle du lissage [a,b])
         H : vecteur de flottants (pas entre les xi)
     Output:
-        H12 : Matrice n,n (de flottants)
+        H12 : Matrice N,n (de flottants)
     """
     H12=np.zeros((N,n))
     j=0
@@ -206,6 +207,8 @@ def H12(N,n,uk,xi,H):
                 H12[j][i]=H[i]*H1((uk[ki]-xi[i])/H[i])
                 H12[j][i+1]=H[i]*H2((uk[ki]-xi[i])/H[i])
                 j+=1
+                if j >= N:
+                    break
     return H12
 
 
@@ -337,10 +340,12 @@ if __name__ == '__main__':
     plt.plot(uk,zk,'rx',label='scattered data') # affichage des points de l'échantillon
     N = len(uk) # taille de l'échantillon
     
+    uk,zk = ldt.sortpoints(uk,zk)
+    
     n=15 # nombre des noeuds attendus pour la spline de lissage
     plt.title('spline de lissage avec '+str(n)+' noeuds') # titre
-    a = -2 # intervalle
-    b = 8 # intervalle
+    a = min(uk) # intervalle
+    b = max(uk) # intervalle
     
     #Test sur une repartition des noeuds aleatoire
     rdm = np.random.rand(n-2)
@@ -350,14 +355,14 @@ if __name__ == '__main__':
     xi = np.append(xi,[b])
     
     #test précis :
-    #xi = np.linspace(a,b,n)
+    xi = np.linspace(a,b,n)
     #xi = Repartition_chebyshev(a,b,n)
     plt.scatter(xi,[0]*n,label = 'noeuds')
     
     H = [xi[i+1]-xi[i] for i in range(len(xi)-1)] # vecteur des pas de la spline
     rho = [0.001,0.1,1.0,10.0,100.0,10000.0] # paramètres de lissage qui contrôle le compromis entre la fidélité des données et le caractère théorique de la fonction
     
-    
+    print(H03(N,n,uk,xi,H))
     for j in range(len(rho)): # On calcule la spline de lissage correspondant à chacun des paramètres
         Y = Vecteur_y(uk,[zk],N,xi,n,H,rho[j])
         yi = np.transpose(Y)
