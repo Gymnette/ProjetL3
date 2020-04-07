@@ -7,8 +7,8 @@ la présence des observations "bruyantes" et son raccord aux données présenté
 
 Ce qui fait qu'un lissage est considéré comme différent d'une interpolation
 """
-
-from signaux_splines import *
+import signaux_splines  as sign
+from statsmodels.tsa.holtwinters import SimpleExpSmoothing
 import load_tests as ldt
 import weight_function as weight
 import numpy as np
@@ -168,7 +168,7 @@ def H03(N,n,uk,xi,h):
         n : entier(nombre de neouds)
         uk : tableau de flottants(valeurs en abscisse de l'échantillon)
         xi : tableau d'entiers
-        H : vecteur de flottants (pas entre les xi)
+        h : vecteur de flottants (pas entre les xi)
     Output : 
         HO3 : Matrice n,n (de flottants)
     """
@@ -176,10 +176,10 @@ def H03(N,n,uk,xi,h):
     j=0
     for i in range(n-1):
         for ki in range(N):
-            if xi[i]<=uk[ki] and uk[ki]<=xi[i+1]:
-                M[j][i]=H0((uk[ki]-xi[i])/h)
-                M[j][i+1]=H3((uk[ki]-xi[i])/h)
-                j+=1
+                if xi[i]<=uk[ki] and uk[ki]<=xi[i+1]:
+                    M[j][i]=H0((uk[ki]-xi[i])/h)
+                    M[j][i+1]=H3((uk[ki]-xi[i])/h)
+                    j+=1
     return M
 
 
@@ -188,10 +188,11 @@ def H12(N,n,uk,xi,h):
     Création de la matrice H12
     
     Input : 
-        N : entier(taille de l'échantillon étudié), n - entier(nombre de neouds)
+        N : entier(taille de l'échantillon étudié)
+        n : entier(nombre de neouds)
         uk : tableau de flottants(valeurs en abscisse de l'échantillon)
         xi : tableau d'entiers, h - entier(pas régulier des noeuds sur l'intervalle du lissage [a,b])
-        H : vecteur de flottants (pas entre les xi)
+        h : vecteur de flottants (pas entre les xi)
     Output:
         H12 : Matrice n,n (de flottants)
     """
@@ -199,10 +200,11 @@ def H12(N,n,uk,xi,h):
     j=0
     for i in range(n-1):
         for ki in range(N):
-            if xi[i]<=uk[ki] and uk[ki]<=xi[i+1]:
-                H12[j][i]=H1((uk[ki]-xi[i])/h)
-                H12[j][i+1]=H2((uk[ki]-xi[i])/h)
-                j+=1
+                if xi[i]<=uk[ki] and uk[ki]<=xi[i+1]:
+                    H12[j][i]=H1((uk[ki]-xi[i])/h)
+                    H12[j][i+1]=H2((uk[ki]-xi[i])/h)
+                    j+=1
+                    
     return h*H12
 
 
@@ -314,35 +316,36 @@ def Matdiag(n):
 MAIN PROGRAM :   
 ------------------------------------------------------"""
 
+    
+    
 
-#X,Y = ldt.load_points("test.txt")  
 
-from statsmodels.tsa.holtwinters import SimpleExpSmoothing
 
-(uk,zk) =  np.loadtxt('data.txt') # prépare les données
+
+(uk,zk) =  np.loadtxt('text.txt') # prépare les donnéeS
+zk = sign.add_bivariate_noise(zk, 1.5) # ajoutons un peu de bruit
+
 model = SimpleExpSmoothing(zk) # crée la classe
 model_fit = model.fit() # met en forme le modèle
-yhat = model_fit.predict() # trouve la valeur optimale
+rho = model_fit.model.params['smoothing_level']# trouve la valeur optimale
+print(rho)
+    
+y_estimated = weight.construct(uk, zk,rho) #estimons les nouvelles ordonnées des points de notre échantillon
+N = len(y_estimated) # taille de l'échantillon
 
-
-plt.plot(uk,zk,'rx',label='scattered data') # affichage des points de l'échantillon
-N = len(uk) # taille de l'échantillon
-
-n=15 # nombre des noeuds attendus pour la spline de lissage
-plt.title('Spline de lissage uniforme avec '+str(n)+' noeuds') # titre
-a = -2 # intervalle
-b = 22 # intervalle
+plt.plot(uk,zk,'rx',label='données') # affichage des points de l'échantillon
+plt.plot(uk,y_estimated,'bx',label='données estimées') # affichage des points de l'échantillon éstimé
+    
+n=len(uk)-1# nombre des noeuds attendus pour la spline de lissage
+plt.title('Spline de lissage avec '+str(n)+' noeuds') # titre
+m = len(uk)
+a = uk[0] # intervalle
+b = uk[m-1] # intervalle
 xi = np.linspace(a,b,n) # vecteur des valeurs en abscisse de la spline
 h = (b-a)/(n-1) # pas de la spline
 plt.scatter(xi,[0]*n,label = 'noeuds')
 
-
-y_estimated = weight.construct(uk, zk,yhat)
-N = len(y_estimated) # taille de l'échantillon
-plt.plot(uk,y_estimated,'bx',label='scattered data') # affichage des points de l'échantillon
-
-
-Y = Vecteur_y(uk,y_estimated,N,xi,n,h,yhat)
+Y = Vecteur_y(uk,[y_estimated],N,xi,n,h,rho)
 yi = np.transpose(Y)
 yip = np.transpose(np.linalg.solve(MatriceA(n),(np.dot(MatriceR(n,h),Y))))
 xx=[]
@@ -351,10 +354,22 @@ for i in range(n-1):
     x,y = HermiteC1(xi[i],yi[0][i],yip[0][i],xi[i+1],yi[0][i+1],yip[0][i+1])
     xx=np.append(xx,x)
     yy=np.append(yy,y)
-plt.plot(xx,yy,lw=1,label='rho = '+str(yhat))
-plt.legend()
-plt.savefig('IMG_Tache5b.png')
+plt.plot(xx,yy,lw=1,label='Avec poids')
 
+Y = Vecteur_y(uk,[zk],N,xi,n,h,rho)
+yi = np.transpose(Y)
+yip = np.transpose(np.linalg.solve(MatriceA(n),(np.dot(MatriceR(n,h),Y))))
+xx=[]
+yy=[]
+for i in range(n-1):
+    x,y = HermiteC1(xi[i],yi[0][i],yip[0][i],xi[i+1],yi[0][i+1],yip[0][i+1])
+    xx=np.append(xx,x)
+    yy=np.append(yy,y)
+plt.plot(xx,yy,lw=1,label='Sans poids')
+
+
+plt.legend()
+plt.savefig('IMG_Tache5b_unif.png')
 
 
 
