@@ -537,7 +537,7 @@ if __name__ == "__main__" :
     nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
     
     # Seed sert à "fixer" le test
-    #x,y, f = stationary_signal((30,), 0.9, noise_func=nfunc,seed=0)
+    x,y, f = stationary_signal((30,), 0.9, noise_func=nfunc,seed=0)
     #x,y, f = stationary_signal((30,), 0.5, noise_func=nfunc)
     
     # Signaux non stationnaires
