@@ -36,6 +36,8 @@ def identity(x):
 """
 Tool functions
 """
+def show():
+    plt.show()
 
 def isarraylike(X):
     return isinstance(X,np.ndarray) or isinstance(X,list)
