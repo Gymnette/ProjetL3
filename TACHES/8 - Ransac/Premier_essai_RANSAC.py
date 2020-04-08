@@ -585,7 +585,7 @@ def ransac(x,y,nbitermax,err,dist,nbcorrect,nbpoints,rho):
                 ymod = list(ytemp)
     return xmod, ymod
         
-def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99,exact=False):
+def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
     """
     Automatisation de l'algorithme de Ransac avec un modèle de splines cubiques :
     le calcul de la proportion de points aberrants (outlier) ou non (inlier) est mise à jour au fur et à mesure.
@@ -689,10 +689,7 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99,exact=False):
                 y_pour_spline.append(y[liste_inlier[i]])
             x_pour_spline,y_pour_spline = sortpoints(x_pour_spline,y_pour_spline)
             xtemp,ytemp = 0,0
-            if not exact :
-                xtemp, ytemp = calcul_Spline_lissage(x_pour_spline, y_pour_spline,a,b,nbpoints,rho)
-            else :
-                xtemp,ytemp = calcul_Spline_NU(x_pour_spline,y_pour_spline,a,b,len(x_pour_spline))
+            xtemp, ytemp = calcul_Spline_lissage(x_pour_spline, y_pour_spline,a,b,nbpoints,rho)
             # PARAMETRES :
             # Si la graine vaut 0 (signal stationnaire) : 0.001
             # Si elle vaut 1 ou 5 : 0.01
@@ -733,11 +730,11 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99,exact=False):
     
     return xmod, ymod
 
-def lancement_ransac(x,y,err,rho,nconsidere=-1,exact = False):
+def lancement_ransac(x,y,err,rho,nconsidere=-1):
     x,y = sortpoints(x,y)
     if (nconsidere == -1):
         nconsidere = len(x)//2
-    xres,yres = ransac_auto(x,y,err,d_euclidienne,nconsidere,rho,exact=exact)
+    xres,yres = ransac_auto(x,y,err,d_euclidienne,nconsidere,rho)
     plt.plot(xres,yres,"r")        
         
 if __name__ == "__main__":
@@ -749,7 +746,7 @@ if __name__ == "__main__":
     ##########################################
     
     # Utilisation : mettre le numéro de l'exemple ici. 0 <= num <= 31
-    num = 0
+    num = 22 #11 pour la spline !
     # 14 : paramètres pas trouvés
     
     # Données de CAO, nombreuses, sans points aberrants
