@@ -7,27 +7,37 @@ Created on Wed Apr  8 14:09:52 2020
 
 #Outils
 import load_tests as ldt
+import plotingv2 as plot
 
-#Foncitonnalites
+#Fonctionnalites
 import splines_naturelles as splnat
+import splines_de_lissage as spllis
 
 if __name__ == '__main__':
     
     #Dictionnaire de choix de la fonctionnalite
-    D = {'1' : splnat.creation_spline_naturelle}
+    D = {'1' : ('Spline naturelle',splnat.creation_spline_naturelle),
+         '2' : ('Spline de lissage',spllis.creation_spline_lissage)}
     
-    
+    #Menu principal
     ldt.affiche_separation()
-    print("\nBienvenue dans l'application d'interpolation Interpolaspline !")
-    print("Pour commencer, veuillez choisir la fonctionnalite desiree :\n")
+    print("\nBienvenue dans l'application d'interpolation Interpolaspline !\n")
     
-    print("\nNote : Pour Quitter le programme, appuyer sur q lors d'un choix.")
     
-    print("1 - Spline naturelle")
-    
-    fonctionnalite = ldt.input_choice(['1'])
-    
-    ldt.affiche_separation()
-    
-    D[fonctionnalite]()
+    while True :
+        
+        print("\n------------ Menu Principal ------------\n")
+        
+        print("Veuillez choisir la fonctionnalite desiree :\n")
+        
+        print("Note : Pour Quitter le programme, appuyer sur q lors d'un choix.\n")
+        
+        for key in D.keys():
+            print(key," : ",D[key][0])
+        
+        fonctionnalite = ldt.input_choice(list(D.keys()))
+        
+        ldt.affiche_separation()
+        
+        D[fonctionnalite][1]()
     

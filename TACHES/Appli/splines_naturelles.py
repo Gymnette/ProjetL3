@@ -210,10 +210,10 @@ def Repartition_chebyshev(a,b,n):
 
 def test_fichier(U,Z,f = None,mode = None):
     
-    
     if mode is None:
         #Demande du mode de traitement du fichier
-        print("Entrez le mode de traitement du fichier :","1. tel quel","2. tri sur l'axe X","3. tri sur l'axe Y",sep = '\n')
+        ldt.affiche_separation()
+        print("\nEntrez le mode de traitement du fichier :","1. tel quel","2. tri sur l'axe X","3. tri sur l'axe Y",sep = '\n')
         mode = ldt.input_choice(['1','2','3'])
     
     #Affectations des extremums et du nombre de point
@@ -259,18 +259,30 @@ def test_fichier(U,Z,f = None,mode = None):
     if f is not None:
         xi = np.linspace(0, 1, 100)
         plot.plot1d1d(xi,f(xi),new_fig = False,c = 'g')
-        
+    
+    ldt.affiche_separation()
+    print("Spline cree !")
+    ldt.affiche_separation()
+    print("\n")
+    
 def creation_spline_naturelle():
     
-    print("\nCreation de la spline naturelle interpolant chaque point donne.")
-    x,y,f,M,is_array = ldt.charge_donnees()
+    print("\nCreation de la spline naturelle interpolant chaque point donne.\n")
+    
+    D_meth = {'1': "tel quel",
+         '2': "tri sur l'axe X",
+         '3': "tri sur l'axe Y"}
+    
+    x,y,f,M,is_array = ldt.charge_donnees(D_meth)
     
     if is_array :
         for i in range(len(x)):
             test_fichier(x[i],y[i],f,M)
     else:
         test_fichier(x,y,f,M)
-    
+        
+    print("Retour au menu principal...")
+    ldt.affiche_separation()
 
     
     

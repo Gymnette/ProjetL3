@@ -55,7 +55,7 @@ def input_choice(Choices = ['y','n']):
 def affiche_separation(c = '-',n = 50):
     print(c*n)
     
-def charge_donnees():
+def charge_donnees(D_methodes=None):
     """
     Charge x,y, fonction, methode, et un booleen qui donne le type de x et y pour pouvoiir appliquer les methodes
     """
@@ -82,15 +82,22 @@ def charge_donnees():
             print("Erreur, le fichier " + f_liste_nom + " est introuvable, merci de relancer le programme.")
             sys.exit(0)
         
-        affiche_separation()
-        print("Définir une methode pour tous les fichiers ? (y = oui, n = non)")
-        def_M = input_choice()
-        
-        if def_M == 'y':
+        if D_methodes is not None:
             affiche_separation()
-            print("Choisissez le mode de traitement du fichier :","1. tel quel","2. tri sur l'axe X","3. tri sur l'axe Y",sep = '\n')
-            M_int = input_choice(['1','2','3'])
-        else :
+            print("Définir une methode pour tous les fichiers ? (y = oui, n = non)")
+            def_M = input_choice()
+            
+            if def_M == 'y':
+                
+                affiche_separation()
+                print("Choisissez le mode de traitement du fichier :")
+                for key in D_methodes.keys():
+                    print(key," : ",D_methodes[key])
+                     
+                M_int = input_choice(list(D_methodes.keys()))
+            else :
+                M_int = None
+        else:
             M_int = None
         
         liste =(f_liste.read()).split("\n")
@@ -114,7 +121,7 @@ def charge_donnees():
         
     else:
         affiche_separation()
-        print("Test sur génération de signal. Signal stationnaire ? (y = oui, n = non)")
+        print("\nTest sur génération de signal. Signal stationnaire ? (y = oui, n = non)")
         stationnaire = input_choice()
         
         # signaux de tests stationnaires provenant du générateur
