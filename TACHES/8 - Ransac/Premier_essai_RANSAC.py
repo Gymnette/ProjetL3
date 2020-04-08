@@ -629,7 +629,7 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99,exact=False):
         i_points = alea(len(x),nbpoints)
         i_points.sort()
         # i_points contient toujours le même nombre de points distcints, il suffit de vérifier si ce sont les mêmes pour savoir si on a déjà fait ce cas.
-        fin = False
+        """fin = False
         for possibilite in deja_vu :
             fin = True
             for elem in i_points :
@@ -641,7 +641,8 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99,exact=False):
         if fin :
             k+=1
             continue # On a déjà étudié exactement ces indices là
-        deja_vu.append(list(i_points))
+        deja_vu.append(list(i_points))"""
+        # JE NE SAIS PAS S'IL VAUT MIEUX TOUT CALCULER OU FAIRE UNE RECHERCHE A CHAQUE FOIS
         
         
         
@@ -713,6 +714,8 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99,exact=False):
                 plt.plot(x_pour_spline,y_pour_spline,"+y")
                 
                 # AFFICHAGE DE LA SPLINE INTERMEDIAIRE
+                # A LAISSER. DANS L'IDEE, OPTION A PROPOSER
+                # Mais attention à bien modifier la légende
                 #plt.plot(xres,yres,"--g")
             
             # Que le modèle soit retenu ou non, on met à jour la proportion d'inliers et ce qui est associé 
@@ -745,8 +748,8 @@ if __name__ == "__main__":
     # Tests fonctionnels (paramètres réglés) #
     ##########################################
     
-    # Utilisation : mettre le numéro de l'exemple ici. 0 <= num <= 9
-    num = 19
+    # Utilisation : mettre le numéro de l'exemple ici. 0 <= num <= 31
+    num = 0
     # 14 : paramètres pas trouvés
     
     # Données de CAO, nombreuses, sans points aberrants
@@ -763,7 +766,7 @@ if __name__ == "__main__":
     
     elif num == 1 : # Droite plus ou moins nulle, valeurs aberrantes
         x,y = np.loadtxt('droite_environ_nulle_aberrant.txt')
-        lancement_ransac(x,y,1,5)
+        lancement_ransac(x,y,2,5)
         xreel = x
         yreel = np.repeat(0,len(x))
         plt.plot(xreel,yreel,"--b")
@@ -771,7 +774,7 @@ if __name__ == "__main__":
         plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
     elif num == 2 : # Droite plus ou moins nulle, pas de valeurs aberrantes
         x,y = np.loadtxt('droite_environ_nulle_pasaberrant.txt')
-        lancement_ransac(x,y,0.5,1)
+        lancement_ransac(x,y,0.2,0.1,nconsidere=8)
         xreel = x
         yreel = np.repeat(0,len(x))
         plt.plot(xreel,yreel,"--b")
@@ -823,7 +826,7 @@ if __name__ == "__main__":
     elif 8 <= num and num <= 13 :
         nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
         x,y, f = stationary_signal((30,), 0.9, noise_func=nfunc,seed=num-8)
-        lancement_ransac(x,y,0.1,0.001)
+        lancement_ransac(x,y,0.2,0.001)
         xreel = x
         yreel = f(x)
         plt.plot(xreel,yreel,"--b")
@@ -834,40 +837,50 @@ if __name__ == "__main__":
         nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
         x,y, f = stationary_signal((30,), 0.5, noise_func=nfunc,seed=num-14)
         if num == 19 :
-            lancement_ransac(x,y,0.1,0.00001,nconsidere=26)
-        else :
-            lancement_ransac(x,y,0.1,0.00005,nconsidere=26)
+            lancement_ransac(x,y,0.05,0.00001,nconsidere=26)
+        elif num == 15 :
+            lancement_ransac(x,y,0.2,0.00002,nconsidere=26)
+        elif num == 16 :
+            lancement_ransac(x,y,0.1,0.00001,nconsidere=20)
+        elif num == 18 :
+            lancement_ransac(x,y,0.5,0.00001,nconsidere=20)
+        else :# 14 et 17
+            lancement_ransac(x,y,0.05,0.00001,nconsidere=24)
         xreel = x
         yreel = f(x)
         plt.plot(xreel,yreel,"--b")
         plt.title("Ransac : Signal stationnaire de régularité 0.5. seed = "+str(num-14))
         plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
     
-        
+    # Signaux non stationnaires    
+    elif 20 <= num <= 25 :
+        nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
+        x, y, f = non_stationary_signal((30,), switch_prob=0.1, noise_func=nfunc,seed=num-20)
+        if num == 21 :
+            lancement_ransac(x,y,0.1,0.0005,nconsidere=20)
+        else :
+            lancement_ransac(x,y,0.2,0.00001)
+            
+        xreel = x
+        yreel = f(x)
+        plt.plot(xreel,yreel,"--b")
+        plt.title("Ransac : Signal non stationnaire avec une probabilité de saut de 0.1. seed = "+str(num-20))
+        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
     
-    #
-    
-    #x,y = np.loadtxt('data_CAO.txt')
-    
-    # Seed sert à "fixer" le test
-    #
-    
-    # Signaux non stationnaires
-    x, y, f = non_stationary_signal((30,), switch_prob=0.1, noise_func=nfunc,seed=0)
-    #x, y, f = non_stationary_signal((30,), switch_prob=0.2, noise_func=nfunc)
-    
-    
-    #xspline,yspline = calcul_Spline_NU(x,y,a,b,n)
-    #plt.plot(xspline, yspline,"--y")
-    
-    #xres,yres = ransac(x,y,20,0.5, d_euclidienne,n-(n//5),n//10)
-    # Pour les signaux stationnaires générés avec la première commande : 0.5 d'erreur
-    # Pour les seconds : 1 pour la graine 0
-    #plt.plot(xres,f(xres))
-    
-    # Faire varier le dernier nombre ! (nombre de points sélectionnés pour créer un modèle)
+    elif 26 <= num <= 31 : 
+        nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
+        x, y, f = non_stationary_signal((30,), switch_prob=0.2, noise_func=nfunc,seed=num-26)
+        if num == 27:
+            lancement_ransac(x,y,0.05,0.001,nconsidere=20) 
+        if num == 29 or num == 30 or num == 31:
+            lancement_ransac(x,y,0.1,0.00001,nconsidere=20) 
+        else : 
+            lancement_ransac(x,y,0.2,0.00001,nconsidere=25)   
+        xreel = x
+        yreel = f(x)
+        plt.plot(xreel,yreel,"--b")
+        plt.title("Ransac : Signal non stationnaire avec une probabilité de saut de 0.1. seed = "+str(num-26))
+        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
 
-    
-   
    
 
