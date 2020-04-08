@@ -585,7 +585,7 @@ def ransac(x,y,nbitermax,err,dist,nbcorrect,nbpoints,rho):
                 ymod = list(ytemp)
     return xmod, ymod
         
-def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
+def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99,exact=False):
     """
     Automatisation de l'algorithme de Ransac avec un modèle de splines cubiques :
     le calcul de la proportion de points aberrants (outlier) ou non (inlier) est mise à jour au fur et à mesure.
@@ -596,6 +596,7 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
     du paramètre de lissage,
     et de la probabilité d'obtenir un résultat correct avec cet algorithme.
     xres et yres représentent la spline qui interpole au mieux les données d'après RANSAC
+    si exact est vraie, tous les calculs sont effectués à partir de la spline cubique d'interpolation.
 
     Type entrées :
         x : vecteur de float
@@ -613,7 +614,7 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
     b = max(x)
     
     prop_inlier = 0
-    nbitermax = 10000 # Sera ajusté en fonction de prop_inlier
+    nbitermax = 500 # Sera ajusté en fonction de prop_inlier
     nbcorrect = math.floor(prop_inlier*len(x))
     
     # Sauvegarde du meilleur modèle trouvé et de l'erreur associée
@@ -622,10 +623,29 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
     errmod = -1
 
     k = 0
-    while k < nbitermax :
+    deja_vu = []
+    while k <= nbitermax :
         # Choix d'un échantillon
         i_points = alea(len(x),nbpoints)
-        print(i_points)
+        i_points.sort()
+        # i_points contient toujours le même nombre de points distcints, il suffit de vérifier si ce sont les mêmes pour savoir si on a déjà fait ce cas.
+        fin = False
+        for possibilite in deja_vu :
+            fin = True
+            for elem in i_points :
+                if not elem in possibilite :
+                    fin = False
+                    break
+            if fin :
+                break
+        if fin :
+            k+=1
+            continue # On a déjà étudié exactement ces indices là
+        deja_vu.append(list(i_points))
+        
+        
+        
+        #print(i_points)
         x_selec = []
         y_selec = []
         for i in range(len(i_points)):
@@ -667,8 +687,11 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
                 x_pour_spline.append(x[liste_inlier[i]])
                 y_pour_spline.append(y[liste_inlier[i]])
             x_pour_spline,y_pour_spline = sortpoints(x_pour_spline,y_pour_spline)
-            xtemp, ytemp = calcul_Spline_lissage(x_pour_spline, y_pour_spline,a,b,nbpoints,rho)
-            #xtemp,ytemp = calcul_Spline_NU(x_pour_spline,y_pour_spline,a,b,len(x_pour_spline))
+            xtemp,ytemp = 0,0
+            if not exact :
+                xtemp, ytemp = calcul_Spline_lissage(x_pour_spline, y_pour_spline,a,b,nbpoints,rho)
+            else :
+                xtemp,ytemp = calcul_Spline_NU(x_pour_spline,y_pour_spline,a,b,len(x_pour_spline))
             # PARAMETRES :
             # Si la graine vaut 0 (signal stationnaire) : 0.001
             # Si elle vaut 1 ou 5 : 0.01
@@ -680,14 +703,6 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
                 i_associe = trouver_ind(x_pour_spline[i],xtemp)
                 err_temp += dist(x_pour_spline[i],y_pour_spline[i],xtemp[i_associe],ytemp[i_associe]) 
             if errmod == -1 or err_temp < errmod :
-                
-                if not 1 in i_points and not 3 in i_points and not 7 in i_points :
-                    print(i_points)
-                    print("erreur diminuée !")
-                    print(ymod)
-                    print(ytemp)
-                else :
-                    print("erreur diminuée... :",err_temp,errmod)
                 errmod = err_temp
                 xmod = list(xtemp)
                 ymod = list(ytemp)
@@ -696,6 +711,9 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
                 plt.close('all')
                 plt.plot(x,y,"+b")
                 plt.plot(x_pour_spline,y_pour_spline,"+y")
+                
+                # AFFICHAGE DE LA SPLINE INTERMEDIAIRE
+                #plt.plot(xres,yres,"--g")
             
             # Que le modèle soit retenu ou non, on met à jour la proportion d'inliers et ce qui est associé 
    
@@ -703,18 +721,21 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
                 # Il y a plus d'inlier que ce qu'on pensait
                 prop_inlier = len(liste_inlier)/len(x)
                 if prop_inlier == 1 :
-                    print("ici")
                     break; # On a trouvé un modèle correct, pour lequel il n'y aurait pas de points aberrants
-                nbitermax = np.log(1 - pcorrect)/np.log(1-prop_inlier**len(x)) # Sera ajusté en fonction de prop_inlier
+                nbitermax = math.floor(np.log(1 - pcorrect)/np.log(1-prop_inlier**len(x))) # Sera ajusté en fonction de prop_inlier
+                if nbitermax > 500 :
+                    nbitermax = 500
                 nbcorrect = math.floor(prop_inlier*len(x))
         k += 1
     
     return xmod, ymod
 
-def lancement_ransac(x,y,err,nconsidere,rho):
+def lancement_ransac(x,y,err,rho,nconsidere=-1,exact = False):
     x,y = sortpoints(x,y)
-    xres,yres = ransac_auto(x,y,err,d_euclidienne,nconsidere,rho)
-    plt.plot(xres,yres,"r")
+    if (nconsidere == -1):
+        nconsidere = len(x)//2
+    xres,yres = ransac_auto(x,y,err,d_euclidienne,nconsidere,rho,exact=exact)
+    plt.plot(xres,yres,"r")        
         
 if __name__ == "__main__":
     plt.close('all')
@@ -725,49 +746,111 @@ if __name__ == "__main__":
     ##########################################
     
     # Utilisation : mettre le numéro de l'exemple ici. 0 <= num <= 9
-    num = 1
+    num = 19
+    # 14 : paramètres pas trouvés
+    
+    # Données de CAO, nombreuses, sans points aberrants
     
     if num == 0: # Données de CAO
-        plt.title("Ransac : données de CAO")
         x,y = np.loadtxt('data_CAO.txt')
-        lancement_ransac(x,y,0.5,len(x)//10,0.1)
+        lancement_ransac(x,y,0.5,0.1)
         xreel,yreel = calcul_Spline_lissage(x,y,min(x),max(x),len(x),0.1)
         plt.plot(xreel,yreel,"--b")
-        plt.legend(["Données aberrantes","Données non aberrantes","interpolation obtenue","interpolation attendue"])
-    elif num == 1 :
-        plt.title("Ransac : droite environ nulle, données aberrantes")
+        plt.title("Ransac : données de CAO")
+        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
+   
+    # Petits tests spécifiques
+    
+    elif num == 1 : # Droite plus ou moins nulle, valeurs aberrantes
         x,y = np.loadtxt('droite_environ_nulle_aberrant.txt')
-        lancement_ransac(x,y,10,2,0.1)
+        lancement_ransac(x,y,1,5)
         xreel = x
         yreel = np.repeat(0,len(x))
         plt.plot(xreel,yreel,"--b")
-        plt.legend(["Données aberrantes","Données non aberrantes","interpolation obtenue","interpolation attendue"])
-        
-    elif num == 2 :
+        plt.title("Ransac : droite environ nulle, données aberrantes")
+        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
+    elif num == 2 : # Droite plus ou moins nulle, pas de valeurs aberrantes
         x,y = np.loadtxt('droite_environ_nulle_pasaberrant.txt')
-    elif num == 3 :
+        lancement_ransac(x,y,0.5,1)
+        xreel = x
+        yreel = np.repeat(0,len(x))
+        plt.plot(xreel,yreel,"--b")
+        plt.title("Ransac : droite environ nulle")
+        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
+    elif num == 3 : # Droite identité parfaite
         x,y = np.loadtxt('droite_identite.txt')
-    elif num == 4 :
+        lancement_ransac(x,y,0.5,1)
+        xreel = x
+        yreel = x
+        plt.plot(xreel,yreel,"--b")
+        plt.title("Ransac : droite identité")
+        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
+    elif num == 4 : # Droite plus ou moins identité, valeurs aberrantes
         x,y = np.loadtxt('droite_identite_environ_aberrant.txt')
-    elif num == 5 :
+        lancement_ransac(x,y,0.5,1)
+        xreel = x
+        yreel = x
+        plt.plot(xreel,yreel,"--b")
+        plt.title("Ransac : droite environ identité, données aberrantes")
+        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
+    elif num == 5 : #Plus ou moins l'identité, sans valeurs aberrantes
         x,y = np.loadtxt('droite_identite_environ_pasaberrant.txt')
-    elif num == 6 :
+        lancement_ransac(x,y,0.5,1)
+        xreel = x
+        yreel = x
+        plt.plot(xreel,yreel,"--b")
+        plt.title("Ransac : droite environ identité")
+        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
+    elif num == 6 : # Droite nulle avec une donnée aberrante
         x,y = np.loadtxt('droite_nulle_un_aberrant.txt')
-    elif num == 7 :
+        lancement_ransac(x,y,0.5,1)
+        xreel = x
+        yreel = np.repeat(0,len(x))
+        plt.plot(xreel,yreel,"--b")
+        plt.title("Ransac : droite nulle, donnée aberrante")
+        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
+    elif num == 7 :# Droite nulle sans données aberrantes
         x,y = np.loadtxt('droite_nulle_pasaberrant.txt')
-    elif num == 8:
-        pass
-    elif num == 9 :
-        pass
+        lancement_ransac(x,y,0.5,1)
+        xreel = x
+        yreel = np.repeat(0,len(x))
+        plt.plot(xreel,yreel,"--b")
+        plt.title("Ransac : droite nulle")
+        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
     
-    #nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
+    # Signaux stationnaires
+    
+    elif 8 <= num and num <= 13 :
+        nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
+        x,y, f = stationary_signal((30,), 0.9, noise_func=nfunc,seed=num-8)
+        lancement_ransac(x,y,0.1,0.001)
+        xreel = x
+        yreel = f(x)
+        plt.plot(xreel,yreel,"--b")
+        plt.title("Ransac : Signal stationnaire de régularité 0.9. seed = "+str(num-8))
+        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
+    elif 14 <= num and num <= 19 :
+        # JE N'ARRIVE PAS A TROUVER DE BONS PARAMETRES ICI
+        nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
+        x,y, f = stationary_signal((30,), 0.5, noise_func=nfunc,seed=num-14)
+        if num == 19 :
+            lancement_ransac(x,y,0.1,0.00001,nconsidere=26)
+        else :
+            lancement_ransac(x,y,0.1,0.00005,nconsidere=26)
+        xreel = x
+        yreel = f(x)
+        plt.plot(xreel,yreel,"--b")
+        plt.title("Ransac : Signal stationnaire de régularité 0.5. seed = "+str(num-14))
+        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
+    
+        
+    
+    #
     
     #x,y = np.loadtxt('data_CAO.txt')
     
     # Seed sert à "fixer" le test
-    #x,y, f = stationary_signal((30,), 0.9, noise_func=nfunc,seed=5) #Fonctionne bien pour 5 et 1, ainsi que 0 en fonction des paramètres
-    
-    #x,y, f = stationary_signal((30,), 0.5, noise_func=nfunc,seed=0)
+    #
     
     # Signaux non stationnaires
     x, y, f = non_stationary_signal((30,), switch_prob=0.1, noise_func=nfunc,seed=0)
