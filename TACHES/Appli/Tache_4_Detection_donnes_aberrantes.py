@@ -155,7 +155,7 @@ def tester(x,y,f = None,M_int = None):
         print("3 : Test de Tau Thompson")
         print("4 : Test de Grubbs")
         print("5 : Test de la deviation extreme de Student")
-        print("6 : Test des k plus proches voisins")
+        print("6 : Test des k plus proches voisins [EN TRAVAUX]")
         
         M_int = ldt.input_choice(['1','2','3','4','5','6'])
 
@@ -164,7 +164,7 @@ def tester(x,y,f = None,M_int = None):
          '3': ("Méthode de Tau Thompson", meth.thompson),
          '4': ("Test de Grubbs", meth.grubbs),
          '5': ("Test de la déviation extreme de student", meth.deviation_extreme_student),
-         '6': ("Test des k plus proches voisins", meth.KNN)}
+         '6': ("Test des k plus proches voisins [EN TRAVAUX]", meth.KNN)}
 
     lab,M = D[M_int]
     
@@ -205,8 +205,9 @@ def tester(x,y,f = None,M_int = None):
         plot.plot1d1d(xi,f(xi),new_fig = False,c = 'g')
         
     plot.show()
+    return X,Y
 
-if __name__ == "__main__":
+def trouve_points_aberrants():
     
     ldt.affiche_separation()
     print("Bienvenue dans ce gestionnaire des points aberrants !")
@@ -214,7 +215,6 @@ if __name__ == "__main__":
     print("1 : Fichier contenant une liste de plusieurs fichiers à tester")
     print("2 : Récupération sur un fichier")
     print("3 : Générer un test")
-    print("\nPour Quitter le programme, appuyer sur q lors d'un choix.")
     
     type_test = ldt.input_choice(['1','2','3'])
         
@@ -246,7 +246,7 @@ if __name__ == "__main__":
             print("3 : Test de Tau Thompson")
             print("4 : Test de Grubbs")
             print("5 : Test de la deviation extreme de Student")
-            print("6 : Test des k plus proches voisins")
+            print("6 : Test des k plus proches voisins [EN TRAVAUX]")
             
             M_int = ldt.input_choice(['1','2','3','4','5','6'])
         else :
@@ -254,9 +254,13 @@ if __name__ == "__main__":
         
         liste =(f_liste.read()).split("\n")
         
+        Xtab, Ytab = [],[]
         for f_test in liste:
             x,y = ldt.load_points(f_test)
-            tester(x,y,M_int = M_int)
+            X,Y = tester(x,y,M_int = M_int)
+            Xtab.append(X)
+            Ytab.append(Y)
+        return (Xtab,Ytab,None,True)
         
     elif type_test == 2:
         
@@ -265,7 +269,8 @@ if __name__ == "__main__":
         if f_test == 'q':
             sys.exit(0)
         x,y = ldt.load_points(f_test)
-        tester(x,y)
+        X,Y = tester(x,y)
+        return (X,Y,None,False)
         
     else:
         ldt.affiche_separation()
@@ -282,7 +287,8 @@ if __name__ == "__main__":
             x, y, f = ss.non_stationary_signal((30,), switch_prob=0.1, noise_func=nfunc)
             #x, y, f = ss.non_stationary_signal((30,), switch_prob=0.2, noise_func=nfunc)
             
-        tester(x,y,f)
+        X,Y = tester(x,y,f)
+        return (X,Y,f,False)
             
         #############################################################
         # Epsilon à choisir en fonction des graines et des méthodes #

@@ -324,45 +324,72 @@ def Repartition_chebyshev(a,b,n):
     t2 = float((b-a))/2
     for i in range (n):
         T.append(t1+t2*(np.cos((2*i+1)*np.pi/(2*n+2))))
-    print(T)
     T.sort()
     T[0] = a
     T[-1] = b
     return T
 
-"""------------------------------------------------------
-MAIN PROGRAM :   
-------------------------------------------------------"""
-if __name__ == '__main__':
-    
-    plt.figure()
-    (uk,zk)=np.loadtxt('data.txt') # échantillon de valeurs fournies en txt
-    plt.plot(uk,zk,'rx',label='scattered data') # affichage des points de l'échantillon
-    N = len(uk) # taille de l'échantillon
-    
-    uk,zk = ldt.sortpoints(uk,zk)
-    
-    n=15 # nombre des noeuds attendus pour la spline de lissage
-    plt.title('spline de lissage avec '+str(n)+' noeuds') # titre
-    a = min(uk) # intervalle
-    b = max(uk) # intervalle
-    
-    #Test sur une repartition des noeuds aleatoire
+def Repartition_aleatoire(a,b,n):
     rdm = np.random.rand(n-2)
     rdm.sort()
     xi = [a]
     xi = np.append(xi,rdm*(b-a) + a)
     xi = np.append(xi,[b])
+    for i in range(len(xi)-1):
+        if xi[i] == xi[i+1]:
+            if i == len(xi)-2:
+                xi[i] = xi[i+1]+xi[i-1]/2
+            else:
+                xi[i+1] = (xi[i]+xi[i+2])/2
+    return xi
     
-    #test précis :
-    xi = np.linspace(a,b,n)
-    #xi = Repartition_chebyshev(a,b,n)
-    plt.scatter(xi,[0]*n,label = 'noeuds')
+    
+"""------------------------------------------------------
+MAIN PROGRAM :   
+------------------------------------------------------"""
+
+def test_fichier(n,uk,zk,f=None,mode=None,aff_n = None):
+    
+    N = len(uk) # taille de l'échantillon
+    
+    #Tri
+    uk,zk = ldt.sortpoints(uk,zk)
+    
+    a = min(uk) # intervalle
+    b = max(uk) # intervalle
+    
+    if mode is None:
+        ldt.affiche_separation()
+        print("\nEntrez le mode de traitement du fichier :")
+        print("1. repartition uniforme des noeuds")
+        print("2. repartition de Chebichev")
+        print("3. repartition aléatoire")
+        mode = ldt.input_choice(['1','2','3'])
+        
+    if aff_n is None :
+        ldt.affiche_separation()
+        print("\nAfficher les noeuds ? (y = oui, n = non)")
+        aff_n = ldt.input_choice()
+        
+    plt.figure()
+    plt.title('spline de lissage avec '+str(n)+' noeuds') # titre
+    plt.plot(uk,zk,'rx',label='scattered data') # affichage des points de l'échantillon
+    
+    if mode == '1':
+        xi = np.linspace(a,b,n)
+    elif mode == '2':
+        xi = Repartition_chebyshev(a,b,n)
+    else:
+        #Test sur une repartition des noeuds aleatoire
+        xi = Repartition_aleatoire(a,b,n)
+    
+
+    if aff_n == 'y':
+        plt.scatter(xi,[0]*n,label = 'noeuds')
     
     H = [xi[i+1]-xi[i] for i in range(len(xi)-1)] # vecteur des pas de la spline
     rho = [0.001,0.1,1.0,10.0,100.0,10000.0] # paramètres de lissage qui contrôle le compromis entre la fidélité des données et le caractère théorique de la fonction
     
-    print(H03(N,n,uk,xi,H))
     for j in range(len(rho)): # On calcule la spline de lissage correspondant à chacun des paramètres
         Y = Vecteur_y(uk,[zk],N,xi,n,H,rho[j])
         yi = np.transpose(Y)
@@ -375,4 +402,63 @@ if __name__ == '__main__':
             yy=np.append(yy,y)
         plt.plot(xx,yy,lw=1,label='spline de lissage avec rho = '+str(rho[j]))
     plt.legend()
+    plt.show()
+    
+    ldt.affiche_separation()
+    print("Spline cree !")
+    ldt.affiche_separation()
 
+
+def choisir_n():
+    
+    ldt.affiche_separation()
+    print("\nChoisissez un nombre de noeuds :")
+    n = -1
+    while n <0:
+        try :
+            n = int(input("> "))
+            if n<5:
+                n = -1
+                print("Merci d'entrer un nombre valide")
+        except :
+            print("Merci d'entrer un nombre valide")
+            n = -1
+    return n
+
+def creation_spline_lissage(x = None,y = None,f= None,is_array = False):
+    
+    print("\nCreation de la spline de lissage interpolant les donnees.\n")
+
+    D_meth = {'1': "repartition uniforme des noeuds",
+              '2': "repartition de Chebichev",
+              '3': "repartition aléatoire"}
+    M = None
+    
+    if (x is None) or (y is None):
+        x,y,f,M,is_array = ldt.charge_donnees(D_meth)
+    elif is_array :
+        M = ldt.charge_methodes(D_meth)
+    
+    if is_array :
+        ldt.affiche_separation()
+        print("\nDéfinir un nombre de noeuds constant pour tous les fichiers ? (y = oui, n = non)")
+        n_fixe = ldt.input_choice()
+        
+        if n_fixe == 'y' :
+            n=choisir_n()
+            ldt.affiche_separation()
+            print("\nAfficher les noeuds ? (y = oui, n = non)")
+            aff_n = ldt.input_choice()
+            
+        for i in range(len(x)):
+            print("Fichier ",i+1)
+            if n_fixe == 'n':
+                n=choisir_n()
+            test_fichier(n,x[i],y[i],f,M,aff_n)
+    else:
+        n=choisir_n()
+        test_fichier(n,x,y,f,M)
+        
+    print("Retour au menu principal...")
+    ldt.affiche_separation()
+    
