@@ -20,7 +20,7 @@ def construct(x, y, rho):
     y_estimated = np.zeros(n)
 
       
-    w = np.array([np.exp(- (x - x[i])**2/(2*rho)) for i in range(n)])  #initialise tous les poids    
+    w = np.array([np.exp(- (x - x[i])**2/(2*rho**2)) for i in range(n)])  #initialise tous les poids    
    
     
     for i in range(n): #Calcule la nouvelle coordonnée de tout point
@@ -30,5 +30,5 @@ def construct(x, y, rho):
                     [np.sum(weights * x), np.sum(weights * x * x)]])
         Theta = linalg.solve(A, b)
         y_estimated[i] = Theta[0] + Theta[1] * x[i] 
-
+    
     return y_estimated

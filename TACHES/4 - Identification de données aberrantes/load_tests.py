@@ -4,11 +4,16 @@ Created on Tue Mar 31 17:09:26 2020
 
 @author: amelys
 """
-
+import sys
 import numpy as np
 
 def load_points(fichier):
-    (X,Y) = np.loadtxt(fichier)
+    try :
+        (X,Y) = np.loadtxt(fichier)
+    except :
+        print("Erreur, le fichier " + fichier + " est introuvable, merci de relancer le programme.")
+        sys.exit(0)
+
     return X,Y
     
 def sortpoints(X,Y):
@@ -28,3 +33,22 @@ def sortpoints(X,Y):
     Xb.sort()
     Yb = [D[Xb[i]] for i in range(n)]
     return Xb,Yb
+
+def input_choice(Choices = ['y','n']):
+    """
+    Type de Choices : Liste des valeurs d'input possible
+    """
+    Choices.append('q')
+    ipt = input("> ")
+    while ipt not in Choices:
+        print("Merci d'entrer", end = " ")
+        for i in range(len(Choices)-1):
+            print(Choices[i] + ",",end = " ")
+        print(" ou ",Choices[-1])
+        ipt = input("> ")
+    if ipt == 'q':
+        sys.exit(0)
+    return ipt
+
+def affiche_separation(c = '-',n = 50):
+    print(c*n)

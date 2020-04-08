@@ -55,13 +55,14 @@ def H3(t) :
 
     
 def HermiteC1(x0,y0,y0p,x1,y1,y1p):
-    """ Cubic Hermite interpolation of order 1 over 2 points x0 < x1
-        (interpolation of value + first derivative)
+    """ 
+    Cubic Hermite interpolation of order 1 over 2 points x0 < x1
+    (interpolation of value + first derivative)
         
-        Input :
-            x0,y0,y0p,x1,y1,y1p : Hermite data of order 1 (real values)
-        Output :
-            plot the cubic Hermite interpolant
+    Input :
+        x0,y0,y0p,x1,y1,y1p : Hermite data of order 1 (real values)
+    Output :
+        plot the cubic Hermite interpolant
     """
     x = np.linspace(x0,x1,100)
     y = y0*H0((x-x0)/(x1-x0)) + y0p*(x1-x0)*H1((x-x0)/(x1-x0)) + y1p*(x1-x0)*H2((x-x0)/(x1-x0)) + y1*H3((x-x0)/(x1-x0))    
@@ -310,14 +311,25 @@ def Matdiag(n):
 """------------------------------------------------------
 MAIN PROGRAM :   
 ------------------------------------------------------"""
+<<<<<<< Updated upstream
 # prepare data
 (uk,zk) =  np.loadtxt('data2.txt')
  # échantillon de valeurs fournies en txt
 plt.plot(uk,zk,'rx',label='scattered data') # affichage des points de l'échantillon
+=======
+
+
+
+
+
+(uk,zk) =  np.loadtxt('data.txt')
+
+plt.plot(uk,zk,'rx',label='données') # affichage des points de l'échantillon
+>>>>>>> Stashed changes
 N = len(uk) # taille de l'échantillon
 
 n=15 # nombre des noeuds attendus pour la spline de lissage
-plt.title('Spline de lissage uniforme avec '+str(n)+' noeuds') # titre
+plt.title('Splines de lissage uniformes avec '+str(n)+' noeuds') # titre
 a = -2 # intervalle
 b = 8 # intervalle
 xi = np.linspace(a,b,n) # vecteur des valeurs en abscisse de la spline
