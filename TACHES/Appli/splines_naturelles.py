@@ -15,6 +15,9 @@ Created on Wed Oct  9 15:18:08 2019
 import numpy as np
 import matplotlib.pyplot as plt
 from random import random
+import load_tests as ldt
+
+import plotingv2 as plot
 
 
 def H0(t) :
@@ -204,44 +207,21 @@ def Repartition_chebyshev(a,b,n):
     for i in range (n):
         T.append(t1+t2*(np.cos((2*i+1)*np.pi/(2*n+2))))
     return T
+
+def test_fichier(U,Z,f = None,mode = None):
     
-def load_points(fichier):
-    (X,Y) = np.loadtxt(fichier)
-    return X,Y
     
-def sortpoints(X,Y):
-    """
-    Fonction de tri de deux listes X et Y en fonction de X.
-    Trie la liste X (sans modification globale) et range Y pour que son ordre corresponde
-    au tri de X.
+    if mode is None:
+        #Demande du mode de traitement du fichier
+        print("Entrez le mode de traitement du fichier :","1. tel quel","2. tri sur l'axe X","3. tri sur l'axe Y",sep = '\n')
+        mode = ldt.input_choice(['1','2','3'])
     
-    Exemples :
-    sortpoints([1,3,2,4],[5,6,7,8]) = [1,2,3,4],[5,7,6,8]
-    """
-    D = {}
-    n = len(X)
-    Xb = list(X)
-    for i in range(n):
-        D[X[i]] = Y[i]
-    Xb.sort()
-    Yb = [D[Xb[i]] for i in range(n)]
-    return Xb,Yb
-        
-if __name__ == "__main__":
-    
-    #Demande du mode de traitement du fichier
-    print("Entrez le mode de traitement du fichier :","1. tel quel","2. tri sur l'axe X","3. tri sur l'axe Y",sep = '\n')
-    mode = input('> ')
-    while mode != '1' and mode != '2' and mode != '3': 
-        print('mode incorrect. Format attendu : 1,2 ou 3')
-        mode = input('> ')
-    
-    #Lecture et affectations des extremums et du nombre de point
+    #Affectations des extremums et du nombre de point
     #Independant du mode choisi
-    U,Z = load_points('test.txt')
     a = min(U)
     b = max(U)
     n = len(U)
+    
     if mode == '1':
         """
         Mode "tel quel" : les donnees sont prises dans l'ordre, en courbe paramétrique
@@ -258,10 +238,9 @@ if __name__ == "__main__":
         """
         #plt.figure()
         #Tri sur X
-        X,Y = sortpoints(U,Z)
+        X,Y = ldt.sortpoints(U,Z)
         
         Affiche_Spline_NU(X,Y,a,b,n,label = "tri selon l'axe des abcisses",color='b')
-   
         
         plt.legend(fontsize="10")
     
@@ -271,11 +250,26 @@ if __name__ == "__main__":
         """
         #plt.figure()
         #Tri sur Y
-        Y,X = sortpoints(Z,U)
+        Y,X = ldt.sortpoints(Z,U)
 
         Affiche_Spline_Para(a,b,X,Y,label="tri selon l'axe des ordonnées",color="g")
    
         plt.legend(fontsize="10")
+    
+    if f is not None:
+        xi = np.linspace(0, 1, 100)
+        plot.plot1d1d(xi,f(xi),new_fig = False,c = 'g')
+        
+def creation_spline_naturelle():
+    
+    print("\nCreation de la spline naturelle interpolant chaque point donne.")
+    x,y,f,M,is_array = ldt.charge_donnees()
+    
+    if is_array :
+        for i in range(len(x)):
+            test_fichier(x[i],y[i],f,M)
+    else:
+        test_fichier(x,y,f,M)
     
 
     

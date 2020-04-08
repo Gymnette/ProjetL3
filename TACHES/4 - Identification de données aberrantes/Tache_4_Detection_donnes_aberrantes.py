@@ -217,9 +217,6 @@ if __name__ == "__main__":
     print("\nPour Quitter le programme, appuyer sur q lors d'un choix.")
     
     type_test = ldt.input_choice(['1','2','3'])
-    
-    if type_test == 'q':
-        sys.exit(0)
         
     type_test = int(type_test)
     
