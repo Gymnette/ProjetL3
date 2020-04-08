@@ -90,6 +90,20 @@ def d_euclidienne(x0,y0,x1,y1):
     """
     return math.sqrt((x0-x1)**2 + (y0 - y1)**2)
     
+def d_carre(x0,y0,x1,y1):
+    """
+    Calcul de la distance euclidienne au carré entre (x0,y0) et (x1,y1)
+    
+    Type entrées :
+        x0 : float
+        y0 ; float
+        x1 : float
+        y1 : float
+    
+    Type sorties :
+        float
+    """
+    return d_euclidienne(x0,y0,x1,y1)**2
 
 ##############################################
 # Fonctions de création de la spline cubique #
