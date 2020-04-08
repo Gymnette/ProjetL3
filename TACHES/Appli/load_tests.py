@@ -55,6 +55,31 @@ def input_choice(Choices = ['y','n']):
 def affiche_separation(c = '-',n = 50):
     print(c*n)
     
+def charge_methodes(D_methodes=None):
+    """
+    Charge fonction, methode, et un booleen qui donne le type de x et y pour pouvoiir appliquer les methodes
+    """
+    
+    if D_methodes is not None:
+        affiche_separation()
+        print("\nDéfinir une methode pour toutes les données ? (y = oui, n = non)")
+        def_M = input_choice()
+        
+        if def_M == 'y':
+            
+            affiche_separation()
+            print("\nChoisissez le mode de traitement des données :")
+            for key in D_methodes.keys():
+                print(key," : ",D_methodes[key])
+                 
+            M_int = input_choice(list(D_methodes.keys()))
+        else :
+            M_int = None
+    else:
+        M_int = None
+    return M_int
+
+    
 def charge_donnees(D_methodes=None):
     """
     Charge x,y, fonction, methode, et un booleen qui donne le type de x et y pour pouvoiir appliquer les methodes
@@ -84,13 +109,13 @@ def charge_donnees(D_methodes=None):
         
         if D_methodes is not None:
             affiche_separation()
-            print("Définir une methode pour tous les fichiers ? (y = oui, n = non)")
+            print("\nDéfinir une methode pour tous les fichiers ? (y = oui, n = non)")
             def_M = input_choice()
             
             if def_M == 'y':
                 
                 affiche_separation()
-                print("Choisissez le mode de traitement du fichier :")
+                print("\nChoisissez le mode de traitement du fichier :")
                 for key in D_methodes.keys():
                     print(key," : ",D_methodes[key])
                      
@@ -113,7 +138,7 @@ def charge_donnees(D_methodes=None):
     elif type_test == 2:
         
         affiche_separation()
-        f_test = input("Entrez le nom du fichier de test :\n> ")
+        f_test = input("\nEntrez le nom du fichier de test :\n> ")
         if f_test == 'q':
             sys.exit(0)
         x,y = load_points(f_test)

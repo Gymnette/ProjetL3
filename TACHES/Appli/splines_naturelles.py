@@ -263,17 +263,20 @@ def test_fichier(U,Z,f = None,mode = None):
     ldt.affiche_separation()
     print("Spline cree !")
     ldt.affiche_separation()
-    print("\n")
     
-def creation_spline_naturelle():
+def creation_spline_naturelle(x = None,y = None,f= None,is_array = False):
     
     print("\nCreation de la spline naturelle interpolant chaque point donne.\n")
     
     D_meth = {'1': "tel quel",
          '2': "tri sur l'axe X",
          '3': "tri sur l'axe Y"}
+    M = None
     
-    x,y,f,M,is_array = ldt.charge_donnees(D_meth)
+    if (x is None) or (y is None):
+        x,y,f,M,is_array = ldt.charge_donnees(D_meth)
+    elif is_array :
+        M = ldt.charge_methodes(D_meth)
     
     if is_array :
         for i in range(len(x)):

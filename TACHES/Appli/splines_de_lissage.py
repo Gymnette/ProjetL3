@@ -348,24 +348,29 @@ def Repartition_aleatoire(a,b,n):
 MAIN PROGRAM :   
 ------------------------------------------------------"""
 
-def test_fichier(n,uk,zk,f=None,M=None):
+def test_fichier(n,uk,zk,f=None,mode=None,aff_n = None):
     
     N = len(uk) # taille de l'échantillon
     
     #Tri
-    #uk,zk = ldt.sortpoints(uk,zk)
+    uk,zk = ldt.sortpoints(uk,zk)
     
     a = min(uk) # intervalle
     b = max(uk) # intervalle
     
-    if M is None:
+    if mode is None:
         ldt.affiche_separation()
         print("\nEntrez le mode de traitement du fichier :")
         print("1. repartition uniforme des noeuds")
         print("2. repartition de Chebichev")
         print("3. repartition aléatoire")
         mode = ldt.input_choice(['1','2','3'])
-    
+        
+    if aff_n is None :
+        ldt.affiche_separation()
+        print("\nAfficher les noeuds ? (y = oui, n = non)")
+        aff_n = ldt.input_choice()
+        
     plt.figure()
     plt.title('spline de lissage avec '+str(n)+' noeuds') # titre
     plt.plot(uk,zk,'rx',label='scattered data') # affichage des points de l'échantillon
@@ -378,7 +383,9 @@ def test_fichier(n,uk,zk,f=None,M=None):
         #Test sur une repartition des noeuds aleatoire
         xi = Repartition_aleatoire(a,b,n)
     
-    plt.scatter(xi,[0]*n,label = 'noeuds')
+
+    if aff_n == 'y':
+        plt.scatter(xi,[0]*n,label = 'noeuds')
     
     H = [xi[i+1]-xi[i] for i in range(len(xi)-1)] # vecteur des pas de la spline
     rho = [0.001,0.1,1.0,10.0,100.0,10000.0] # paramètres de lissage qui contrôle le compromis entre la fidélité des données et le caractère théorique de la fonction
@@ -396,7 +403,10 @@ def test_fichier(n,uk,zk,f=None,M=None):
         plt.plot(xx,yy,lw=1,label='spline de lissage avec rho = '+str(rho[j]))
     plt.legend()
     plt.show()
-
+    
+    ldt.affiche_separation()
+    print("Spline cree !")
+    ldt.affiche_separation()
 
 
 def choisir_n():
@@ -415,27 +425,36 @@ def choisir_n():
             n = -1
     return n
 
-def creation_spline_lissage():
+def creation_spline_lissage(x = None,y = None,f= None,is_array = False):
     
     print("\nCreation de la spline de lissage interpolant les donnees.\n")
 
     D_meth = {'1': "repartition uniforme des noeuds",
               '2': "repartition de Chebichev",
               '3': "repartition aléatoire"}
+    M = None
     
-    x,y,f,M,is_array = ldt.charge_donnees(D_meth)
+    if (x is None) or (y is None):
+        x,y,f,M,is_array = ldt.charge_donnees(D_meth)
+    elif is_array :
+        M = ldt.charge_methodes(D_meth)
     
     if is_array :
-        print("Définir un nombre de noeuds constant pour tous les fichiers ? (y = oui, n = non)")
+        ldt.affiche_separation()
+        print("\nDéfinir un nombre de noeuds constant pour tous les fichiers ? (y = oui, n = non)")
         n_fixe = ldt.input_choice()
         
-        if n_fixe == "y" :
+        if n_fixe == 'y' :
             n=choisir_n()
+            ldt.affiche_separation()
+            print("\nAfficher les noeuds ? (y = oui, n = non)")
+            aff_n = ldt.input_choice()
             
         for i in range(len(x)):
             print("Fichier ",i+1)
-            n=choisir_n()
-            test_fichier(n,x[i],y[i],f,M)
+            if n_fixe == 'n':
+                n=choisir_n()
+            test_fichier(n,x[i],y[i],f,M,aff_n)
     else:
         n=choisir_n()
         test_fichier(n,x,y,f,M)
