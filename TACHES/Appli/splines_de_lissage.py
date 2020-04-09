@@ -13,6 +13,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import load_tests as ldt
 
+from statsmodels.tsa.holtwinters import SimpleExpSmoothing
+
 # Les 4 polynomiales cubiques formant la base de Hermite sur [0,1]
 def H0(t) :
     """
@@ -343,12 +345,18 @@ def Repartition_aleatoire(a,b,n):
                 xi[i+1] = (xi[i]+xi[i+2])/2
     return xi
     
+
+def trouve_rho(y):
+    model = SimpleExpSmoothing(y) # crée la classe
+    model_fit = model.fit() # met en forme le modèle
+    rho = model_fit.model.params['smoothing_level']# trouve la valeur optimale
+    return rho
     
 """------------------------------------------------------
 MAIN PROGRAM :   
 ------------------------------------------------------"""
 
-def test_fichier(n,uk,zk,f=None,mode=None,aff_n = None):
+def test_fichier(n,uk,zk,f=None,mode=None,aff_n = None,rho_auto = True):
     
     N = len(uk) # taille de l'échantillon
     
@@ -371,6 +379,21 @@ def test_fichier(n,uk,zk,f=None,mode=None,aff_n = None):
         print("\nAfficher les noeuds ? (y = oui, n = non)")
         aff_n = ldt.input_choice()
         
+    if rho_auto :
+        rho = trouve_rho(zk) # paramètres de lissage qui contrôle le compromis entre la fidélité des données et le caractère théorique de la fonction
+    else:
+        print("\nChoisissez un paramètre de lissage :")
+        rho = -1
+        while rho <0:
+            try :
+                rho = int(input("> "))
+                if rho<0:
+                    rho = -1
+                    print("Merci d'entrer un nombre valide")
+            except :
+                print("Merci d'entrer un nombre valide")
+                rho = -1
+        
     plt.figure()
     plt.title('spline de lissage avec '+str(n)+' noeuds') # titre
     plt.plot(uk,zk,'rx',label='scattered data') # affichage des points de l'échantillon
@@ -388,19 +411,17 @@ def test_fichier(n,uk,zk,f=None,mode=None,aff_n = None):
         plt.scatter(xi,[0]*n,label = 'noeuds')
     
     H = [xi[i+1]-xi[i] for i in range(len(xi)-1)] # vecteur des pas de la spline
-    rho = [0.001,0.1,1.0,10.0,100.0,10000.0] # paramètres de lissage qui contrôle le compromis entre la fidélité des données et le caractère théorique de la fonction
     
-    for j in range(len(rho)): # On calcule la spline de lissage correspondant à chacun des paramètres
-        Y = Vecteur_y(uk,[zk],N,xi,n,H,rho[j])
-        yi = np.transpose(Y)
-        yip = np.transpose(np.linalg.solve(MatriceA(n,H),(np.dot(MatriceR(n,H),Y))))
-        xx=[]
-        yy=[]
-        for i in range(n-1):
-            x,y = HermiteC1(xi[i],yi[0][i],yip[0][i],xi[i+1],yi[0][i+1],yip[0][i+1])
-            xx=np.append(xx,x)
-            yy=np.append(yy,y)
-        plt.plot(xx,yy,lw=1,label='spline de lissage avec rho = '+str(rho[j]))
+    Y = Vecteur_y(uk,[zk],N,xi,n,H,rho)
+    yi = np.transpose(Y)
+    yip = np.transpose(np.linalg.solve(MatriceA(n,H),(np.dot(MatriceR(n,H),Y))))
+    xx=[]
+    yy=[]
+    for i in range(n-1):
+        x,y = HermiteC1(xi[i],yi[0][i],yip[0][i],xi[i+1],yi[0][i+1],yip[0][i+1])
+        xx=np.append(xx,x)
+        yy=np.append(yy,y)
+    plt.plot(xx,yy,lw=1,label='spline de lissage avec rho = '+str(rho))
     plt.legend()
     plt.show()
     
@@ -440,10 +461,24 @@ def creation_spline_lissage(x = None,y = None,f= None,is_array = False):
         M = ldt.charge_methodes(D_meth)
     
     if is_array :
+
+        ldt.affiche_separation()
+        print("\nDéfinir un paramètre de lissage constant pour tous les fichiers ? (y = oui, n = non)")
+        rho_fixe = ldt.input_choice()
+        
+        if rho_fixe == 'y':
+            ldt.affiche_separation()
+            print("\nChoix automatique du paramètre de lissage ? (y = oui, n = non)")
+            rho_auto = ldt.input_choice()
+            if rho_auto == 'y':
+                rho_auto = True
+            else :
+                rho_auto = False
+                
         ldt.affiche_separation()
         print("\nDéfinir un nombre de noeuds constant pour tous les fichiers ? (y = oui, n = non)")
         n_fixe = ldt.input_choice()
-        
+            
         if n_fixe == 'y' :
             n=choisir_n()
             ldt.affiche_separation()
@@ -452,12 +487,27 @@ def creation_spline_lissage(x = None,y = None,f= None,is_array = False):
             
         for i in range(len(x)):
             print("Fichier ",i+1)
+            if rho_fixe == 'n':
+                print("\nChoix automatique du paramètre de lissage ? (y = oui, n = non)")
+                rho_auto = ldt.input_choice()
+                if rho_auto == 'y':
+                    rho_auto = True
+                else :
+                    rho_auto = False
             if n_fixe == 'n':
                 n=choisir_n()
-            test_fichier(n,x[i],y[i],f,M,aff_n)
+            test_fichier(n,x[i],y[i],f,M,aff_n,rho_auto)
     else:
+        
+        ldt.affiche_separation()
+        print("\nChoix automatique du paramètre de lissage ? (y = oui, n = non)")
+        rho_auto = ldt.input_choice()
+        if rho_auto == 'y':
+            rho_auto = True
+        else :
+            rho_auto = False
         n=choisir_n()
-        test_fichier(n,x,y,f,M)
+        test_fichier(n,x,y,f,M,rho_auto= rho_auto)
         
     print("Retour au menu principal...")
     ldt.affiche_separation()

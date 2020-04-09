@@ -364,4 +364,4 @@ if __name__ == '__main__':
         yy=np.append(yy,y)
     plt.plot(xx,yy,lw=1,label='optimal')
 plt.legend()
-plt.savefig('IMG_Tache3_nonunif.png')    
+#plt.savefig('IMG_Tache3_nonunif.png')    
