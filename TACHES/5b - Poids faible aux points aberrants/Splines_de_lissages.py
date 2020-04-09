@@ -7,8 +7,9 @@ la présence des observations "bruyantes" et son raccord aux données présenté
 
 Ce qui fait qu'un lissage est considéré comme différent d'une interpolation
 """
-
-
+from statsmodels.tsa.holtwinters import SimpleExpSmoothing
+import signaux_splines  as sign
+import weight_function as weight
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -178,7 +179,9 @@ def H03(N,n,uk,xi,H):
     M=np.zeros((N,n))
     j=0
     for i in range(n-1):
+        print(i)
         for ki in range(N):
+            print(ki)
             if xi[i]<=uk[ki] and uk[ki]<=xi[i+1]:
                 M[j][i]=H0((uk[ki]-xi[i])/H[i])
                 M[j][i+1]=H3((uk[ki]-xi[i])/H[i])
@@ -218,7 +221,7 @@ def MatriceH(N,n,uk,xi,H):
         n : entier(nombre de neouds)
         uk : tableau de flottants(valeurs en abscisse de l'échantillon)
         xi : tableau d'entiers
-        H : vecteur de flottants (pas entre les xi)
+        h : vecteur de flottants (pas entre les xi)
     Return :
         H : Matrice n,n (de flottants)
     """
@@ -233,7 +236,7 @@ def MatriceS(n,H):
     
     Input : 
         n : entier(nombre de neouds)
-        H : vecteur de flottants (pas entre les xi)
+        h : vecteur de flottants (pas entre les xi)
     Output :
         S : Matrice n,n de flottants
     """
@@ -317,17 +320,29 @@ def Matdiag(n):
 MAIN PROGRAM :   
 ------------------------------------------------------"""
 if __name__ == '__main__':
+
+
+    (uk,zk) =  np.loadtxt('text.txt') # prépare les donnéeS
+    zk = sign.add_bivariate_noise(zk, 1) # ajoutons un peu de bruit
+
+    model = SimpleExpSmoothing(zk) # crée la classe
+    model_fit = model.fit() # met en forme le modèle
+    rho = model_fit.model.params['smoothing_level']# trouve la valeur optimale
+    print(rho)
     
-    plt.figure()
-    (uk,zk)=np.loadtxt('data.txt') # échantillon de valeurs fournies en txt
-    plt.plot(uk,zk,'rx',label='scattered data') # affichage des points de l'échantillon
-    N = len(uk) # taille de l'échantillon
+    y_estimated = weight.construct(uk, zk,rho) #estimons les nouvelles ordonnées des points de notre échantillon
+    N = len(y_estimated) # taille de l'échantillon
+    
+    plt.plot(uk,zk,'rx',label='données') # affichage des points de l'échantillon
+    plt.plot(uk,y_estimated,'bx',label='données estimées') # affichage des points de l'échantillon éstimé
     
     n=15 # nombre des noeuds attendus pour la spline de lissage
-    plt.title('spline de lissage avec '+str(n)+' noeuds') # titre
-    a = -2 # intervalle
-    b = 8 # intervalle
+    plt.title('Spline de lissage avec '+str(n)+' noeuds') # titre
+    m = len(uk)
+    a = uk[0] # intervalle
+    b = uk[m-1] # intervalle
     
+   
     #Test sur une repartition des noeuds aleatoire
     rdm = np.random.rand(n-2)
     rdm.sort()
@@ -337,19 +352,28 @@ if __name__ == '__main__':
     plt.scatter(xi,[0]*n,label = 'noeuds')
     
     H = [xi[i+1]-xi[i] for i in range(len(xi)-1)] # vecteur des pas de la spline
-    rho = [0.001,0.1,1.0,10.0,100.0,10000.0] # paramètres de lissage qui contrôle le compromis entre la fidélité des données et le caractère théorique de la fonction
+  
+    Y = Vecteur_y(uk,[y_estimated],N,xi,n,H,rho)
+    yi = np.transpose(Y)
+    yip = np.transpose(np.linalg.solve(MatriceA(n,H),(np.dot(MatriceR(n,H),Y))))
+    xx=[]
+    yy=[]
+    for i in range(n-1):
+        x,y = HermiteC1(xi[i],yi[0][i],yip[0][i],xi[i+1],yi[0][i+1],yip[0][i+1])
+        xx=np.append(xx,x)
+        yy=np.append(yy,y)
+    plt.plot(xx,yy,lw=1,label='Avec poids')
     
     
-    for j in range(len(rho)): # On calcule la spline de lissage correspondant à chacun des paramètres
-        Y = Vecteur_y(uk,[zk],N,xi,n,H,rho[j])
-        yi = np.transpose(Y)
-        yip = np.transpose(np.linalg.solve(MatriceA(n,H),(np.dot(MatriceR(n,H),Y))))
-        xx=[]
-        yy=[]
-        for i in range(n-1):
-            x,y = HermiteC1(xi[i],yi[0][i],yip[0][i],xi[i+1],yi[0][i+1],yip[0][i+1])
-            xx=np.append(xx,x)
-            yy=np.append(yy,y)
-        plt.plot(xx,yy,lw=1,label='spline de lissage avec rho = '+str(rho[j]))
-    plt.legend()
-
+    Y = Vecteur_y(uk,[zk],N,xi,n,H,rho)
+    yi = np.transpose(Y)
+    yip = np.transpose(np.linalg.solve(MatriceA(n,H),(np.dot(MatriceR(n,H),Y))))
+    xx=[]
+    yy=[]
+    for i in range(n-1):
+        x,y = HermiteC1(xi[i],yi[0][i],yip[0][i],xi[i+1],yi[0][i+1],yip[0][i+1])
+        xx=np.append(xx,x)
+        yy=np.append(yy,y)
+    plt.plot(xx,yy,lw=1,label='Sans poids')
+plt.legend()
+plt.savefig('IMG_Tache5b_nonunif.png')    

@@ -1,0 +1,8 @@
+droite_nulle_pasaberrant.txt
+droite_nulle_un_aberrant.txt
+droite_environ_nulle_pasaberrant.txt
+droite_environ_nulle_aberrant.txt
+droite_identite.txt
+droite_identite_environ_pasaberrant.txt
+droite_identite_environ_aberrant.txt
+data_CAO.txt

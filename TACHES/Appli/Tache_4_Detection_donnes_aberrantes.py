@@ -22,7 +22,7 @@ import Tache_4_methodes as meth
 ###############################################
 
 
-def supprime(x, methode, sup_poids=True, poids=1 / 100,k=7,m=25):  # A AJOUTER (AMELYS) : OPTIONS DES METHODES
+def supprime(x, methode, sup_poids=True, poids=1 / 100,k=7,m=25,y = None):  # A AJOUTER (AMELYS) : OPTIONS DES METHODES
     """
     Parcours toutes les valeurs de x afin de toutes les traiter.
     La fonction supprime prend un vecteur x d'ordonnées de points, une methode de
@@ -75,20 +75,19 @@ def supprime(x, methode, sup_poids=True, poids=1 / 100,k=7,m=25):  # A AJOUTER (
                     x_sup[i] = None
                 else:
                     v_poids[i] = poids
-
+    
+    elif methode == meth.KNN:
+        ind,uk_ya,x_sup,y = meth.KNN(x,y,k,m)
+        return x_sup,y
+    
     else:
 
         for i in range(n):
             aberrant = False
             if methode == meth.test_Chauvenet or methode == meth.thompson:
-                if methode(x, i):
-                    aberrant = True
-            elif methode == meth.KNN :
-                if meth.KNN(x,i,k,m):
-                    aberrant = True
+                aberrant = methode(x, i)
             else:  # methode == eval_quartile:
-                if meth.eval_quartile(x, i, a, b):
-                    aberrant = True
+                aberrant = meth.eval_quartile(x, i, a, b)
 
             if aberrant:
                 indices.append(i)
@@ -155,7 +154,7 @@ def tester(x,y,f = None,M_int = None):
         print("3 : Test de Tau Thompson")
         print("4 : Test de Grubbs")
         print("5 : Test de la deviation extreme de Student")
-        print("6 : Test des k plus proches voisins")
+        print("6 : Test des k plus proches voisins ")
         
         M_int = ldt.input_choice(['1','2','3','4','5','6'])
 
@@ -183,17 +182,22 @@ def tester(x,y,f = None,M_int = None):
 
         j = x[a:b]
         g = y[a:b]
-
-        yd, v_poids, indices_aberrants = supprime(g, M)  # AMELYS : IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
-        indices_aberrants.sort()
-        # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
-        # On ne garde que les x associés aux y.
-        xd = list(j)
-        for ind in range(len(indices_aberrants) - 1, -1,-1):  # On part de la fin pour ne pas avoir de décalage d'indices
-            xd.pop(indices_aberrants[ind])
-
-        X = X + xd
-        Y = Y + yd
+        
+        if M == meth.KNN:
+            xd,yd = supprime(j, M, y = g)
+            X = X + xd
+            Y = Y + yd
+        else :
+            yd, v_poids, indices_aberrants = supprime(g, M)  # AMELYS : IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
+            indices_aberrants.sort()
+            # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
+            # On ne garde que les x associés aux y.
+            xd = list(j)
+            for ind in range(len(indices_aberrants) - 1, -1,-1):  # On part de la fin pour ne pas avoir de décalage d'indices
+                xd.pop(indices_aberrants[ind])
+    
+            X = X + xd
+            Y = Y + yd
 
         i += 1  # On se décale d'un cran à droite
         
@@ -205,8 +209,9 @@ def tester(x,y,f = None,M_int = None):
         plot.plot1d1d(xi,f(xi),new_fig = False,c = 'g')
         
     plot.show()
+    return X,Y
 
-if __name__ == "__main__":
+def trouve_points_aberrants():
     
     ldt.affiche_separation()
     print("Bienvenue dans ce gestionnaire des points aberrants !")
@@ -214,7 +219,6 @@ if __name__ == "__main__":
     print("1 : Fichier contenant une liste de plusieurs fichiers à tester")
     print("2 : Récupération sur un fichier")
     print("3 : Générer un test")
-    print("\nPour Quitter le programme, appuyer sur q lors d'un choix.")
     
     type_test = ldt.input_choice(['1','2','3'])
         
@@ -246,7 +250,7 @@ if __name__ == "__main__":
             print("3 : Test de Tau Thompson")
             print("4 : Test de Grubbs")
             print("5 : Test de la deviation extreme de Student")
-            print("6 : Test des k plus proches voisins")
+            print("6 : Test des k plus proches voisins ")
             
             M_int = ldt.input_choice(['1','2','3','4','5','6'])
         else :
@@ -254,9 +258,13 @@ if __name__ == "__main__":
         
         liste =(f_liste.read()).split("\n")
         
+        Xtab, Ytab = [],[]
         for f_test in liste:
             x,y = ldt.load_points(f_test)
-            tester(x,y,M_int = M_int)
+            X,Y = tester(x,y,M_int = M_int)
+            Xtab.append(X)
+            Ytab.append(Y)
+        return (Xtab,Ytab,None,True)
         
     elif type_test == 2:
         
@@ -265,7 +273,8 @@ if __name__ == "__main__":
         if f_test == 'q':
             sys.exit(0)
         x,y = ldt.load_points(f_test)
-        tester(x,y)
+        X,Y = tester(x,y)
+        return (X,Y,None,False)
         
     else:
         ldt.affiche_separation()
@@ -282,7 +291,8 @@ if __name__ == "__main__":
             x, y, f = ss.non_stationary_signal((30,), switch_prob=0.1, noise_func=nfunc)
             #x, y, f = ss.non_stationary_signal((30,), switch_prob=0.2, noise_func=nfunc)
             
-        tester(x,y,f)
+        X,Y = tester(x,y,f)
+        return (X,Y,f,False)
             
         #############################################################
         # Epsilon à choisir en fonction des graines et des méthodes #

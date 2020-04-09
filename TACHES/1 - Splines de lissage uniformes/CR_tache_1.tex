@@ -1,3 +1,4 @@
+
 \documentclass[a4paper,12pt]{article} % Changer la taille de police c'est ici
 
 \usepackage{framed} % Marges
@@ -27,11 +28,21 @@
 \subsection{Splines de lissage uniformes}
 
 Dans celle-ci. on traite des splines de lissage uniforme.
-On considère une séquence de noeuds,  de coordonées en abscisse où pour n noeuds, nous avons $x_1 < x_2 < ... < x_n$. Ce qui diffère les splines de lissage unforme des autres splines, ce sont ses les noeuds distribués de manière équidistante dans un intervalle déterminé, tel que $x_i+1 - x_i = h > 0, i = 1,...,n-1$.
+On considère une séquence de noeuds,  de coordonées en abscisse où pour n noeuds, nous avons $x_1 < x_2 < ... < x_n$. Ce qui diffère les splines de lissage unforme des autres splines, ce sont ses noeuds distribués de manière équidistante dans un intervalle déterminé, tel que $x_i+1 - x_i = h > 0, i = 1,...,n-1$ (comme l'illustre la figure ci-dessous, avec différentes splines de lissage).
 
-Dans le fichier python dédié aux splines de lissage uniformes, un grand nombre de matrices sont calculées. Elles servent la création des splines de lissage. Plus d'information sur ces matrices se trouvent sur le polycopié de cours fourni par M. Biard aux étudiants L3 MI et disponible depuis sa page internet personelle (lien fournie en bibliographie).
+\begin{figure}[htp]
+    \centering
+    \includegraphics[width=10cm]{IMG_Tache1}
+    \caption{Exemple de plusieurs courbes de lissages uniformes avec différents  $\rho$  }
+    \label{fig:uniforme}
+\end{figure}
 
-Dans ces courbes de lissage uniformes, il existe un paramètre de lissage $\rho$. Un de nos objectifs porte sur le calcul automatique optimal de ce paramètre par l'intermédiaire de notre application python.
+Dans le fichier python dédié aux splines de lissage uniformes, un grand nombre de matrices sont calculées. Elles servent la création des splines de lissage. Plus d'information sur ces matrices se trouvent sur le polycopié de cours fourni par M. Biard aux étudiants L3 MI et disponible depuis sa page internet personelle (lien fourni en bibliographie).
+
+
+Dans ces courbes de lissage uniformes, il existe un paramètre de lissage $\rho$ (soit rho sur la figure ci-dessus). Un de nos objectifs porte sur le calcul automatique optimal de ce paramètre par l'intermédiaire de notre application python.
+
+
 
 \section{Bibliographie}
 Luc Biard, Cours sur les splines de lissages
