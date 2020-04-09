@@ -760,7 +760,8 @@ if __name__ == "__main__":
     ##########################################
     
     # Utilisation : mettre le numéro de l'exemple ici. 0 <= num <= 31
-    num = 22 #11 pour la spline !
+    num = 32
+    # 11 
     # 14 : paramètres pas trouvés
     
     # Données de CAO, nombreuses, sans points aberrants
@@ -893,5 +894,19 @@ if __name__ == "__main__":
         plt.title("Ransac : Signal non stationnaire avec une probabilité de saut de 0.1. seed = "+str(num-26))
         plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
 
+
+    # PARAMETRIQUE
+    elif num == 32 :
+        x,y = np.loadtxt('2D.txt')
+        xreel = list(x)
+        xreel.pop(8)
+        yreel = list(y)
+        yreel.pop(8)
+        lancement_ransac(x,y,0.5,1)
+        plt.plot(xreel,yreel,"--b")
+        plt.title("Ransac : paramétrique")
+        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
+    
+        
    
 
