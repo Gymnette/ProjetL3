@@ -311,21 +311,21 @@ def Matdiag(n):
 """------------------------------------------------------
 MAIN PROGRAM :   
 ------------------------------------------------------"""
-<<<<<<< Updated upstream
+
 # prepare data
-(uk,zk) =  np.loadtxt('data2.txt')
+(uk,zk) =  np.loadtxt('2D2.txt')
  # échantillon de valeurs fournies en txt
 plt.plot(uk,zk,'rx',label='scattered data') # affichage des points de l'échantillon
-=======
 
 
 
 
 
-(uk,zk) =  np.loadtxt('data.txt')
+
+(uk,zk) =  np.loadtxt('2D2.txt')
 
 plt.plot(uk,zk,'rx',label='données') # affichage des points de l'échantillon
->>>>>>> Stashed changes
+
 N = len(uk) # taille de l'échantillon
 
 n=15 # nombre des noeuds attendus pour la spline de lissage

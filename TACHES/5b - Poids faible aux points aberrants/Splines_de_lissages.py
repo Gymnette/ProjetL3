@@ -7,12 +7,19 @@ la présence des observations "bruyantes" et son raccord aux données présenté
 
 Ce qui fait qu'un lissage est considéré comme différent d'une interpolation
 """
-from statsmodels.tsa.holtwinters import SimpleExpSmoothing
+from scipy.signal import savgol_filter
+from statsmodels.tsa.api import ExponentialSmoothing, SimpleExpSmoothing, Holt
 import signaux_splines  as sign
 import weight_function as weight
 import numpy as np
 import matplotlib.pyplot as plt
-
+import Tache_4_Detection_donnes_aberrantes as detect
+import pandas 
+from scipy.interpolate import UnivariateSpline
+import scipy.optimize as opt
+from sklearn import datasets
+from sklearn.linear_model import Ridge
+from sklearn.model_selection import GridSearchCV
 # Les 4 polynomiales cubiques formant la base de Hermite sur [0,1]
 def H0(t) :
     """
@@ -179,9 +186,7 @@ def H03(N,n,uk,xi,H):
     M=np.zeros((N,n))
     j=0
     for i in range(n-1):
-        print(i)
         for ki in range(N):
-            print(ki)
             if xi[i]<=uk[ki] and uk[ki]<=xi[i+1]:
                 M[j][i]=H0((uk[ki]-xi[i])/H[i])
                 M[j][i+1]=H3((uk[ki]-xi[i])/H[i])
@@ -320,27 +325,61 @@ def Matdiag(n):
 MAIN PROGRAM :   
 ------------------------------------------------------"""
 if __name__ == '__main__':
+    #(uk,zk) =  np.loadtxt('data.txt') # prépare les donnéeS
+    nfunc = lambda x: sign.add_bivariate_noise(x, 0.1, prob=0.3)
+    uk,zk, f = sign.stationary_signal((30,), 0.6, noise_func=nfunc,seed=0)
+    x0 = np.array([0.0, 0.0, 0.0])
+    data = pandas.Series(zk, uk)
+    
 
 
-    (uk,zk) =  np.loadtxt('text.txt') # prépare les donnéeS
-    zk = sign.add_bivariate_noise(zk, 1) # ajoutons un peu de bruit
+    rho = SimpleExpSmoothing(data).fit().params['smoothing_level'] # trouve le paramètre de lissage optimal
 
-    model = SimpleExpSmoothing(zk) # crée la classe
-    model_fit = model.fit() # met en forme le modèle
-    rho = model_fit.model.params['smoothing_level']# trouve la valeur optimale
+
     print(rho)
+
+
     
-    y_estimated = weight.construct(uk, zk,rho) #estimons les nouvelles ordonnées des points de notre échantillon
-    N = len(y_estimated) # taille de l'échantillon
     
-    plt.plot(uk,zk,'rx',label='données') # affichage des points de l'échantillon
-    plt.plot(uk,y_estimated,'bx',label='données estimées') # affichage des points de l'échantillon éstimé
-    
-    n=15 # nombre des noeuds attendus pour la spline de lissage
-    plt.title('Spline de lissage avec '+str(n)+' noeuds') # titre
     m = len(uk)
     a = uk[0] # intervalle
     b = uk[m-1] # intervalle
+    
+    
+ 
+    M = detect.eval_quartile
+    #M =  detect.test_Chauvenet
+    #M = detect.thompson
+    #M = detect.grubbs
+    #M = detect.deviation_extreme_student
+    #M = detect.KNN
+    
+    yd, v_poids, indices_aberrants = detect.supprime(zk, M)  # AMELYS : IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
+    for i in range(len(indices_aberrants)):        
+        v_poids[indices_aberrants[i]] = 1/10
+    print(opt.curve_fit(f, uk, zk, x0,v_poids))
+    y_estimated = weight.construct(uk, zk,v_poids,rho) #estimons les nouvelles ordonnées des points de notre échantillon
+
+    
+
+    
+   
+    N = len(zk) # taille de l'échantillon
+    
+    plt.plot(uk,zk,'bx',label='données') # affichage des points de l'échantillon
+   
+    x_aberrantes = []
+    y_aberrantes = []
+    
+    for i in range(len(indices_aberrants)):
+        x_aberrantes = np.append(x_aberrantes,uk[indices_aberrants[i]])
+        y_aberrantes = np.append(y_aberrantes,zk[indices_aberrants[i]])
+    plt.plot(x_aberrantes,y_aberrantes,'rx',label='données aberrantes') # affichage des points de l'échantillon éstimé
+    
+    n=10# nombre des noeuds attendus pour la spline de lissage
+    #plt.title('Spline de lissage avec '+str(n)+' noeuds') # titre
+   
+    
     
    
     #Test sur une repartition des noeuds aleatoire
@@ -349,20 +388,23 @@ if __name__ == '__main__':
     xi = [a]
     xi = np.append(xi,rdm*(b-a) + a)
     xi = np.append(xi,[b])
-    plt.scatter(xi,[0]*n,label = 'noeuds')
+    #plt.scatter(xi,[0]*n,label = 'noeuds')
     
     H = [xi[i+1]-xi[i] for i in range(len(xi)-1)] # vecteur des pas de la spline
+ 
+    
   
+
     Y = Vecteur_y(uk,[y_estimated],N,xi,n,H,rho)
     yi = np.transpose(Y)
     yip = np.transpose(np.linalg.solve(MatriceA(n,H),(np.dot(MatriceR(n,H),Y))))
-    xx=[]
-    yy=[]
+    xx_initial=[]
+    yy_initial=[]
     for i in range(n-1):
         x,y = HermiteC1(xi[i],yi[0][i],yip[0][i],xi[i+1],yi[0][i+1],yip[0][i+1])
-        xx=np.append(xx,x)
-        yy=np.append(yy,y)
-    plt.plot(xx,yy,lw=1,label='Avec poids')
+        xx_initial=np.append(xx_initial,x)
+        yy_initial=np.append(yy_initial,y)
+    
     
     
     Y = Vecteur_y(uk,[zk],N,xi,n,H,rho)
@@ -374,6 +416,10 @@ if __name__ == '__main__':
         x,y = HermiteC1(xi[i],yi[0][i],yip[0][i],xi[i+1],yi[0][i+1],yip[0][i+1])
         xx=np.append(xx,x)
         yy=np.append(yy,y)
-    plt.plot(xx,yy,lw=1,label='Sans poids')
-plt.legend()
-plt.savefig('IMG_Tache5b_nonunif.png')    
+     
+    plt.plot(xx_initial,yy_initial,lw=1,label='avec poids')
+    plt.plot(xx,yy,lw=1,label='sans poids')
+    
+   
+    plt.legend()
+    plt.savefig('IMG_Tache5b_nonunif.png')    

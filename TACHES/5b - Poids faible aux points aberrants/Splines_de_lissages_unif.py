@@ -7,12 +7,13 @@ la présence des observations "bruyantes" et son raccord aux données présenté
 
 Ce qui fait qu'un lissage est considéré comme différent d'une interpolation
 """
+from statsmodels.tsa.api import ExponentialSmoothing, SimpleExpSmoothing, Holt
 import signaux_splines  as sign
-from statsmodels.tsa.holtwinters import SimpleExpSmoothing
-import load_tests as ldt
 import weight_function as weight
 import numpy as np
 import matplotlib.pyplot as plt
+import Tache_4_Detection_donnes_aberrantes as detect
+import pandas 
 
 # Les 4 polynomiales cubiques formant la base de Hermite sur [0,1]
 def H0(t) :
@@ -316,26 +317,38 @@ def Matdiag(n):
 MAIN PROGRAM :   
 ------------------------------------------------------"""
 
+nfunc = lambda uk: sign.add_bivariate_noise(uk, 0.05, prob=0.15)
+uk,zk, f = sign.stationary_signal((10,), 0.9, noise_func=nfunc,seed=0)
+data = pandas.Series(zk, uk)
     
-    
+M = detect.eval_quartile
+#M =  detect.test_Chauvenet
+# M = thompson
+# M = grubbs
+#M = deviation_extreme_student
+#M = KNN
+   
+
+yd, v_poids, indices_aberrants = detect.supprime(zk, M)  # AMELYS : IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
+print(indices_aberrants)
+
+for i in range(len(indices_aberrants)):        
+    v_poids[indices_aberrants[i]] = 1/10
 
 
-
-
-(uk,zk) =  np.loadtxt('text.txt') # prépare les donnéeS
-zk = sign.add_bivariate_noise(zk, 1.5) # ajoutons un peu de bruit
-
-model = SimpleExpSmoothing(zk) # crée la classe
+model = SimpleExpSmoothing(data) # crée la classe
 model_fit = model.fit() # met en forme le modèle
 rho = model_fit.model.params['smoothing_level']# trouve la valeur optimale
+rho=0.0001
 print(rho)
     
-y_estimated = weight.construct(uk, zk,rho) #estimons les nouvelles ordonnées des points de notre échantillon
+y_estimated = weight.construct(uk, zk,v_poids,0.1) #estimons les nouvelles ordonnées des points de notre échantillon
+y_estimated2 = weight.construct2(uk, zk,0.1) #estimons les nouvelles ordonnées des points de notre échantillon
 N = len(y_estimated) # taille de l'échantillon
 
 plt.plot(uk,zk,'rx',label='données') # affichage des points de l'échantillon
 plt.plot(uk,y_estimated,'bx',label='données estimées') # affichage des points de l'échantillon éstimé
-    
+plt.plot(uk,y_estimated2,'bx',label='données estimées')
 n=len(uk)-1# nombre des noeuds attendus pour la spline de lissage
 plt.title('Spline de lissage avec '+str(n)+' noeuds') # titre
 m = len(uk)
@@ -356,7 +369,7 @@ for i in range(n-1):
     yy=np.append(yy,y)
 plt.plot(xx,yy,lw=1,label='Avec poids')
 
-Y = Vecteur_y(uk,[zk],N,xi,n,h,rho)
+Y = Vecteur_y(uk,[y_estimated2],N,xi,n,h,rho)
 yi = np.transpose(Y)
 yip = np.transpose(np.linalg.solve(MatriceA(n),(np.dot(MatriceR(n,h),Y))))
 xx=[]
