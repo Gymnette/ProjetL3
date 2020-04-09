@@ -164,11 +164,11 @@ def KNN(x, y, k, m):
 
 
 if __name__ == "__main__":
-    (uk, uz) = np.loadtxt('data.txt')
+    (uk, uz) = np.loadtxt('data_CAO.txt')
     uk_xa,uk_ya,uz_xna,uz_yna = KNN(uk,uz,3,45)
     plt.figure("k plus proches voisins")
     plt.plot(uk_xa,uk_ya,'rx',color='b',label='données aberrantes')
     plt.plot(uz_xna, uz_yna, 'or', color='y', label='données non aberrantes')
     plt.legend(loc=True)
-    plt.savefig('image.png')
+    #plt.savefig('image.png')
     plt.show()

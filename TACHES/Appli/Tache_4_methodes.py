@@ -89,20 +89,24 @@ def calcul_reel(i, indices):
     return i_reel
 
 
-def voisinsI(x, i):
+def voisinsI(x, y, a, b,k):
     """
-    retourne une liste contenant la distance du point à
-    la position i aux autres points de x
-    :param x: une liste de réels
-    :param i: un entier compris entre 0 et la taille de x - 1
-    :return: une liste de réels : distance entre x[i] et les autres points
+    :param x: une liste de réels d'abscisses
+    :param y: une liste de réels d'ordonnées
+    :param a: un réel abscisse
+    :param b: un réel ordonné
+    :return: la distance de point (a,b) au plus proche point dans x,y
     """
+    n = len(y)
     l = []
-    n = len(x)
     for j in range(n):
-        if i != j:
-            l.append(np.abs(x[i] - x[j]))
-    return l
+        if y[j] != b and a != x[j]:
+            l.append(np.sqrt((b - y[j])**2 + (a - x[j])**2))
+    l = sorted(l)
+    s = 0
+    for i in range(k):
+        s += l[i]
+    return s/k
 
 
 
@@ -390,24 +394,33 @@ def deviation_extreme_student(x, alpha=5 / 100, borne_max=0):
 #######################################
 ## METHODE DE K PLUS PROCHES VOISINS ##
 #######################################
-def KNN(x, j, k, m):
+def KNN(x, y, k, m):
     """
-    Calculer pour chaque observation la distance au K plus proche voisin k-distance;
-    Ordonner les observations selon ces distances k-distance;
-    Les Outliers ont les plus grandes distances k-distance;
-    Les observations qui ont les n% plus grandes distances k-distance sont des outliers, n étant un paramètre à fixer
-    :param x: une liste de réels
-    :param j: l'indice (entier) du point à étudier
-    :param k: le nombre de voisins à considerer
-    :param m: un entier entre 0 et 100 : représentant le pourcentage de valeurs à rejeter
-    :return: un booleen vrai si x[j] est aberrant , faux sinon
+    :param x: une liste de réels (abscisses)
+    :param y: une liste de réels (ordonnées)
+    :param k: entier, le nombre de voisins à prendre
+    :param m: un entier, pourcentage de valeurs à rejetter
+    :return: 4 listes : les 2 1ères representent les abscisses
+    et ordonnées de valeurs aberrantes et les 2 dernières celles
+    non aberrantes
     """
-    l = []
-    z = KNN_inter(x, k)
+    n = len(y)
+    if k >= n:
+        print("le nombre de voisins à prendre en compte est supérieure à la taille des données")
+        exit(1)
+    x_ab = []
+    y_ab = []
+    x_nab = []
+    y_na = []
+    l = list()
+    for i in range(n):
+        l.append(( x[i],y[i], voisinsI(x, y, x[i],y[i],k) ))
+    z = sorted(l, key=lambda col: col[2], reverse=True)
     p = int((m / 100) * len(z))
-    for j in range(p):
-        l.append(z[j])
-    if isIN(l,x[j]):
-        return True
-    else:
-        return False
+    for i in range(p):
+        x_ab.append(z[i][0])
+        y_ab.append(z[i][1])
+    for j in range(p, len(z)):
+        x_nab.append(z[j][0])
+        y_na.append(z[j][1])
+    return x_ab, y_ab, x_nab, y_na

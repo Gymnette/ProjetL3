@@ -22,7 +22,7 @@ import Tache_4_methodes as meth
 ###############################################
 
 
-def supprime(x, methode, sup_poids=True, poids=1 / 100,k=7,m=25):  # A AJOUTER (AMELYS) : OPTIONS DES METHODES
+def supprime(x, methode, sup_poids=True, poids=1 / 100,k=7,m=25,y = None):  # A AJOUTER (AMELYS) : OPTIONS DES METHODES
     """
     Parcours toutes les valeurs de x afin de toutes les traiter.
     La fonction supprime prend un vecteur x d'ordonnées de points, une methode de
@@ -75,20 +75,19 @@ def supprime(x, methode, sup_poids=True, poids=1 / 100,k=7,m=25):  # A AJOUTER (
                     x_sup[i] = None
                 else:
                     v_poids[i] = poids
-
+    
+    elif methode == meth.KNN:
+        ind,uk_ya,x_sup,y = meth.KNN(x,y,k,m)
+        return x_sup,y
+    
     else:
 
         for i in range(n):
             aberrant = False
             if methode == meth.test_Chauvenet or methode == meth.thompson:
-                if methode(x, i):
-                    aberrant = True
-            elif methode == meth.KNN :
-                if meth.KNN(x,i,k,m):
-                    aberrant = True
+                aberrant = methode(x, i)
             else:  # methode == eval_quartile:
-                if meth.eval_quartile(x, i, a, b):
-                    aberrant = True
+                aberrant = meth.eval_quartile(x, i, a, b)
 
             if aberrant:
                 indices.append(i)
@@ -155,7 +154,7 @@ def tester(x,y,f = None,M_int = None):
         print("3 : Test de Tau Thompson")
         print("4 : Test de Grubbs")
         print("5 : Test de la deviation extreme de Student")
-        print("6 : Test des k plus proches voisins [EN TRAVAUX]")
+        print("6 : Test des k plus proches voisins ")
         
         M_int = ldt.input_choice(['1','2','3','4','5','6'])
 
@@ -164,7 +163,7 @@ def tester(x,y,f = None,M_int = None):
          '3': ("Méthode de Tau Thompson", meth.thompson),
          '4': ("Test de Grubbs", meth.grubbs),
          '5': ("Test de la déviation extreme de student", meth.deviation_extreme_student),
-         '6': ("Test des k plus proches voisins [EN TRAVAUX]", meth.KNN)}
+         '6': ("Test des k plus proches voisins", meth.KNN)}
 
     lab,M = D[M_int]
     
@@ -183,17 +182,22 @@ def tester(x,y,f = None,M_int = None):
 
         j = x[a:b]
         g = y[a:b]
-
-        yd, v_poids, indices_aberrants = supprime(g, M)  # AMELYS : IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
-        indices_aberrants.sort()
-        # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
-        # On ne garde que les x associés aux y.
-        xd = list(j)
-        for ind in range(len(indices_aberrants) - 1, -1,-1):  # On part de la fin pour ne pas avoir de décalage d'indices
-            xd.pop(indices_aberrants[ind])
-
-        X = X + xd
-        Y = Y + yd
+        
+        if M == meth.KNN:
+            xd,yd = supprime(j, M, y = g)
+            X = X + xd
+            Y = Y + yd
+        else :
+            yd, v_poids, indices_aberrants = supprime(g, M)  # AMELYS : IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
+            indices_aberrants.sort()
+            # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
+            # On ne garde que les x associés aux y.
+            xd = list(j)
+            for ind in range(len(indices_aberrants) - 1, -1,-1):  # On part de la fin pour ne pas avoir de décalage d'indices
+                xd.pop(indices_aberrants[ind])
+    
+            X = X + xd
+            Y = Y + yd
 
         i += 1  # On se décale d'un cran à droite
         
@@ -246,7 +250,7 @@ def trouve_points_aberrants():
             print("3 : Test de Tau Thompson")
             print("4 : Test de Grubbs")
             print("5 : Test de la deviation extreme de Student")
-            print("6 : Test des k plus proches voisins [EN TRAVAUX]")
+            print("6 : Test des k plus proches voisins ")
             
             M_int = ldt.input_choice(['1','2','3','4','5','6'])
         else :
