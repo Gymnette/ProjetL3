@@ -104,30 +104,24 @@ def chauvenet(x):
         Les observations qui ont les n% plus grandes distances k-distance sont des outliers, n étant un paramètre à fixer.
 """
 
-
-# retourne une liste contenant la distance du point à la position i aux autres points de x
-
-
-def voisinsI(x, i):
+def voisinsI(x, y, a, b,k):
+    """
+    :param x: une liste de réels d'abscisses
+    :param y: une liste de réels d'ordonnées
+    :param a: un réel abscisse
+    :param b: un réel ordonné
+    :return: la distance de point (a,b) au plus proche point dans x,y
+    """
+    n = len(y)
     l = []
-    n = len(x)
     for j in range(n):
-        if i != j:
-            l.append(np.abs(x[i] - x[j]))
-    return l
-
-
-# trie la liste dans l'ordre croissant la liste des distances de i
-# à chaque point de x et retourne la moyenne des k plus proches voisins
-# c'est à dire sa k-distance
-
-def voisinsKi(x, i, k):
-    y = sorted(voisinsI(x, i))
+        if y[j] != b and a != x[j]:
+            l.append(np.sqrt((b - y[j])**2 + (a - x[j])**2))
+    l = sorted(l)
     s = 0
-    for j in range(k):
-        s = s + y[j]
-    return s / k
-
+    for i in range(k):
+        s += l[i]
+    return s/k
 
 
 # retourne la liste des valeurs aberantes
@@ -136,14 +130,26 @@ def voisinsKi(x, i, k):
 # val de x qui ont les plus grandes k-distance
 
 def KNN(x, y, k, m):
+    """
+    :param x: une liste de réels (abscisses)
+    :param y: une liste de réels (ordonnées)
+    :param k: entier, le nombre de voisins à prendre
+    :param m: un entier, pourcentage de valeurs à rejetter
+    :return: 4 listes : les 2 1ères representent les abscisses
+    et ordonnées de valeurs aberrantes et les 2 dernières celles
+    non aberrantes
+    """
     n = len(y)
+    if k >= n:
+        print("le nombre de voisins à prendre en compte est supérieure à la taille des données")
+        exit(1)
     x_ab = []
     y_ab = []
     x_nab = []
     y_na = []
-    l = []
+    l = list()
     for i in range(n):
-        l.append((x[i],y[i], voisinsKi(y, i, k)))
+        l.append(( x[i],y[i], voisinsI(x, y, x[i],y[i],k) ))
     z = sorted(l, key=lambda col: col[2], reverse=True)
     p = int((m / 100) * len(z))
     for i in range(p):
@@ -152,15 +158,17 @@ def KNN(x, y, k, m):
     for j in range(p, len(z)):
         x_nab.append(z[j][0])
         y_na.append(z[j][1])
-    return x_ab,y_ab, x_nab,y_na
+    return x_ab, y_ab, x_nab, y_na
+
 
 
 
 if __name__ == "__main__":
     (uk, uz) = np.loadtxt('data.txt')
-    uk_xa,uk_ya,uz_xna,uz_yna = KNN(uk,uz,3,28)
+    uk_xa,uk_ya,uz_xna,uz_yna = KNN(uk,uz,3,45)
     plt.figure("k plus proches voisins")
     plt.plot(uk_xa,uk_ya,'rx',color='b',label='données aberrantes')
     plt.plot(uz_xna, uz_yna, 'or', color='y', label='données non aberrantes')
     plt.legend(loc=True)
+    plt.savefig('image.png')
     plt.show()
