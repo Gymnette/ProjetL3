@@ -12,8 +12,7 @@ Ce qui fait qu'un lissage est considéré comme différent d'une interpolation
 import numpy as np
 import matplotlib.pyplot as plt
 import load_tests as ldt
-
-from statsmodels.tsa.holtwinters import SimpleExpSmoothing
+import erreur as erreur
 
 # Les 4 polynomiales cubiques formant la base de Hermite sur [0,1]
 def H0(t) :
@@ -165,72 +164,52 @@ def MatriceK(n,H):
 
 # Création des matrices H03,H12 pour trouver la matrice H 
 
-# Création des matrices H03,H12 pour trouver la matrice H 
-
-def Copie(c1,c2,i,j,M):
-    """
-    Copie les colonnes c1 et c2. Le premier élément de c1 est à l'indice i,j
-    c1 et c2 ont la même longueur.
-    """
-    for k in range(len(c1)):
-        M[i+k][j] = c1[k]
-        M[i+k][j+1] = c2[k]
-    return M
-
-def H03(uk,xi,H):
-    """
+def H03(N,n,uk,xi,H):
+    """ 
     Création de la matrice HO3
     
     Input : 
+        N : entier(taille de l'échantillon étudié)
+        n : entier(nombre de neouds)
         uk : tableau de flottants(valeurs en abscisse de l'échantillon)
         xi : tableau d'entiers
         H : vecteur de flottants (pas entre les xi)
     Output : 
-        HO3 : Matrice n,n (de flottants)
+        HO3 : Matrice N,n (de flottants)
     """
-    H03 = np.zeros((len(uk),len(xi))) #300 lignes et 30 colonnes
-    k = 0
-    for i in range(len(xi)-1) : #i de 1 à N-1
-        #On étudie l'intervalle [xi,xi+1]. k va aller de k i-1 à ki
-        col1 = []
-        col2 = []
-        kbase = k
-        while (uk[k] < xi[i+1]):
-            t = (uk[k]-xi[i])/H[i]# t^î k
-            col1.append(H0(t))
-            col2.append(H3(t))
-            k += 1
-        c1 = np.array(col1).reshape(len(col1),1)
-        c2 = np.array(col2).reshape(len(col2),1)
-        H03 = Copie(c1,c2,kbase,i,H03) # Colonne i-1, ligne 
+    H03=np.zeros((N,n))
+    j=0
+    for i in range(n-1):
+        for ki in range(N):
+            if xi[i]<=uk[ki] and uk[ki]<=xi[i+1]:
+                H03[j][i]=H0((uk[ki]-xi[i])/H[i])
+                H03[j][i+1]=H3((uk[ki]-xi[i])/H[i])
+                j+=1
     return H03
 
-def H12(uk,xi,H):
-    """
+
+def H12(N,n,uk,xi,H):
+    """ 
     Création de la matrice H12
     
-    Input :
+    Input : 
+        N : entier(taille de l'échantillon étudié), n - entier(nombre de neouds)
         uk : tableau de flottants(valeurs en abscisse de l'échantillon)
         xi : tableau d'entiers, h - entier(pas régulier des noeuds sur l'intervalle du lissage [a,b])
         H : vecteur de flottants (pas entre les xi)
     Output:
-        H12 : Matrice n,n (de flottants)
+        H12 : Matrice N,n (de flottants)
     """
-    H12 = np.zeros((len(uk),len(xi))) #300 lignes et 30 colonnes
-    k = 0
-    for i in range(len(xi)-1) : #i de 1 à N-1
-        #On étudie l'intervalle [xi,xi+1]. k va aller de k i-1 à ki
-        col1 = []
-        col2 = []
-        kbase = k
-        while (uk[k] < xi[i+1]):
-            t = (uk[k]-xi[i])/H[i]# t^î k
-            col1.append(H[i]*H1(t))
-            col2.append(H[i]*H2(t))
-            k += 1
-        c1 = np.array(col1).reshape(len(col1),1)
-        c2 = np.array(col2).reshape(len(col2),1)
-        H12 = Copie(c1,c2,kbase,i,H12) # Colonne i-1, ligne 
+    H12=np.zeros((N,n))
+    j=0
+    for i in range(n-1):
+        for ki in range(N):
+            if xi[i]<=uk[ki] and uk[ki]<=xi[i+1]:
+                H12[j][i]=H[i]*H1((uk[ki]-xi[i])/H[i])
+                H12[j][i+1]=H[i]*H2((uk[ki]-xi[i])/H[i])
+                j+=1
+                if j >= N:
+                    break
     return H12
 
 
@@ -247,7 +226,7 @@ def MatriceH(N,n,uk,xi,H):
     Return :
         H : Matrice n,n (de flottants)
     """
-    return H03(uk,xi,H) + (np.dot(np.dot(H12(uk,xi,H),np.linalg.inv(MatriceA(n,H))),MatriceR(n,H)))
+    return H03(N,n,uk,xi,H) + (np.dot(np.dot(H12(N,n,uk,xi,H),np.linalg.inv(MatriceA(n,H))),MatriceR(n,H)))
 
 
 # Création de la matrice S pour trouver la matrice W
@@ -346,203 +325,63 @@ def Repartition_chebyshev(a,b,n):
     t2 = float((b-a))/2
     for i in range (n):
         T.append(t1+t2*(np.cos((2*i+1)*np.pi/(2*n+2))))
+    print(T)
     T.sort()
     T[0] = a
     T[-1] = b
     return T
 
-def Repartition_aleatoire(a,b,n):
+"""------------------------------------------------------
+MAIN PROGRAM :   
+------------------------------------------------------"""
+if __name__ == '__main__':
+    
+    plt.figure()
+    (uk,zk)=np.loadtxt('data.txt') # échantillon de valeurs fournies en txt
+
+    N = len(uk) # taille de l'échantillon
+    
+    uk,zk = ldt.sortpoints(uk,zk)
+    
+    n=15 # nombre des noeuds attendus pour la spline de lissage
+    plt.title('spline de lissage avec '+str(n)+' noeuds') # titre
+    a = min(uk) # intervalle
+    b = max(uk) # intervalle
+    
+    #Test sur une repartition des noeuds aleatoire
     rdm = np.random.rand(n-2)
     rdm.sort()
     xi = [a]
     xi = np.append(xi,rdm*(b-a) + a)
     xi = np.append(xi,[b])
-    for i in range(len(xi)-1):
-        if xi[i] == xi[i+1]:
-            if i == len(xi)-2:
-                xi[i] = xi[i+1]+xi[i-1]/2
-            else:
-                xi[i+1] = (xi[i]+xi[i+2])/2
-    return xi
     
-
-def trouve_rho(y):
-    model = SimpleExpSmoothing(y) # crée la classe
-    model_fit = model.fit() # met en forme le modèle
-    rho = model_fit.model.params['smoothing_level']# trouve la valeur optimale
-    return rho
-    
-"""------------------------------------------------------
-MAIN PROGRAM :   
-------------------------------------------------------"""
-
-def test_fichier(n,uk,zk,f=None,mode=None,aff_n = None,rho = 1):
-    
-    N = len(uk) # taille de l'échantillon
-    
-    #Tri
-    uk,zk = ldt.sortpoints(uk,zk)
-    
-    a = min(uk) # intervalle
-    b = max(uk) # intervalle
-    
-    if mode is None:
-        ldt.affiche_separation()
-        print("\nEntrez le mode de traitement du fichier :")
-        print("1. repartition uniforme des noeuds")
-        print("2. repartition de Chebichev")
-        print("3. repartition aléatoire")
-        mode = ldt.input_choice(['1','2','3'])
-        
-    if aff_n is None :
-        ldt.affiche_separation()
-        print("\nAfficher les noeuds ? (y = oui, n = non)")
-        aff_n = ldt.input_choice()
-        
-    plt.figure()
-    plt.title('spline de lissage avec '+str(n)+' noeuds') # titre
-    plt.plot(uk,zk,'rx',label='scattered data') # affichage des points de l'échantillon
-    
-    if mode == '1':
-        xi = np.linspace(a,b,n)
-    elif mode == '2':
-        xi = Repartition_chebyshev(a,b,n)
-    else:
-        #Test sur une repartition des noeuds aleatoire
-        xi = Repartition_aleatoire(a,b,n)
-    
-
-    if aff_n == 'y':
-        plt.scatter(xi,[0]*n,label = 'noeuds')
+    #test précis :
+    xi = np.linspace(a,b,n)
+    #xi = Repartition_chebyshev(a,b,n)
+    plt.scatter(xi,[0]*n,label = 'noeuds')
     
     H = [xi[i+1]-xi[i] for i in range(len(xi)-1)] # vecteur des pas de la spline
-    
-    Y = Vecteur_y(uk,[zk],N,xi,n,H,rho)
-    yi = np.transpose(Y)
-    yip = np.transpose(np.linalg.solve(MatriceA(n,H),(np.dot(MatriceR(n,H),Y))))
-    xx=[]
-    yy=[]
-    for i in range(n-1):
-        x,y = HermiteC1(xi[i],yi[0][i],yip[0][i],xi[i+1],yi[0][i+1],yip[0][i+1])
-        xx=np.append(xx,x)
-        yy=np.append(yy,y)
-    plt.plot(xx,yy,lw=1,label='spline de lissage avec rho = '+str(rho))
-    plt.legend()
-    plt.show()
-    
-    ldt.affiche_separation()
-    print("Spline cree !")
-    ldt.affiche_separation()
+    #rho = [0.001,0.1,1.0,10.0,100.0,10000.0] # paramètres de lissage qui contrôle le compromis entre la fidélité des données et le caractère théorique de la fonction
+    rho = [0.0001,0.1,1,10,100,10000]
+    print(H03(N,n,uk,xi,H))
+    for j in range(len(rho)): # On calcule la spline de lissage correspondant à chacun des paramètres
+        Y = Vecteur_y(uk,[zk],N,xi,n,H,rho[j])
+        yi = np.transpose(Y)
+        yip = np.transpose(np.linalg.solve(MatriceA(n,H),(np.dot(MatriceR(n,H),Y))))
+        xx=[]
+        yy=[]
+        for i in range(n-1):
+            x,y = HermiteC1(xi[i],yi[0][i],yip[0][i],xi[i+1],yi[0][i+1],yip[0][i+1])
+            xx=np.append(xx,x)
+            yy=np.append(yy,y)
+        seuil = 0.017
 
-def choisir_rho(zk,rho_auto = 'y'):
-    if rho_auto == 'y':
-        rho = trouve_rho(zk) # paramètres de lissage qui contrôle le compromis entre la fidélité des données et le caractère théorique de la fonction
-    else:
-        ldt.affiche_separation()
-        print("\nChoisissez un paramètre de lissage :")
-        rho = -1
-        while rho <0:
-            try :
-                rho = int(input("> "))
-                if rho<0:
-                    rho = -1
-                    print("Merci d'entrer un nombre valide")
-            except :
-                print("Merci d'entrer un nombre valide")
-                rho = -1
-    return rho
-
-def choisir_n():
-    
-    ldt.affiche_separation()
-    print("\nChoisissez un nombre de noeuds :")
-    n = -1
-    while n <0:
-        try :
-            n = int(input("> "))
-            if n<5:
-                n = -1
-                print("Merci d'entrer un nombre valide")
-        except :
-            print("Merci d'entrer un nombre valide")
-            n = -1
-    return n
-
-def creation_spline_lissage(x = None,y = None,f= None,is_array = False):
-    
-    print("\nCreation de la spline de lissage interpolant les donnees.\n")
-
-    D_meth = {'1': "repartition uniforme des noeuds",
-              '2': "repartition de Chebichev",
-              '3': "repartition aléatoire"}
-    M = None
-    
-    if (x is None) or (y is None):
-        x,y,f,M,is_array = ldt.charge_donnees(D_meth)
-    elif is_array :
-        M = ldt.charge_methodes(D_meth)
-    
-    if is_array :
-
-        ldt.affiche_separation()
-        print("\nDéfinir un paramètre de lissage pour tous les fichiers ? (y = oui, n = non)")
-        print("Si oui, et que vous choisissez ensuite le paramètre automatique,")
-        print("alors ce paramètre sera recalculé pour chaque fichier.")
-        rho_fixe = ldt.input_choice()
-        
-        if rho_fixe == 'y':
-            ldt.affiche_separation()
-            print("\nChoix automatique du paramètre de lissage ? (y = oui, n = non)")
-            rho_auto = ldt.input_choice()
-            if rho_auto == 'n':
-                ldt.affiche_separation()
-                print("\nChoisissez un paramètre de lissage :")
-                rho = -1
-                while rho <0:
-                    try :
-                        rho = int(input("> "))
-                        if rho<0:
-                            rho = -1
-                            print("Merci d'entrer un nombre valide")
-                    except :
-                        print("Merci d'entrer un nombre valide")
-                        rho = -1
-                
-        ldt.affiche_separation()
-        print("\nDéfinir un nombre de noeuds constant pour tous les fichiers ? (y = oui, n = non)")
-        n_fixe = ldt.input_choice()
-            
-        if n_fixe == 'y' :
-            n=choisir_n()
-            ldt.affiche_separation()
-            print("\nAfficher les noeuds ? (y = oui, n = non)")
-            aff_n = ldt.input_choice()
-            
-        for i in range(len(x)):
-            print("Fichier ",i+1)
-            if rho_fixe == 'n':
-                rho = trouve_rho(y[i])
-                print("\nLe paramètre de lissage automatique serait : ",rho)
-                print("Choisir ce paramètre de lissage ? (y = oui, n = non)")
-                rho_auto = ldt.input_choice()
-                rho = choisir_rho(y[i],rho_auto)
-            else :
-                if rho_auto == 'y':
-                    rho = choisir_rho(y[i])
-            if n_fixe == 'n':
-                n=choisir_n()
-            test_fichier(n,x[i],y[i],f,M,aff_n,rho)
-    else:
-        
-        ldt.affiche_separation()
-        rho = trouve_rho(y)
-        print("\nLe paramètre de lissage automatique serait : ",rho)
-        print("Choisir ce paramètre de lissage ? (y = oui, n = non)")
-        rho_auto = ldt.input_choice()
-        rho = choisir_rho(y,rho_auto)
-        n=choisir_n()
-        test_fichier(n,x,y,f,M,rho = rho)
-        
-    print("Retour au menu principal...")
-    ldt.affiche_separation()
-    
+        print(seuil)
+        lax,lay,lnax,lnay = erreur.Erreur(uk,zk,xx,yy,seuil)
+        y_estim = erreur.Erreur_poids(uk,zk,xx,yy,seuil,1/100000,rho[j])
+        plt.plot(xx,yy,lw=1,label='spline de lissage avec rho = '+str(rho[j]))
+        plt.plot(lax, lay, 'or',color='y', label='données aberrantes seuil = 0.017')
+        plt.plot(lnax, lnay, 'rx',color='black' ,label='scattered data')  # affichage des points de l'échantillon
+        plt.plot(uk,y_estim,color='r',label='avec poids')
+        plt.legend(loc=True)
+        plt.show()
