@@ -433,6 +433,7 @@ def test_fichier(n,uk,zk,f=None,mode=None,aff_n = None,rho = 1):
     ldt.affiche_separation()
     print("Spline cree !")
     ldt.affiche_separation()
+    return xx,yy
 
 def choisir_rho(zk,rho_auto = 'y'):
     if rho_auto == 'y':

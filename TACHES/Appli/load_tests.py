@@ -17,7 +17,8 @@ def load_points(fichier):
         sys.exit(0)
 
     return X,Y
-    
+
+
 def sortpoints(X,Y):
     """
     Fonction de tri de deux listes X et Y en fonction de X.
@@ -54,7 +55,8 @@ def input_choice(Choices = ['y','n']):
 
 def affiche_separation(c = '-',n = 50):
     print(c*n)
-    
+
+
 def charge_methodes(D_methodes=None):
     """
     Charge fonction, methode, et un booleen qui donne le type de x et y pour pouvoiir appliquer les methodes
