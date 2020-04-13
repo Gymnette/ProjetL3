@@ -184,7 +184,7 @@ def Affiche_Spline_Para(a,b,X,Y,label="",color="r",type_repartition = ""):
         plt.plot(Sx[i][1],Sy[i][1],color)
     plt.plot(Sx[n-2][1],Sy[n-2][1],color,label = label)
     
-def Repartition_chordale(X,Y,a,b):
+def Repartition_cordale(X,Y,a,b):
     '''
     Renvoie un tableau de points de l'intervalle [a,b] répartis façon chordale
     '''
@@ -207,6 +207,20 @@ def Repartition_chebyshev(a,b,n):
     for i in range (n):
         T.append(t1+t2*(np.cos((2*i+1)*np.pi/(2*n+2))))
     return T
+
+def Repartition_aleatoire(a,b,n):
+    rdm = np.random.rand(n-2)
+    rdm.sort()
+    xi = [a]
+    xi = np.append(xi,rdm*(b-a) + a)
+    xi = np.append(xi,[b])
+    for i in range(len(xi)-1):
+        if xi[i] == xi[i+1]:
+            if i == len(xi)-2:
+                xi[i] = xi[i+1]+xi[i-1]/2
+            else:
+                xi[i+1] = (xi[i]+xi[i+2])/2
+    return xi
 
 def test_fichier(U,Z,f = None,mode = None):
     
