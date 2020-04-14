@@ -90,8 +90,9 @@ def charge_donnees(D_methodes=None):
     print("1 : Fichier contenant une liste de plusieurs fichiers à tester")
     print("2 : Récupération sur un fichier")
     print("3 : Générer un test")
+    print("4 : Recréer un test à partir d'une graine")
     
-    type_test = input_choice(['1','2','3'])
+    type_test = input_choice(['1','2','3','4'])
     
     type_test = int(type_test)
     
@@ -135,7 +136,7 @@ def charge_donnees(D_methodes=None):
             x,y = load_points(f_test)
             X.append(x)
             Y.append(y)
-        return X,Y,None,M_int,True
+        return X,Y,None,M_int,True,None
         
     elif type_test == 2:
         
@@ -144,9 +145,9 @@ def charge_donnees(D_methodes=None):
         if f_test == 'q':
             sys.exit(0)
         x,y = load_points(f_test)
-        return x,y,None,None,False
+        return x,y,None,None,False,None
         
-    else:
+    elif type_test == 3:
         affiche_separation()
         print("\nTest sur génération de signal. Signal stationnaire ? (y = oui, n = non)")
         stationnaire = input_choice()
@@ -155,13 +156,41 @@ def charge_donnees(D_methodes=None):
         nfunc = lambda x: ss.add_bivariate_noise(x, 0.05, prob=0.15)
         
         if stationnaire == 'y':
-            x,y, f = ss.stationary_signal((30,), 0.9, noise_func=nfunc,seed=0)
+            x,y, f,seed = ss.stationary_signal((30,), 0.9, noise_func=nfunc)
             #x,y, f = ss.stationary_signal((30,), 0.5, noise_func=nfunc)
         else: 
-            x, y, f = ss.non_stationary_signal((30,), switch_prob=0.1, noise_func=nfunc)
+            x, y, f,seed = ss.non_stationary_signal((30,), switch_prob=0.1, noise_func=nfunc)
             #x, y, f = ss.non_stationary_signal((30,), switch_prob=0.2, noise_func=nfunc)
             
-        return x,y,f,None,False
+        return x,y,f,None,False,seed
+    
+    else:
+        affiche_separation()
+        print("\nTest sur recréation de signal. Signal stationnaire ? (y = oui, n = non)")
+        stationnaire = input_choice()
+        
+        affiche_separation()
+        print("\nQuelle graine utiliser ?")
+        n = -1
+        while n <0:
+            try :
+                n = int(input("> "))
+                if n<0 or n >=2**32-1:
+                    print("Merci d'entrer un nombre valide")
+            except :
+                print("Merci d'entrer un nombre valide")
+                n = -1
+        seed = n
+        
+        # signaux de tests stationnaires provenant du générateur
+        nfunc = lambda x: ss.add_bivariate_noise(x, 0.05, prob=0.15)
+        
+        if stationnaire == 'y':
+            x,y, f,seed = ss.stationary_signal((30,), 0.9, noise_func=nfunc,seed = seed)
+        else: 
+            x, y, f,seed = ss.non_stationary_signal((30,), switch_prob=0.1, noise_func=nfunc,seed = seed)
+            
+        return x,y,f,None,False,seed
             
         #############################################################
         # Epsilon à choisir en fonction des graines et des méthodes #

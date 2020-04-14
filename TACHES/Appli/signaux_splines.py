@@ -43,6 +43,10 @@ def stationary_signal(shape, regularity, noise_func=lambda x: x, seed=None):
     # init
     if seed != None :
         np.random.seed(seed)
+    else:
+        seed = np.random.rand()
+        seed = int(str(seed)[2:10])
+        np.random.seed(seed)
     shape = (shape[0], 1) if len(shape)==1 else shape
     
     # node points value of spline surface
@@ -67,7 +71,7 @@ def stationary_signal(shape, regularity, noise_func=lambda x: x, seed=None):
     else:
         pts = (xi, yi)
     
-    return pts, noise_func(Zi), f
+    return pts, noise_func(Zi), f,seed
 
 
 def non_stationary_signal(shape, walk_prob=0.02, switch_prob=0.1, noise_func=lambda x: x, seed = None):
@@ -113,6 +117,10 @@ def non_stationary_signal(shape, walk_prob=0.02, switch_prob=0.1, noise_func=lam
     # init
     if seed != None :
         np.random.seed(seed)
+    else:
+        seed = np.random.rand()
+        seed = int(str(seed)[2:10])
+        np.random.seed(seed)
     shape = (shape[0], 1) if len(shape)==1 else shape
     
     # first dimension
@@ -141,7 +149,7 @@ def non_stationary_signal(shape, walk_prob=0.02, switch_prob=0.1, noise_func=lam
         pts = (x, y)
         f = sp.interpolate.RectBivariateSpline(y, x, Z)
         
-    return pts, noise_func(Z), f
+    return pts, noise_func(Z), f,seed
 
 
 def add_bivariate_noise(x, std1, ratio=20, prob=0.15):
