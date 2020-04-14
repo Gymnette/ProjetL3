@@ -288,7 +288,9 @@ def creation_spline_naturelle(x = None,y = None,f= None,is_array = False):
     M = None
     
     if (x is None) or (y is None):
-        x,y,f,M,is_array = ldt.charge_donnees(D_meth)
+        x,y,f,M,is_array,seed = ldt.charge_donnees(D_meth)
+        if seed is not None :
+            print("Graine pour la génération du signal : ",seed)
     elif is_array :
         M = ldt.charge_methodes(D_meth)
     

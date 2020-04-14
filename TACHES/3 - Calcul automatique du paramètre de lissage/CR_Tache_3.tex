@@ -1,0 +1,47 @@
+\documentclass[a4paper,12pt]{article} % Changer la taille de police c'est ici
+
+\usepackage{framed} % Marges
+\usepackage[utf8]{inputenc} %francais
+\usepackage[T1]{fontenc} %francais
+\usepackage[french]{babel}  %francais
+\usepackage{lmodern} % Pour changer le pack de police
+\usepackage{makeidx} % Index
+\usepackage{graphicx} % Figures
+\usepackage{wrapfig} % Figures
+\usepackage{amsmath} % Maths
+\usepackage{amssymb} % symboles ?
+\usepackage{bclogo} % ?????
+\usepackage{hyperref}
+\usepackage{stmaryrd}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry} %Marges
+
+\title{Rapport Interpolaspline}
+\author{Interpolaspline}
+\date{Avril 2020}
+
+ \begin{document}
+ \maketitle
+
+\section{Optimisation du paramètre de lissage}
+
+\subsection{Introduction}
+
+Un de nos objectifs envers nos splines est l'optimisation automatique de leur paramètre de lissage. 
+
+Après de nombreuses recherches sur une telle optimisation, nous conservons la méthode de tendance linéaire locale de Holt appelée lissage exponentiel. Cette méthode inclut également l'estimation optimale du paramètre de lissage.
+
+Les méthodes de lissage exponentiel  consistent en des moyennes pondérées des observations passées, les poids se dégradant de façon exponentielle à mesure que les observations vieillissent. Autrement dit, plus l’observation est récente, plus le poids associé est élevé. 
+Dans le cas de notre projet, le lissage étudié est le lissage exponentiel simple (SES). Cette méthode est adaptée à la prévision de données sans tendance saisonnière. 
+
+\subsection{Principe de cette optimalité}
+
+L’application de chaque méthode de lissage exponentiel nécessite le choix de paramètres. Dans notre cas, pour un lissage exponentiel simple, nous devons sélectionner la valeur du paramètre de lissage  $\alpha$. Toutes les prévisions peuvent être calculées à partir des données une fois que nous connaissons cette valeur. 
+
+Ce  paramètre de lissage peut évidemment être choisi de manière subjective : par exemple en précisant la valeur des paramètres de lissage en fonction de la précédente expérience. Cependant, une façon plus fiable et objective d’obtenir des valeurs pour ce paramètre inconnu est de l' estimer à partir des données de l'échantillon. La méthode pour le trouver est similaire à celle d'une estimation des  coefficients d’un modèle de régression :  en minimisant la somme des résidus au carré (habituellement appelée SSE ou «moindres carrés »).  Ici, Les résidus sont spécifiés comme $e_t=y_t - \hat{y}_{t|t-1}$ pour $t=1,\dots,T$. Par conséquent, nous trouvons la valeur de $\alpha$ qui minimise :
+\begin{equation}
+ \text{SSE}=\sum_{t=1}^T(y_t - \hat{y}_{t|t-1})^2=\sum_{t=1}^Te_t^2
+\end{equation}
+Contrairement au cas de régression, nos splines implique un problème de minimisation non linéaire.
+Après plusieurs tentatives vaines d'implémentation d'une méthode répondant à ce besoin, nous gardons l'outil d’optimisation lié à la méthode de holt, implémenté sous python. 
+     \end{document}
+

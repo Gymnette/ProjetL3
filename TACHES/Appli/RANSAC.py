@@ -619,7 +619,7 @@ if __name__ == "__main__":
     
     elif 8 <= num and num <= 13 :
         nfunc = lambda x: ss.add_bivariate_noise(x, 0.05, prob=0.15)
-        x,y, f = ss.stationary_signal((30,), 0.9, noise_func=nfunc,seed=num-8)
+        x,y, f,seed = ss.stationary_signal((30,), 0.9, noise_func=nfunc,seed=num-8)
         lancement_ransac(x,y,0.2,0.001)
         xreel = x
         yreel = f(x)
@@ -629,7 +629,7 @@ if __name__ == "__main__":
     elif 14 <= num and num <= 19 :
         # JE N'ARRIVE PAS A TROUVER DE BONS PARAMETRES ICI
         nfunc = lambda x: ss.add_bivariate_noise(x, 0.05, prob=0.15)
-        x,y, f = ss.stationary_signal((30,), 0.5, noise_func=nfunc,seed=num-14)
+        x,y, f,seed = ss.stationary_signal((30,), 0.5, noise_func=nfunc,seed=num-14)
         if num == 19 :
             lancement_ransac(x,y,0.05,0.00001,nconsidere=26)
         elif num == 15 :
@@ -649,7 +649,7 @@ if __name__ == "__main__":
     # Signaux non stationnaires    
     elif 20 <= num <= 25 :
         nfunc = lambda x: ss.add_bivariate_noise(x, 0.05, prob=0.15)
-        x, y, f = ss.non_stationary_signal((30,), switch_prob=0.1, noise_func=nfunc,seed=num-20)
+        x, y, f,seed = ss.non_stationary_signal((30,), switch_prob=0.1, noise_func=nfunc,seed=num-20)
         if num == 21 :
             lancement_ransac(x,y,0.1,0.0005,nconsidere=20)
         else :
@@ -663,7 +663,7 @@ if __name__ == "__main__":
     
     elif 26 <= num <= 31 : 
         nfunc = lambda x: ss.add_bivariate_noise(x, 0.05, prob=0.15)
-        x, y, f = ss.non_stationary_signal((30,), switch_prob=0.2, noise_func=nfunc,seed=num-26)
+        x, y, f,seed = ss.non_stationary_signal((30,), switch_prob=0.2, noise_func=nfunc,seed=num-26)
         if num == 27:
             lancement_ransac(x,y,0.05,0.001,nconsidere=20) 
         if num == 29 or num == 30 or num == 31:

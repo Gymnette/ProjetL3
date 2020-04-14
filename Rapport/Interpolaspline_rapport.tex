@@ -15,7 +15,31 @@
 \usepackage{stmaryrd}
 \usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry} %Marges
 
-\title{Interpolaspline : rapport de projet}
+% numérotation et mise en titre des paragraphes et subparagraphes
+\setcounter{secnumdepth}{6}
+\renewcommand\theparagraph{\Alph{paragraph}}
+     
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+                                      {-3.25ex\@plus -1ex \@minus -.2ex}%
+                                      {0.0001pt \@plus .2ex}%
+                                      {\normalfont\normalsize\bfseries}}
+\renewcommand\subparagraph{\@startsection{subparagraph}{5}{\z@}%
+                                      {-3.25ex\@plus -1ex \@minus -.2ex}%
+                                      {0.0001pt \@plus .2ex}%
+                                      {\normalfont\normalsize\bfseries}}
+     
+\counterwithin{paragraph}{subsubsection}
+\counterwithin{subparagraph}{paragraph}
+
+%reset des numéros des subsection au changement de partie
+\csname @addtoreset\endcsname{section}{part} 
+
+\makeatother
+
+
+
+\title{\textbf{Interpolaspline}\\ rapport}
 \author{CORBILLE Clément, DOUMBOUYA Mohamed, EL BOUCHOUARI Zakaria, \\HEDDIA Bilel, PIASENTIN Béryl, RODET Amélys }
 \date{Avril 2020}
 
@@ -23,13 +47,91 @@
 
 \maketitle
 \tableofcontents
-\section{Introduction}
+
+\renewcommand\partname{}
+\part{Introduction ? Que mettre dedans ?}
 
 
-\section{Conclusion}
 
-\section{Sources}
-%\url{http://w3.mi.parisdescartes.fr/~lomn/Cours/CV/SeqVideo/Material/RANSAC-tutorial.pdf} \\
+\renewcommand\partname{}
+\part{Description du projet}
+	Quelques phrases présentant le contexte du stage
+	\section{Sujet}
+		Quelques phrases présentant la partie
+		\subsection{Splines}
+			 Objectifs / cas où on a besoin des splines : problèmes
+			Explication de la différence entre interpolation et approximation, expliquer qu'on va toujours dire "interpoler" et donc faire un abus de langage
+		\subsection{Données aberrantes}
+			Définition, explication du problème. Illustration ? (une figure de ce qu'on voudrait comme interpolation, sur un signal du prof, et une figure d'une interpolation obtenue avec des splines sur toutes les données, pour montrer la grosse différence ?)
+	\section{Organisation}
+	\section{Elements fournis par le client}
+		Générateur de signaux (expliquer rapidement le principe, le fonctionnement, et peut-être l'utilisation qu'on en fait). A joindre en annexe ???
+		\\Parler aussi du document présentant le sujet ? (je ne pense pas)
+
+
+
+\renewcommand\partname{}
+\part{Réalisation}
+	Introduire la partie
+	\section{Splines}
+		Redire en 2/3 mots le problème ?
+		\subsection{Splines cubiques}
+		\subsection{Splines de lissage}
+			Expliquer ici le principe
+			\subsubsection{Répartition uniforme}
+			\subsubsection{Répartition non-uniforme}
+			\subsubsection{Estimation automatique du paramètre de lissage}
+
+	\section{Données aberrantes}
+
+		\subsection{Description des méthodes étudiées (titre à modifier, mais je ne sais pas comment)}
+		Blabla expliquant rapidement pourquoi y'a des sous parties : on a trouvé différents types de méthodes, qui permettent de blablabla
+			\subsubsection{Méthode intuitive : traitement après le tracé de la spline (titre à modifier ?)}
+			\subsubsection{Traitement des points aberrants avant le tracé de la spline (titre à modifier ?)}
+				\paragraph{Création d'intervalles pour la détection (= local/global, le fameux) (trouver un autre titre !)}
+				Expliquer le problème ici.
+				Faire une partie par méthode (il y en a deux je crois)
+
+				\paragraph{Méthodes de détection (des points aberrants) / Détection (des points aberrants)}
+				Blabla à propos de la distribution normale (définition d'échantillon du prof). Expliquer pourquoi cdrtaines méthodes n'ont pas été possibles ou implémentées (ne correspondaient pas aux données)*
+					\subparagraph{Méthode inter-quartiles}
+					\subparagraph{Test de Chauvenet}
+					\subparagraph{Test Tau de Thompson}
+					\subparagraph{Test de Grubbs}
+					\subparagraph{Méthode de la déviation extrême de Student}
+					\subparagraph{Méthode des k plus proches voisins}
+				
+					Ne pas oublier de parler des autres noms de cette méthode (boîte à moustache, ...)
+
+				\paragraph{Traitement / Traitement des points aberrants / Traitement des points détectés}
+					\subparagraph{Suppression}
+					\subparagraph{Méthode (méthode n'est pas le bon mot) Winsorising}
+					\subparagraph{Arttribution de poids}
+
+			\subsubsection{Interpolation robuste : RanSaC}
+
+	\subsection{Comparaison des différentes méthodes}
+
+
+\renewcommand\partname{}
+\part{Démonstration du logiciel / du produit fini / du produit (fourni) / de l'application fournie / ...}
+
+
+\renewcommand\partname{}
+\part{Conclusion}
+	\section{tâches non faites/à faire : explications (titre à modifier)}
+	\section{Bilan du travail d'équipe (titre à modifier)}
+
+
+
+\renewcommand\partname{}
+\part{Sources OU Support bibliographique (perso, je préfère sources)}
+	%\url{http://w3.mi.parisdescartes.fr/~lomn/Cours/CV/SeqVideo/Material/RANSAC-tutorial.pdf} \\
+
+
+\renewcommand\partname{}
+\part{Annexes}
+	\section*{Annexe 1 : blablabla}
 
 \begin{figure}
 \begin{center}
