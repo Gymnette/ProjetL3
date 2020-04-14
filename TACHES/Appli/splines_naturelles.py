@@ -275,7 +275,7 @@ def test_fichier(U,Z,f = None,mode = None):
         plot.plot1d1d(xi,f(xi),new_fig = False,c = 'g')
     
     ldt.affiche_separation()
-    print("Spline cree !")
+    print("Spline créée !")
     ldt.affiche_separation()
     
 def creation_spline_naturelle(x = None,y = None,f= None,is_array = False):
@@ -289,8 +289,6 @@ def creation_spline_naturelle(x = None,y = None,f= None,is_array = False):
     
     if (x is None) or (y is None):
         x,y,f,M,is_array,seed = ldt.charge_donnees(D_meth)
-        if seed is not None :
-            print("Graine pour la génération du signal : ",seed)
     elif is_array :
         M = ldt.charge_methodes(D_meth)
     
@@ -299,7 +297,10 @@ def creation_spline_naturelle(x = None,y = None,f= None,is_array = False):
             test_fichier(x[i],y[i],f,M)
     else:
         test_fichier(x,y,f,M)
-        
+    
+    if seed is not None :
+        print("Graine pour la génération du signal : ",seed)
+        ldt.affiche_separation()
     print("Retour au menu principal...")
     ldt.affiche_separation()
 

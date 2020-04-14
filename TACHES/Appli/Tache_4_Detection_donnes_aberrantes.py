@@ -213,87 +213,33 @@ def tester(x,y,f = None,M_int = None):
 
 def trouve_points_aberrants():
     
+    D_meth = {"1" : "Inter-Quartile",
+            "2" : "Test de Chauvenet",
+            "3" : "Test de Tau Thompson",
+            "4" : "Test de Grubbs",
+            "5" : "Test de la deviation extreme de Student",
+            "6" : "Test des k plus proches voisins "}
+    
     ldt.affiche_separation()
     print("Bienvenue dans ce gestionnaire des points aberrants !")
-    print("Choisissez une option de récupération de données :")
-    print("1 : Fichier contenant une liste de plusieurs fichiers à tester")
-    print("2 : Récupération sur un fichier")
-    print("3 : Générer un test")
-    
-    type_test = ldt.input_choice(['1','2','3'])
-        
-    type_test = int(type_test)
-    
-    if type_test == 1:
-        
-        ldt.affiche_separation()
-        f_liste_nom = input("Entrez le nom du fichier contenant la liste des tests :\n> ")
-        
-        if f_liste_nom == 'q':
-            sys.exit(0)
-            
-        try :
-            f_liste = open(f_liste_nom,'r')
-        except :
-            print("Erreur, le fichier " + f_liste_nom + " est introuvable, merci de relancer le programme.")
-            sys.exit(0)
-        
-        ldt.affiche_separation()
-        print("Définir une methode pour tous les fichiers ? (y = oui, n = non)")
-        def_M = ldt.input_choice()
-        
-        if def_M == 'y':
-            ldt.affiche_separation()
-            print("Choisissez une méthode de traitement des points aberrants :")
-            print("1 : Inter-Quartile")
-            print("2 : Test de Chauvenet")
-            print("3 : Test de Tau Thompson")
-            print("4 : Test de Grubbs")
-            print("5 : Test de la deviation extreme de Student")
-            print("6 : Test des k plus proches voisins ")
-            
-            M_int = ldt.input_choice(['1','2','3','4','5','6'])
-        else :
-            M_int = None
-        
-        liste =(f_liste.read()).split("\n")
-        
-        Xtab, Ytab = [],[]
-        for f_test in liste:
-            x,y = ldt.load_points(f_test)
-            X,Y = tester(x,y,M_int = M_int)
+    x,y,f,M,is_array,seed = ldt.charge_donnees(D_meth)
+    if is_array :
+        Xtab = []
+        Ytab = []
+        for i in range(len(x)):
+            X,Y = tester(x,y,f,M)
             Xtab.append(X)
             Ytab.append(Y)
-        return (Xtab,Ytab,None,True)
-        
-    elif type_test == 2:
-        
-        ldt.affiche_separation()
-        f_test = input("Entrez le nom du fichier de test :\n> ")
-        if f_test == 'q':
-            sys.exit(0)
-        x,y = ldt.load_points(f_test)
-        X,Y = tester(x,y)
-        return (X,Y,None,False)
-        
+    
     else:
+        Xtab,Ytab = tester(x,y,f,M)
+    
+    if seed is not None :
         ldt.affiche_separation()
-        print("Test sur génération de signal. Signal stationnaire ? (y = oui, n = non)")
-        stationnaire = ldt.input_choice()
-        
-        # signaux de tests stationnaires provenant du générateur
-        nfunc = lambda x: ss.add_bivariate_noise(x, 0.05, prob=0.15)
-        
-        if stationnaire == 'y':
-            x,y, f = ss.stationary_signal((30,), 0.9, noise_func=nfunc,seed=0)
-            #x,y, f = ss.stationary_signal((30,), 0.5, noise_func=nfunc)
-        else: 
-            x, y, f = ss.non_stationary_signal((30,), switch_prob=0.1, noise_func=nfunc)
-            #x, y, f = ss.non_stationary_signal((30,), switch_prob=0.2, noise_func=nfunc)
-            
-        X,Y = tester(x,y,f)
-        return (X,Y,f,False)
-            
+        print("Graine pour la génération du signal : ",seed)
+        ldt.affiche_separation()
+    return Xtab,Ytab,f,is_array
+
         #############################################################
         # Epsilon à choisir en fonction des graines et des méthodes #
         #############################################################
@@ -305,6 +251,5 @@ def trouve_points_aberrants():
         # Thompson
         # Grubbs    0.3
         # ESD       0.3
-
 
     

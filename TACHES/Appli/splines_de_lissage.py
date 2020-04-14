@@ -431,7 +431,7 @@ def test_fichier(n,uk,zk,f=None,mode=None,aff_n = None,rho = 1):
     plt.show()
     
     ldt.affiche_separation()
-    print("Spline cree !")
+    print("Spline créée !")
     ldt.affiche_separation()
     return xx,yy
 
@@ -545,7 +545,10 @@ def creation_spline_lissage(x = None,y = None,f= None,is_array = False):
         rho = choisir_rho(y,rho_auto)
         n=choisir_n()
         test_fichier(n,x,y,f,M,rho = rho)
-        
+    
+    if seed is not None :
+        print("Graine pour la génération du signal : ",seed)
+        ldt.affiche_separation()    
     print("Retour au menu principal...")
     ldt.affiche_separation()
     
