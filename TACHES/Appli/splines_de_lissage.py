@@ -165,52 +165,72 @@ def MatriceK(n,H):
 
 # Création des matrices H03,H12 pour trouver la matrice H 
 
-def H03(N,n,uk,xi,H):
-    """ 
+# Création des matrices H03,H12 pour trouver la matrice H 
+
+def Copie(c1,c2,i,j,M):
+    """
+    Copie les colonnes c1 et c2. Le premier élément de c1 est à l'indice i,j
+    c1 et c2 ont la même longueur.
+    """
+    for k in range(len(c1)):
+        M[i+k][j] = c1[k]
+        M[i+k][j+1] = c2[k]
+    return M
+
+def H03(uk,xi,H):
+    """
     Création de la matrice HO3
     
     Input : 
-        N : entier(taille de l'échantillon étudié)
-        n : entier(nombre de neouds)
         uk : tableau de flottants(valeurs en abscisse de l'échantillon)
         xi : tableau d'entiers
         H : vecteur de flottants (pas entre les xi)
     Output : 
-        HO3 : Matrice N,n (de flottants)
+        HO3 : Matrice n,n (de flottants)
     """
-    H03=np.zeros((N,n))
-    j=0
-    for i in range(n-1):
-        for ki in range(N):
-            if xi[i]<=uk[ki] and uk[ki]<=xi[i+1]:
-                H03[j][i]=H0((uk[ki]-xi[i])/H[i])
-                H03[j][i+1]=H3((uk[ki]-xi[i])/H[i])
-                j+=1
+    H03 = np.zeros((len(uk),len(xi))) #300 lignes et 30 colonnes
+    k = 0
+    for i in range(len(xi)-1) : #i de 1 à N-1
+        #On étudie l'intervalle [xi,xi+1]. k va aller de k i-1 à ki
+        col1 = []
+        col2 = []
+        kbase = k
+        while (uk[k] < xi[i+1]):
+            t = (uk[k]-xi[i])/H[i]# t^î k
+            col1.append(H0(t))
+            col2.append(H3(t))
+            k += 1
+        c1 = np.array(col1).reshape(len(col1),1)
+        c2 = np.array(col2).reshape(len(col2),1)
+        H03 = Copie(c1,c2,kbase,i,H03) # Colonne i-1, ligne 
     return H03
 
-
-def H12(N,n,uk,xi,H):
-    """ 
+def H12(uk,xi,H):
+    """
     Création de la matrice H12
     
-    Input : 
-        N : entier(taille de l'échantillon étudié), n - entier(nombre de neouds)
+    Input :
         uk : tableau de flottants(valeurs en abscisse de l'échantillon)
         xi : tableau d'entiers, h - entier(pas régulier des noeuds sur l'intervalle du lissage [a,b])
         H : vecteur de flottants (pas entre les xi)
     Output:
-        H12 : Matrice N,n (de flottants)
+        H12 : Matrice n,n (de flottants)
     """
-    H12=np.zeros((N,n))
-    j=0
-    for i in range(n-1):
-        for ki in range(N):
-            if xi[i]<=uk[ki] and uk[ki]<=xi[i+1]:
-                H12[j][i]=H[i]*H1((uk[ki]-xi[i])/H[i])
-                H12[j][i+1]=H[i]*H2((uk[ki]-xi[i])/H[i])
-                j+=1
-                if j >= N:
-                    break
+    H12 = np.zeros((len(uk),len(xi))) #300 lignes et 30 colonnes
+    k = 0
+    for i in range(len(xi)-1) : #i de 1 à N-1
+        #On étudie l'intervalle [xi,xi+1]. k va aller de k i-1 à ki
+        col1 = []
+        col2 = []
+        kbase = k
+        while (uk[k] < xi[i+1]):
+            t = (uk[k]-xi[i])/H[i]# t^î k
+            col1.append(H[i]*H1(t))
+            col2.append(H[i]*H2(t))
+            k += 1
+        c1 = np.array(col1).reshape(len(col1),1)
+        c2 = np.array(col2).reshape(len(col2),1)
+        H12 = Copie(c1,c2,kbase,i,H12) # Colonne i-1, ligne 
     return H12
 
 
@@ -227,7 +247,7 @@ def MatriceH(N,n,uk,xi,H):
     Return :
         H : Matrice n,n (de flottants)
     """
-    return H03(N,n,uk,xi,H) + (np.dot(np.dot(H12(N,n,uk,xi,H),np.linalg.inv(MatriceA(n,H))),MatriceR(n,H)))
+    return H03(uk,xi,H) + (np.dot(np.dot(H12(uk,xi,H),np.linalg.inv(MatriceA(n,H))),MatriceR(n,H)))
 
 
 # Création de la matrice S pour trouver la matrice W
@@ -356,7 +376,7 @@ def trouve_rho(y):
 MAIN PROGRAM :   
 ------------------------------------------------------"""
 
-def test_fichier(n,uk,zk,f=None,mode=None,aff_n = None,rho_auto = True):
+def test_fichier(n,uk,zk,f=None,mode=None,aff_n = None,rho = 1):
     
     N = len(uk) # taille de l'échantillon
     
@@ -378,21 +398,6 @@ def test_fichier(n,uk,zk,f=None,mode=None,aff_n = None,rho_auto = True):
         ldt.affiche_separation()
         print("\nAfficher les noeuds ? (y = oui, n = non)")
         aff_n = ldt.input_choice()
-        
-    if rho_auto :
-        rho = trouve_rho(zk) # paramètres de lissage qui contrôle le compromis entre la fidélité des données et le caractère théorique de la fonction
-    else:
-        print("\nChoisissez un paramètre de lissage :")
-        rho = -1
-        while rho <0:
-            try :
-                rho = int(input("> "))
-                if rho<0:
-                    rho = -1
-                    print("Merci d'entrer un nombre valide")
-            except :
-                print("Merci d'entrer un nombre valide")
-                rho = -1
         
     plt.figure()
     plt.title('spline de lissage avec '+str(n)+' noeuds') # titre
@@ -428,7 +433,25 @@ def test_fichier(n,uk,zk,f=None,mode=None,aff_n = None,rho_auto = True):
     ldt.affiche_separation()
     print("Spline cree !")
     ldt.affiche_separation()
+    return xx,yy
 
+def choisir_rho(zk,rho_auto = 'y'):
+    if rho_auto == 'y':
+        rho = trouve_rho(zk) # paramètres de lissage qui contrôle le compromis entre la fidélité des données et le caractère théorique de la fonction
+    else:
+        ldt.affiche_separation()
+        print("\nChoisissez un paramètre de lissage :")
+        rho = -1
+        while rho <0:
+            try :
+                rho = int(input("> "))
+                if rho<0:
+                    rho = -1
+                    print("Merci d'entrer un nombre valide")
+            except :
+                print("Merci d'entrer un nombre valide")
+                rho = -1
+    return rho
 
 def choisir_n():
     
@@ -463,17 +486,28 @@ def creation_spline_lissage(x = None,y = None,f= None,is_array = False):
     if is_array :
 
         ldt.affiche_separation()
-        print("\nDéfinir un paramètre de lissage constant pour tous les fichiers ? (y = oui, n = non)")
+        print("\nDéfinir un paramètre de lissage pour tous les fichiers ? (y = oui, n = non)")
+        print("Si oui, et que vous choisissez ensuite le paramètre automatique,")
+        print("alors ce paramètre sera recalculé pour chaque fichier.")
         rho_fixe = ldt.input_choice()
         
         if rho_fixe == 'y':
             ldt.affiche_separation()
             print("\nChoix automatique du paramètre de lissage ? (y = oui, n = non)")
             rho_auto = ldt.input_choice()
-            if rho_auto == 'y':
-                rho_auto = True
-            else :
-                rho_auto = False
+            if rho_auto == 'n':
+                ldt.affiche_separation()
+                print("\nChoisissez un paramètre de lissage :")
+                rho = -1
+                while rho <0:
+                    try :
+                        rho = int(input("> "))
+                        if rho<0:
+                            rho = -1
+                            print("Merci d'entrer un nombre valide")
+                    except :
+                        print("Merci d'entrer un nombre valide")
+                        rho = -1
                 
         ldt.affiche_separation()
         print("\nDéfinir un nombre de noeuds constant pour tous les fichiers ? (y = oui, n = non)")
@@ -488,26 +522,27 @@ def creation_spline_lissage(x = None,y = None,f= None,is_array = False):
         for i in range(len(x)):
             print("Fichier ",i+1)
             if rho_fixe == 'n':
-                print("\nChoix automatique du paramètre de lissage ? (y = oui, n = non)")
+                rho = trouve_rho(y[i])
+                print("\nLe paramètre de lissage automatique serait : ",rho)
+                print("Choisir ce paramètre de lissage ? (y = oui, n = non)")
                 rho_auto = ldt.input_choice()
+                rho = choisir_rho(y[i],rho_auto)
+            else :
                 if rho_auto == 'y':
-                    rho_auto = True
-                else :
-                    rho_auto = False
+                    rho = choisir_rho(y[i])
             if n_fixe == 'n':
                 n=choisir_n()
-            test_fichier(n,x[i],y[i],f,M,aff_n,rho_auto)
+            test_fichier(n,x[i],y[i],f,M,aff_n,rho)
     else:
         
         ldt.affiche_separation()
-        print("\nChoix automatique du paramètre de lissage ? (y = oui, n = non)")
+        rho = trouve_rho(y)
+        print("\nLe paramètre de lissage automatique serait : ",rho)
+        print("Choisir ce paramètre de lissage ? (y = oui, n = non)")
         rho_auto = ldt.input_choice()
-        if rho_auto == 'y':
-            rho_auto = True
-        else :
-            rho_auto = False
+        rho = choisir_rho(y,rho_auto)
         n=choisir_n()
-        test_fichier(n,x,y,f,M,rho_auto= rho_auto)
+        test_fichier(n,x,y,f,M,rho = rho)
         
     print("Retour au menu principal...")
     ldt.affiche_separation()

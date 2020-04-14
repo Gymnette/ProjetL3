@@ -23,8 +23,11 @@
 \section{Poids faible aux points aberrants}
 
 \subsection{Introduction}
+Maintenant que nos différentes détectent des points aberrants, nous voulons créer des plines prenant en compte ces points en leur donnant un poids faible et donc réduire leur impact sur le lissage.
 
-LOESS est une méthode de régression non paramétrique. Elle utilise la régression linéaire des moindres carrés pondérés et créé une fonction qui décrit la variation des données, point par point, en considèrant de manière plus importante les données les plus proches de ce point.
+Une des idées était d'intégrer nos poids faibles dans une méthode de lissage faisant intervenir les poids. C'est là qu'intervient la méthode LOESS.
+
+LOESS (ou LOWESS) est une méthode de régression non paramétrique. Elle utilise la régression linéaire des moindres carrés pondérés et créé une fonction qui décrit la variation des données, point par point, en considèrant de manière plus importante les données les plus proches de ce point.
 
 L'objectif est d'ajuster $\theta = [\theta_0, \theta_1]$ pour minimiser les moindres carrés pondérés soit : \[\sum_{i=1}^m w_i ( y_i - (\theta_0 + \theta_1 x_i))^2 \ \ \text{(1)}\]
 
@@ -32,7 +35,7 @@ Avec :
 \begin{itemize}
     \item[•]  $\theta_0 \ et \ \theta_1$ les paramètres inconnus dont la valeur permet d'effectuer la procédure d'ajustement  
     \item[•]  $(\theta_0 + \theta_1 x_i)$ la coordonnée en y prédite par la méthode en fonction de ces paramètres.
-    \item[•]  $1 > w_i = \exp \left( - \frac{(x_i - x)^2}{2 \rho^2} \right) > 0$ le poids Gaussien où  $\rho$ est considéré dans notre cas comme le paramètre de lissage.
+    \item[•]  $1 > w_i = \exp \left( - \frac{(x -x_i)^2}{2 \rho} \right)*vpoids_i > 0$ le poids Gaussien affecté par notre vecteur de poids vpoids où  $\rho$ est considéré dans notre cas comme le paramètre de lissage.
 \end{itemize}
 
 Les poids est donc donné en utilisant le calcul des moindres carrés, on a par conséquent :
@@ -49,8 +52,8 @@ Notre modèle après la méthode est ajusté, ne retenant que le point du modèl
 \begin{figure}[htp]
     \centering
     \includegraphics[width=10cm]{IMG_Tache5b_nonunif}
-    \caption{Exemple du résultat }
-    \label{fig:uniforme}
+    \caption{Exemple de résultat }
+    \label{fig:exemple}
 \end{figure}
 
 Dans cet exemple, nous avons en rouge une spline de lissage et en bleu une autre spline de lissage utilisant la méthode LOESS.  Nous avons également les valeurs initiales de l'échantillon en rouge et celle ajustées en bleu. On remarque que la méthode LOESS considère moins les valeurs pouvant être considérées comme aberrantes ou bruitées.
@@ -92,7 +95,7 @@ Il nous suffit donc de résoudre cette matrice.
 
 \subsection{Bilan}
 
-On a donc une méthode fonctionnelle s'adaptant à tout type de fonction mais peu devenir coûteuse en terme de temps lorsque l'échantillon devient grand.
+On a donc une méthode fonctionnelle donnant un poids faibles aux points aberrants mais peut devenir coûteuse en terme de temps lorsque l'échantillon devient grand.
 
 
 \section{Bibliographie}

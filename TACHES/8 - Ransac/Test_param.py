@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Apr  7 13:09:26 2020
-
-@author: Béryl
-"""
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -71,6 +66,42 @@ def trouver_ind(elem,liste):
     return len(liste)-1
         
 
+def trouver_et_distance_ind_para(x,y,xc,yc,dist):
+    """
+    Renvoie la distance à la courbe de x,y, xc et yc représentant la courbe.
+    
+    Type entrées :
+        x : float
+        y : float
+        xc : vecteur de float
+        yc : vecteur de float
+        dist : fonction : (float,float,float,float) -> float
+    
+    Type sorties :
+        float
+    """
+    d = [dist(x,y,xc[i],yc[i]) for i in range(len(xc))]
+    return min(d)
+
+def calcul_erreur_courbe(xtest,ytest,xspline,yspline,dist):
+    """
+    Renvoie l'erreur totale des points à tester à la courbe, selon la fonction distance.
+    
+    Type entrées :
+        xtest : vecteur de float
+        ytest : vecteur de float
+        xspline : vecteur de float
+        yspline : vecteur de float
+        dist : fonction : (float,float,float,float) -> float
+        
+    Type sorties :
+        float
+    """
+    err = 0
+    for i in range(len(xtest)):
+        err += trouver_et_distance_ind_para(xtest[i],ytest[i],xspline,yspline,dist)
+    return err
+
 ######################### 
 # Fonctions de distance #
 #########################
@@ -109,15 +140,6 @@ def d_carre(x0,y0,x1,y1):
 # Fonctions de création de la spline cubique #
 ##############################################
 
-
-def H0(t) :
-    return 1 - 3 * t**2 + 2 * t**3
-def H1(t) :
-    return t - 2 * t**2 + t**3  
-def H2(t) :
-    return - t**2 + t**3
-def H3(t) :
-    return 3 * t**2 - 2 * t**3
 
 def Matrix_NU(H):
     '''
@@ -233,101 +255,153 @@ def calcul_Spline_NU(X,Y,a,b,n):
 ################################################
 # Fonctions spécifiques aux splines de lissage #
 ################################################
+# Les 4 polynomiales cubiques formant la base de Hermite sur [0,1]
+def H0(t) :
+    """
+        # Renvoie H0 la première polynomiale cubique
+        
+        Input :  
+            t : flottant(transformation affine de la valeur de l'échantillon étudiée)
+        Output : 
+            H0 : flottant
+    """
+    return 1 - 3 * t**2 + 2 * t**3
+def H1(t) :
+    """
+        # Renvoie H1 la deuxième polynomiale cubique
+        
+        Input :  
+            t : flottant(transformation affine de la valeur de l'échantillon étudiée)
+        Output : 
+            H1 : flottant
+    """
+    return t - 2 * t**2 + t**3  
+def H2(t) :
+    """
+        # Renvoie H2 la troisième polynomiale cubique
+        
+        Input :  
+            t : flottant(transformation affine de la valeur de l'échantillon étudiée)
+        Output : 
+            H2 : flottant
+    """
+    return - t**2 + t**3
+def H3(t) :
+    """
+        # Renvoie H3 la quatrième polynomiale cubique
+        
+        Input :  
+            t : flottant(transformation affine de la valeur de l'échantillon étudiée)
+        Output : 
+            H3 : flottant
+    """
+    return 3 * t**2 - 2 * t**3
+
+    
+def HermiteC1(x0,y0,y0p,x1,y1,y1p):
+    """ 
+    Cubic Hermite interpolation of order 1 over 2 points x0 < x1
+    (interpolation of value + first derivative)
+        
+    Input :
+        x0,y0,y0p,x1,y1,y1p : Hermite data of order 1 (real values)
+    Output :
+        plot the cubic Hermite interpolant
+    """
+    x = np.linspace(x0,x1,100)
+    y = y0*H0((x-x0)/(x1-x0)) + y0p*(x1-x0)*H1((x-x0)/(x1-x0)) + y1p*(x1-x0)*H2((x-x0)/(x1-x0)) + y1*H3((x-x0)/(x1-x0))    
+    return x,y
+
 
 # Création des matrices A,R,M,N pour trouver la matrice K 
     
-def MatriceA(n,H): 
+def MatriceA(n): 
     """ 
     Création de la matrice A,  strictement diagonalement dominante et donc inversible
         
     Input : 
         n : entier(nombre de neouds)
-        H : vecteur d'entiers (pas entre les entre xi)
     Output : 
         A : Matrice n,n (de flottants)
     """
     A=np.zeros((n,n))
     d=[2]
-    d=np.append(d,[2*(H[i]+H[i+1]) for i in range(0,n-2)])
+    d=np.append(d,4*np.ones(n-2))
     d=np.append(d,2)
-    dp1 = [1] + [H[i] for i in range(0,n-2)]
-    dm1 = [H[i] for i in range(1,n-1)] + [1]
-    A=np.diag(d)+np.diag(dm1,-1)+np.diag(dp1,1)
+    A=np.diag(d)+np.diag(np.ones(n-1),-1)+np.diag(np.ones(n-1),1)
     return A
 
-def MatriceR(n,H):
+def MatriceR(n,h):
     """ 
     Création de la matrice R
     
     Input : 
         n : entier(nombre de neouds)
-        H : vecteur de flottants (pas entre les xi)
+        h : vecteur de flottants (pas entre les xi)
     Output :
         R : Matrice n,n (de flottants)
     """
     R=np.zeros((n,n))
-    d=[-1/H[0]]
-    d=np.append(d,[H[i]/H[i-1] - H[i-1]/H[i] for i in range(1,n-1)])
-    d=np.append(d,1/H[n-2])
-    dm1 = [-H[i]/H[i-1] for i in range(1,n-1)]
-    dm1.append(-1/H[n-2])
-    dp1 = [1/H[0]]
-    dp1 = np.append(dp1,[H[i-1]/H[i] for i in range(1,n-1)])
-    R=np.diag(d)+np.diag(dm1,-1)+np.diag(dp1,1)
-    return 3.0*R
+    d=[-1]
+    d=np.append(d,np.zeros(n-2))
+    d=np.append(d,1)
+    R=np.diag(d)+np.diag(-np.ones(n-1),-1)+np.diag(np.ones (n-1),1)
+    return (3.0/h)*R
 
-def MatriceM(n,H):
+def MatriceM(n,h):
     """ 
     Création de la matrice M
     
     Input : 
         n : entier(nombre de noeuds)
-        H : vecteur de flottants (pas entre les xi)
+        h : vecteur de flottants (pas entre les xi)
     Output : 
         M : Matrice n-2,n (de flottants)
     """
     M=np.zeros((n-2,n))
     for i in range(n-2):
-        M[i][i]=1/H[i]**2
-        M[i][i+1]=-(1/H[i]**2 + 1/H[i+1]**2)
-        M[i][i+2]=1/H[i+1]**2
-    return 3.0*M
+        M[i][i]=1
+        M[i][i+1]=-2
+        M[i][i+2]=1
+    return (3.0/(h**2))*M
 
 
-def MatriceN(n,H):
+def MatriceN(n,h):
     """ 
     Création de la matrice N
     
     Input :
         n : entier(nombre de noeuds)
-        H : vecteur de flottants (pas entre les xi)
+        h : vecteur de flottants (pas entre les xi)
     Output :
         N : Matrice n-2,n (de flottants)
     """
     N=np.zeros((n-2,n))
     for i in range(n-2):
-        N[i][i]=1/H[i]
-        N[i][i+1]=(2/H[i] - 2/H[i+1])
-        N[i][i+2]=-1/H[i+1]
-    return N
+        N[i][i]=1
+        N[i][i+2]=-1
+    return (1.0/h)*N
 
 
-def MatriceK(n,H):
+def MatriceK(n,h):
     """ 
     Création de la matrice K
     
     Input : 
         n : entier(nombre de neouds)
-        H : vecteur de flottants (pas entre les xi)
+        h : vecteur de flottants (pas entre les xi)
     Output : 
         K : Matrice n,n (de flottants) 
     """
-    return MatriceM(n,H) + (np.dot(np.dot(MatriceN(n,H),np.linalg.inv(MatriceA(n,H))),MatriceR(n,H)))
+    return MatriceM(n,h) + (np.dot(np.dot(MatriceN(n,h),np.linalg.inv(MatriceA(n))),MatriceR(n,h)))
+
+
+
 
 
 # Création des matrices H03,H12 pour trouver la matrice H 
 
-def H03(N,n,uk,xi,H):
+def H03(N,n,uk,xi,h):
     """ 
     Création de la matrice HO3
     
@@ -345,13 +419,13 @@ def H03(N,n,uk,xi,H):
     for i in range(n-1):
         for ki in range(N):
             if xi[i]<=uk[ki] and uk[ki]<=xi[i+1]:
-                M[j][i]=H0((uk[ki]-xi[i])/H[i])
-                M[j][i+1]=H3((uk[ki]-xi[i])/H[i])
+                M[j][i]=H0((uk[ki]-xi[i])/h)
+                M[j][i+1]=H3((uk[ki]-xi[i])/h)
                 j+=1
     return M
 
 
-def H12(N,n,uk,xi,H):
+def H12(N,n,uk,xi,h):
     """ 
     Création de la matrice H12
     
@@ -368,13 +442,13 @@ def H12(N,n,uk,xi,H):
     for i in range(n-1):
         for ki in range(N):
             if xi[i]<=uk[ki] and uk[ki]<=xi[i+1]:
-                H12[j][i]=H[i]*H1((uk[ki]-xi[i])/H[i])
-                H12[j][i+1]=H[i]*H2((uk[ki]-xi[i])/H[i])
+                H12[j][i]=H1((uk[ki]-xi[i])/h)
+                H12[j][i+1]=H2((uk[ki]-xi[i])/h)
                 j+=1
-    return H12
+    return h*H12
 
 
-def MatriceH(N,n,uk,xi,H):
+def MatriceH(N,n,uk,xi,h):
     """ 
     Création de la matrice H
     
@@ -387,12 +461,12 @@ def MatriceH(N,n,uk,xi,H):
     Return :
         H : Matrice n,n (de flottants)
     """
-    return H03(N,n,uk,xi,H) + (np.dot(np.dot(H12(N,n,uk,xi,H),np.linalg.inv(MatriceA(n,H))),MatriceR(n,H)))
+    return H03(N,n,uk,xi,h) + (np.dot(np.dot(H12(N,n,uk,xi,h),np.linalg.inv(MatriceA(n))),MatriceR(n,h)))
 
 
 # Création de la matrice S pour trouver la matrice W
 
-def MatriceS(n,H):
+def MatriceS(n,h):
     """ 
     Création de la matrice S
     
@@ -403,14 +477,14 @@ def MatriceS(n,H):
         S : Matrice n,n de flottants
     """
     S=np.zeros((n-2,n-2))
-    d= 2*np.array(H[0:n-2])
-    dm1 = [1/2*H[i] for i in range(2,n-1)]
-    dp1 = [1/2*H[i] for i in range(0,n-3)]
-    S=np.diag(d)+np.diag(dm1,-1)+np.diag(dp1,1)
-    return 1/3*S
+    d=[2]
+    d=np.append(d,2*np.ones(n-4))
+    d=np.append(d,2)
+    S=np.diag(d)+np.diag((1/2)*np.ones(n-3),-1)+np.diag((1/2)*np.ones(n-3),1)
+    return (h/3.0)*S
 
 
-def MatriceW(N,n,uk,xi,H,rho):
+def MatriceW(N,n,uk,xi,h,rho):
     """ 
     Création de la matrice W
     
@@ -419,17 +493,17 @@ def MatriceW(N,n,uk,xi,H,rho):
         N : taille de uk (entier)
         xi : noeuds de lissage (flottants)
         n : taille de xi (entier)
-        H : vecteur de flottants (pas entre les xi)
+        h : vecteur de flottants (pas entre les xi)
         rho :flottant,  paramètre de lissage qui contrôle le compromis entre la fidélité des données et le caractère théorique de la fonction
     Output : 
         W : matrice n,n de flottants
     """
-    W1 = np.dot(np.transpose(MatriceH(N,n,uk,xi,H)),MatriceH(N,n,uk,xi,H))
-    W2 = np.dot(np.dot(np.transpose(MatriceK(n,H)),MatriceS(n,H)),MatriceK(n,H))
+    W1 = np.dot(np.transpose(MatriceH(N,n,uk,xi,h)),MatriceH(N,n,uk,xi,h))
+    W2 = np.dot(np.dot(np.transpose(MatriceK(n,h)),MatriceS(n,h)),MatriceK(n,h))
     return W1 + (rho*W2)
 
 
-def Matricew(zk,N,n,uk,xi,H):
+def Matricew(zk,N,n,uk,xi,h):
     """ 
     Création de la matrice w
         
@@ -438,41 +512,46 @@ def Matricew(zk,N,n,uk,xi,H):
         N : entier(taille de l'échantillon étudié)
         n : entier(nombre de neouds)
         xi : noeuds de lissage (flottants)
-        H : vecteur de flottants (pas entre les xi)
+        h : vecteur de flottants (pas entre les xi)
     Output : 
         w : matrice n,n de flottants
     """
-    return np.transpose(np.dot(zk,MatriceH(N,n,uk,xi,H)))
+    return np.transpose(np.dot(zk,MatriceH(N,n,uk,xi,h)))
 
 # Calcul du vecteur y
-def Vecteur_y(uk,zk,N,xi,n,H,rho):
+def Vecteur_y(uk,zk,N,xi,n,h,rho):
     """ 
     Création du vecteur y
     
     Intput : 
         uk,zk : vecteurs de float de l'échantillon étudié
         N : entier(taille de l'échantillon étudié)
-        n : entier(nombre de neouds)
         xi : noeuds de lissage (flottants)
-        H : vecteur de flottants (pas entre les xi)
+        n : entier(nombre de neouds)
+        h : vecteur de flottants (pas entre les xi)
         rho - float,  paramètre de lissage qui contrôle le compromis entre la fidélité des données et le caractère théorique de la fonction
     Output : y contenant la transposée des yi
     """
-    return np.linalg.solve(MatriceW(N,n,uk,xi,H,rho),Matricew(zk,N,n,uk,xi,H))
+    return np.linalg.solve(MatriceW(N,n,uk,xi,h,rho),Matricew(zk,N,n,uk,xi,h))
 
-def Repartition_chebyshev(a,b,n):
-    '''
-    Renvoie un tableau de points de l'intervalle [a,b] répartis façon chebyshev
-    '''
-    T = []
-    t1 = float((a+b))/2
-    t2 = float((b-a))/2
-    for i in range (n):
-        T.append(t1+t2*(np.cos((2*i+1)*np.pi/(2*n+2))))
-    T.sort()
-    T[0] = a
-    T[-1] = b
-    return T
+
+def Matdiag(n):
+    """ 
+    Création de la matrice Matdiag pour trouver y'
+    
+    Intput :  
+        n : entier(nombre de neouds)
+    Output : 
+        Matdiag : Matrice n,n de flottants
+    """
+    Matdiag=np.zeros((n,n))
+    d=[2]
+    d=np.append(d,4*np.ones(n-2))
+    d=np.append(d,2)
+    Matdiag=np.diag(d)+np.diag(np.ones(n-1),-1)+np.diag(np.ones(n-1),1)
+    return Matdiag
+
+
 
 def calcul_Spline_lissage(uk,zk,a,b,n,rho) :
     """ 
@@ -493,8 +572,7 @@ def calcul_Spline_lissage(uk,zk,a,b,n,rho) :
         list[float],list[float]
         
     """
-    N = len(uk)
-    xi = Repartition_chebyshev(a,b,n)
+    """N = len(uk)
     
     
     H = [xi[i+1]-xi[i] for i in range(len(xi)-1)] # vecteur des pas de la spline
@@ -509,7 +587,89 @@ def calcul_Spline_lissage(uk,zk,a,b,n,rho) :
         x,y = HermiteC1_non_affiche(xi[i],yi[0][i],yip[0][i],xi[i+1],yi[0][i+1],yip[0][i+1])
         xx=np.append(xx,x)
         yy=np.append(yy,y)
+    return xx,yy"""
+    nbnoeuds = n
+    xi = Repartition_chebyshev(a,b,nbnoeuds)
+    #xi = np.linspace(a,b,nbnoeuds) # vecteur des valeurs en abscisse de la spline
+    h = (b-a)/(nbnoeuds-1) # pas de la spline
+    rho = 0.1
+        
+    Y = Vecteur_y(x,[y],len(x),xi,nbnoeuds,h,rho)
+    yi = np.transpose(Y)
+    yip = np.transpose(np.linalg.solve(MatriceA(nbnoeuds),(np.dot(MatriceR(nbnoeuds,h),Y))))
+    xx=[]
+    yy=[]
+    for i in range(nbnoeuds-1):
+        xres,yres = HermiteC1(xi[i],yi[0][i],yip[0][i],xi[i+1],yi[0][i+1],yip[0][i+1])
+        xx=np.append(xx,xres)
+        yy=np.append(yy,yres)
     return xx,yy
+
+def Repartition_chebyshev(a,b,n):
+    '''
+    Renvoie un tableau de points de l'intervalle [a,b] répartis façon chebyshev
+    '''
+    T = []
+    t1 = float((a+b))/2
+    t2 = float((b-a))/2
+    for i in range (n):
+        T.append(t1+t2*(np.cos((2*i+1)*np.pi/(2*n+2))))
+    T.sort()
+    T[0] = a
+    T[-1] = b
+    return T
+
+def repartition_cordale(x,y,a,b):
+    '''
+    Renvoie un tableau de points de l'intervalle [a,b] répartis façon chordale
+    '''
+    n = len(x)
+    D = [np.sqrt((x[i+1]-x[i])**2+(y[i+1]-y[i])**2) for i in range(n-1)]
+    T = [a]
+    som = np.sum(D)
+    for i in range (n-1):
+        T.append(T[i]+D[i]/som)
+    T.append(b)
+    return T
+
+def calcul_Spline_para(x,y):
+    """
+    Calcule la spline paramétrique cubique de lissage interpolant les données.
+    Renvoie sa discrétisation.
+    La paramétrisation est cordale.
+    
+    Type des entrées :
+        x : vecteur de float
+        y : vecteur de float
+        a : int
+        b : int
+    
+    Type des sorties :
+        (vecteur de float, vecteur de float)
+    """
+    a = min(x)
+    b = max(x)
+    n = len(x)
+    T =  repartition_cordale(x,y,a,b)
+    
+    #Spline des (ti,xi)
+    H = [T[i+1]-T[i] for i in range(n-1)]
+    A = Matrix_NU(H)
+    B = Matrix_NU_resulat(x,H)
+    Xp = np.linalg.solve(A,B)
+    Sx = []
+    for i in range(0,n-1):
+        _,xtemp = HermiteC1_non_affiche(T[i],x[i],float(Xp[i]),T[i+1],x[i+1],float(Xp[i+1]))
+        Sx += list(xtemp)
+    #Spline des (ti,yi)
+    A = Matrix_NU(H)
+    B = Matrix_NU_resulat(y,H)
+    Yp = np.linalg.solve(A,B)
+    Sy = []
+    for i in range(0,n-1):
+        _,ytemp = HermiteC1_non_affiche(T[i],y[i],float(Yp[i]),T[i+1],y[i+1],float(Yp[i+1]))
+        Sy += list(ytemp)
+    return Sx,Sy
 
 ##################################
 # RANSAC : interpolation robuste #
@@ -572,7 +732,6 @@ def ransac(x,y,nbitermax,err,dist,nbcorrect,nbpoints,rho):
                 continue
             else :
                 i_associe = trouver_ind(x[i],xres)
-                print(x[i],xres[i_associe])
                 if dist(x[i],y[i],xres[i_associe],yres[i_associe]) <= err :                
                     liste_inlier.append(i)
                     #plt.plot(x[i],y[i],"bo")
@@ -599,7 +758,7 @@ def ransac(x,y,nbitermax,err,dist,nbcorrect,nbpoints,rho):
                 ymod = list(ytemp)
     return xmod, ymod
         
-def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
+def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99,para=False):
     """
     Automatisation de l'algorithme de Ransac avec un modèle de splines cubiques :
     le calcul de la proportion de points aberrants (outlier) ou non (inlier) est mise à jour au fur et à mesure.
@@ -609,6 +768,7 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
     du nombre de points pour créer la spline d'essai,
     du paramètre de lissage,
     et de la probabilité d'obtenir un résultat correct avec cet algorithme.
+    para = True si et seulement si on souhaite une spline paramétrique.
     xres et yres représentent la spline qui interpole au mieux les données d'après RANSAC
     si exact est vraie, tous les calculs sont effectués à partir de la spline cubique d'interpolation.
 
@@ -668,8 +828,16 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
             y_selec.append(y[i_points[i]])
         
         # Création de la courbe à partir de l'échantillon
-        x_selec,y_selec = sortpoints(x_selec,y_selec)
-        xres,yres = calcul_Spline_NU(x_selec,y_selec,a,b,nbpoints)
+        if not para :
+            x_selec,y_selec = sortpoints(x_selec,y_selec)
+        xres,yres=[],[]
+        if para :
+            xres,yres = calcul_Spline_para(x_selec,y_selec)
+            #plt.plot(x_selec,y_selec,"ro")
+            #print(x_selec,y_selec)
+            #plt.plot(xres,yres,"bo")
+        else :
+            xres,yres = calcul_Spline_NU(x_selec,y_selec,a,b,nbpoints)
         
         #plt.plot(x,y,"or")
         #plt.plot(x_selec,y_selec,"og")
@@ -681,10 +849,15 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
                 # Inutile de calculer dans ce cas là, déjà compté
                 continue
             else :
-                i_associe = trouver_ind(x[i],xres)
-                if dist(x[i],y[i],xres[i_associe],yres[i_associe]) <= err :      
+                i_associe = -1
+                d_courbe = -1
+                if para :
+                    d_courbe = trouver_et_distance_ind_para(x[i],y[i],xres,yres,dist)
+                else :
+                    i_associe = trouver_ind(x[i],xres)
+                    d_courbe = dist(x[i],y[i],xres[i_associe],yres[i_associe])
+                if d_courbe <= err :      
                     liste_inlier.append(i)
-                    #plt.plot(x[i],y[i],"bo")
                 #else :
                     #print(i)
                     #print(i_associe)
@@ -695,32 +868,38 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
             # Le modèle semble ne contenir que des inlier ! 
             # On calcule la spline de lissage correspondante, avec l'erreur.
             # On garde la spline de lissage ayant l'erreur la plus petite.
-            
+            liste_inlier.sort()
             x_pour_spline = []
             y_pour_spline = []
             for i in range(len(liste_inlier)):
                 x_pour_spline.append(x[liste_inlier[i]])
                 y_pour_spline.append(y[liste_inlier[i]])
-            x_pour_spline,y_pour_spline = sortpoints(x_pour_spline,y_pour_spline)
+            if not para :
+                x_pour_spline,y_pour_spline = sortpoints(x_pour_spline,y_pour_spline)
             xtemp,ytemp = 0,0
-            xtemp, ytemp = calcul_Spline_lissage(x_pour_spline, y_pour_spline,a,b,nbpoints,rho)
-            # PARAMETRES :
-            # Si la graine vaut 0 (signal stationnaire) : 0.001
-            # Si elle vaut 1 ou 5 : 0.01
-            # Pour le second signal stationnaire :
-            # 0.0001 pour la graine qui vaut 0
             
-            err_temp = 0
-            for i in range(len(x_pour_spline)):
-                i_associe = trouver_ind(x_pour_spline[i],xtemp)
-                err_temp += dist(x_pour_spline[i],y_pour_spline[i],xtemp[i_associe],ytemp[i_associe]) 
+            if para :
+                xtemp,ytemp = calcul_Spline_para(x_pour_spline,y_pour_spline)
+            else :
+                xtemp,ytemp = calcul_Spline_lissage(x_pour_spline, y_pour_spline,a,b,nbpoints,rho)
+                        
+            err_temp = -1
+            if para :
+                err_temp = calcul_erreur_courbe(x_pour_spline,y_pour_spline,xtemp,ytemp,dist)
+                #print(i_points,err_temp)
+            else :
+                err_temp = 0
+                for i in range(len(x_pour_spline)):
+                    i_associe = trouver_ind(x_pour_spline[i],xtemp)
+                    err_temp += dist(x_pour_spline[i],y_pour_spline[i],xtemp[i_associe],ytemp[i_associe]) 
+            
             if errmod == -1 or err_temp < errmod :
                 errmod = err_temp
                 xmod = list(xtemp)
                 ymod = list(ytemp)
                 
                 #ESSAI D'AFFICHAGE DES POINTS ABERRANTS
-                plt.close('all')
+                #plt.close('all')
                 plt.plot(x,y,"+b")
                 plt.plot(x_pour_spline,y_pour_spline,"+y")
                 
@@ -750,6 +929,12 @@ def lancement_ransac(x,y,err,rho,nconsidere=-1):
         nconsidere = len(x)//2
     xres,yres = ransac_auto(x,y,err,d_euclidienne,nconsidere,rho)
     plt.plot(xres,yres,"r")        
+    
+def lancement_ransac_para(x,y,err,rho,nconsidere=-1):
+    if (nconsidere == -1):
+        nconsidere = len(x)//2
+    xres,yres = ransac_auto(x,y,err,d_euclidienne,nconsidere,rho,para=True)
+    plt.plot(xres,yres,"r")  
         
 if __name__ == "__main__":
     plt.close('all')
@@ -897,12 +1082,46 @@ if __name__ == "__main__":
 
     # PARAMETRIQUE
     elif num == 32 :
-        x,y = np.loadtxt('2D.txt')
+        x,y = np.loadtxt('2D2.txt')
         xreel = list(x)
         xreel.pop(8)
         yreel = list(y)
         yreel.pop(8)
-        lancement_ransac(x,y,0.5,1)
+        
+        
+        
+        
+        plt.plot(x,y,"+")
+        #lancement_ransac_para(x,y,2,1,nconsidere=len(x)//2)
+        #xres,yres = calcul_Spline_para(x,y)
+        #plt.plot(xres,yres)
+        nbnoeuds = len(x)
+        rho = 0.1
+        a = min(x)
+        b = max(x)
+        xx,yy = calcul_Spline_lissage(x,y,a,b,nbnoeuds,rho)
+        """nbnoeuds = len(x)
+        a = min(x) # intervalle
+        b = max(x) # intervalle
+        xi = np.linspace(a,b,nbnoeuds) # vecteur des valeurs en abscisse de la spline
+        h = (b-a)/(nbnoeuds-1) # pas de la spline
+        rho = 0.1
+        xxx = [] 
+        
+        Y = Vecteur_y(x,[y],len(x),xi,nbnoeuds,h,rho)
+        yi = np.transpose(Y)
+        yip = np.transpose(np.linalg.solve(MatriceA(nbnoeuds),(np.dot(MatriceR(nbnoeuds,h),Y))))
+        xx=[]
+        yy=[]
+        for i in range(nbnoeuds-1):
+            xres,yres = HermiteC1(xi[i],yi[0][i],yip[0][i],xi[i+1],yi[0][i+1],yip[0][i+1])
+            xx=np.append(xx,xres)
+            yy=np.append(yy,yres)
+    """
+        plt.plot(xx,yy)
+        
+        
+        
         plt.plot(xreel,yreel,"--b")
         plt.title("Ransac : paramétrique")
         plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])

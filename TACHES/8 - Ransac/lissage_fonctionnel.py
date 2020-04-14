@@ -307,49 +307,52 @@ def Matdiag(n):
     Matdiag=np.diag(d)+np.diag(np.ones(n-1),-1)+np.diag(np.ones(n-1),1)
     return Matdiag
 
+def sortpoints(X,Y):
+    """
+    Fonction de tri de deux listes X et Y en fonction de X.
+    Trie la liste X (sans modification globale) et range Y pour que son ordre corresponde
+    au tri de X.
+    
+    Exemples :
+    sortpoints([1,3,2,4],[5,6,7,8]) = [1,2,3,4],[5,7,6,8]
+    """
+    D = {}
+    n = len(X)
+    Xb = list(X)
+    for i in range(n):
+        D[X[i]] = Y[i]
+    Xb.sort()
+    Yb = [D[Xb[i]] for i in range(n)]
+    return Xb,Yb
 
-"""------------------------------------------------------
-MAIN PROGRAM :   
-------------------------------------------------------"""
 
-# prepare data
-(uk,zk) =  np.loadtxt('2D2.txt')
- # échantillon de valeurs fournies en txt
-plt.plot(uk,zk,'rx',label='scattered data') # affichage des points de l'échantillon
+(x,y) =  np.loadtxt('2D2.txt')
+x,y = sortpoints(x,y)
 
+plt.plot(x,y,'rx',label='données') # affichage des points de l'échantillon
 
-
-
-
-
-(uk,zk) =  np.loadtxt('2D2.txt')
-
-plt.plot(uk,zk,'rx',label='données') # affichage des points de l'échantillon
-
-N = len(uk) # taille de l'échantillon
+N = len(x) # taille de l'échantillon
 
 n=15 # nombre des noeuds attendus pour la spline de lissage
 plt.title('Splines de lissage uniformes avec '+str(n)+' noeuds') # titre
-a = -2 # intervalle
-b = 8 # intervalle
+a = min(x) # intervalle
+b = max(x) # intervalle
 xi = np.linspace(a,b,n) # vecteur des valeurs en abscisse de la spline
 h = (b-a)/(n-1) # pas de la spline
-plt.scatter(xi,[0]*n,label = 'noeuds')
-rho = [0.001,0.1,1.0,10.0,100.0,10000.0] # paramètres de lissage qui contrôle le compromis entre la fidélité des données et le caractère théorique de la fonction
+rho = 0.1
 xxx = [] 
 
 
-for j in range(len(rho)): # On calcule la spline de lissage correspondant à chacun des paramètres
-    Y = Vecteur_y(uk,[zk],N,xi,n,h,rho[j])
-    yi = np.transpose(Y)
-    yip = np.transpose(np.linalg.solve(MatriceA(n),(np.dot(MatriceR(n,h),Y))))
-    xx=[]
-    yy=[]
-    for i in range(n-1):
-        x,y = HermiteC1(xi[i],yi[0][i],yip[0][i],xi[i+1],yi[0][i+1],yip[0][i+1])
-        xx=np.append(xx,x)
-        yy=np.append(yy,y)
-    plt.plot(xx,yy,lw=1,label='rho = '+str(rho[j]))
+Y = Vecteur_y(x,[y],N,xi,n,h,rho)
+yi = np.transpose(Y)
+yip = np.transpose(np.linalg.solve(MatriceA(n),(np.dot(MatriceR(n,h),Y))))
+xx=[]
+yy=[]
+for i in range(n-1):
+    xres,yres = HermiteC1(xi[i],yi[0][i],yip[0][i],xi[i+1],yi[0][i+1],yip[0][i+1])
+    xx=np.append(xx,xres)
+    yy=np.append(yy,yres)
+plt.plot(xx,yy,lw=1,label='rho = '+str(rho))
 
 plt.legend()
 plt.savefig('IMG_Tache1.png')

@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Thu Apr  9 14:45:34 2020
+
+@author: Béryl
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Tue Apr  7 13:09:26 2020
 
 @author: Béryl
@@ -70,6 +77,42 @@ def trouver_ind(elem,liste):
                 return i-1
     return len(liste)-1
         
+
+def trouver_et_distance_ind_para(x,y,xc,yc,dist):
+    """
+    Renvoie la distance à la courbe de x,y, xc et yc représentant la courbe.
+    
+    Type entrées :
+        x : float
+        y : float
+        xc : vecteur de float
+        yc : vecteur de float
+        dist : fonction : (float,float,float,float) -> float
+    
+    Type sorties :
+        float
+    """
+    d = [dist(x,y,xc[i],yc[i]) for i in range(len(xc))]
+    return min(d)
+
+def calcul_erreur_courbe(xtest,ytest,xspline,yspline,dist):
+    """
+    Renvoie l'erreur totale des points à tester à la courbe, selon la fonction distance.
+    
+    Type entrées :
+        xtest : vecteur de float
+        ytest : vecteur de float
+        xspline : vecteur de float
+        yspline : vecteur de float
+        dist : fonction : (float,float,float,float) -> float
+        
+    Type sorties :
+        float
+    """
+    err = 0
+    for i in range(len(xtest)):
+        err += trouver_et_distance_ind_para(xtest[i],ytest[i],xspline,yspline,dist)
+    return err
 
 ######################### 
 # Fonctions de distance #
@@ -477,7 +520,7 @@ def Repartition_chebyshev(a,b,n):
 def calcul_Spline_lissage(uk,zk,a,b,n,rho) :
     """ 
     Cette fonction calcule la spline de lissage des données uk zk sur l'intervalle [a,b].
-    Elle considère n noeuds, répartis selon Chevyshev.
+    Elle considère n noeuds, répartis selon Chebyshev.
     Le paramètre de lissage est fourni à la fonction : rho.
     Renvoie la discrétisation de la spline de lissage.
     
@@ -510,6 +553,55 @@ def calcul_Spline_lissage(uk,zk,a,b,n,rho) :
         xx=np.append(xx,x)
         yy=np.append(yy,y)
     return xx,yy
+
+def repartition_cordale(x,y,a,b,n):
+    '''
+    Renvoie un tableau de n points de l'intervalle [a,b] répartis façon chordale
+    '''
+    D = [np.sqrt((x[i+1]-x[i])**2+(y[i+1]-y[i])**2) for i in range(n-1)]
+    T = [a]
+    som = np.sum(D)
+    for i in range (n-2):
+        T.append(T[i]+D[i]/som)
+    T.append(b)
+    return T
+
+def calcul_Spline_para(x,y,nb,rho):
+    """
+    Calcule la spline paramétrique cubique de lissage interpolant les données.
+    Renvoie sa discrétisation.
+    La paramétrisation est cordale.
+    
+    Type des entrées :
+        x : vecteur de float
+        y : vecteur de float
+        a : int
+        b : int
+    
+    Type des sorties :
+        (vecteur de float, vecteur de float)
+    """
+    a = min(x)
+    b = max(x)
+    T =  repartition_cordale(x,y,a,b,len(x))
+    
+    #Spline des (ti,xi)
+    """ H = [T[i+1]-T[i] for i in range(n-1)]
+    Y = Vecteur_y(uk,[zk],N,xi,n,H,rho)
+    A = Matrix_NU(H)
+    B = Matrix_NU_resulat(x,H)
+    Xp = np.linalg.solve(A,B)
+    Sx = []
+    for i in range(0,n-1):
+        _,xtemp = HermiteC1_non_affiche(T[i],x[i],float(Xp[i]),T[i+1],x[i+1],float(Xp[i+1]))
+        Sx += list(xtemp)"""
+        
+    _,xtemp = calcul_Spline_lissage(T,x,min(T),max(T),nb,rho)
+    Sx = list(xtemp)
+    #Spline des (ti,yi)
+    _,ytemp = calcul_Spline_lissage(T,x,min(T),max(T),nb,rho)
+    Sy = list(ytemp)
+    return Sx,Sy
 
 ##################################
 # RANSAC : interpolation robuste #
@@ -572,7 +664,6 @@ def ransac(x,y,nbitermax,err,dist,nbcorrect,nbpoints,rho):
                 continue
             else :
                 i_associe = trouver_ind(x[i],xres)
-                print(x[i],xres[i_associe])
                 if dist(x[i],y[i],xres[i_associe],yres[i_associe]) <= err :                
                     liste_inlier.append(i)
                     #plt.plot(x[i],y[i],"bo")
@@ -599,7 +690,7 @@ def ransac(x,y,nbitermax,err,dist,nbcorrect,nbpoints,rho):
                 ymod = list(ytemp)
     return xmod, ymod
         
-def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
+def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99,para=False):
     """
     Automatisation de l'algorithme de Ransac avec un modèle de splines cubiques :
     le calcul de la proportion de points aberrants (outlier) ou non (inlier) est mise à jour au fur et à mesure.
@@ -609,6 +700,7 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
     du nombre de points pour créer la spline d'essai,
     du paramètre de lissage,
     et de la probabilité d'obtenir un résultat correct avec cet algorithme.
+    para = True si et seulement si on souhaite une spline paramétrique.
     xres et yres représentent la spline qui interpole au mieux les données d'après RANSAC
     si exact est vraie, tous les calculs sont effectués à partir de la spline cubique d'interpolation.
 
@@ -624,11 +716,12 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
         xres : vecteur de float
         yres : vecteur de float
     """
+    nbbase = 20
     a = min(x)
     b = max(x)
     
     prop_inlier = 0
-    nbitermax = 500 # Sera ajusté en fonction de prop_inlier
+    nbitermax = nbbase # Sera ajusté en fonction de prop_inlier
     nbcorrect = math.floor(prop_inlier*len(x))
     
     # Sauvegarde du meilleur modèle trouvé et de l'erreur associée
@@ -639,6 +732,7 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
     k = 0
     deja_vu = []
     while k <= nbitermax :
+        print(k,nbitermax)
         # Choix d'un échantillon
         i_points = alea(len(x),nbpoints)
         i_points.sort()
@@ -668,8 +762,16 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
             y_selec.append(y[i_points[i]])
         
         # Création de la courbe à partir de l'échantillon
-        x_selec,y_selec = sortpoints(x_selec,y_selec)
-        xres,yres = calcul_Spline_NU(x_selec,y_selec,a,b,nbpoints)
+        if not para :
+            x_selec,y_selec = sortpoints(x_selec,y_selec)
+        xres,yres=[],[]
+        if para :
+            xres,yres = calcul_Spline_para(x_selec,y_selec,nbpoints,rho)
+            #plt.plot(x_selec,y_selec,"ro")
+            #print(x_selec,y_selec)
+            #plt.plot(xres,yres,"bo")
+        else :
+            xres,yres = calcul_Spline_NU(x_selec,y_selec,a,b,nbpoints)
         
         #plt.plot(x,y,"or")
         #plt.plot(x_selec,y_selec,"og")
@@ -681,10 +783,15 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
                 # Inutile de calculer dans ce cas là, déjà compté
                 continue
             else :
-                i_associe = trouver_ind(x[i],xres)
-                if dist(x[i],y[i],xres[i_associe],yres[i_associe]) <= err :      
+                i_associe = -1
+                d_courbe = -1
+                if para :
+                    d_courbe = trouver_et_distance_ind_para(x[i],y[i],xres,yres,dist)
+                else :
+                    i_associe = trouver_ind(x[i],xres)
+                    d_courbe = dist(x[i],y[i],xres[i_associe],yres[i_associe])
+                if d_courbe <= err :      
                     liste_inlier.append(i)
-                    #plt.plot(x[i],y[i],"bo")
                 #else :
                     #print(i)
                     #print(i_associe)
@@ -695,32 +802,38 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
             # Le modèle semble ne contenir que des inlier ! 
             # On calcule la spline de lissage correspondante, avec l'erreur.
             # On garde la spline de lissage ayant l'erreur la plus petite.
-            
+            liste_inlier.sort()
             x_pour_spline = []
             y_pour_spline = []
             for i in range(len(liste_inlier)):
                 x_pour_spline.append(x[liste_inlier[i]])
                 y_pour_spline.append(y[liste_inlier[i]])
-            x_pour_spline,y_pour_spline = sortpoints(x_pour_spline,y_pour_spline)
+            if not para :
+                x_pour_spline,y_pour_spline = sortpoints(x_pour_spline,y_pour_spline)
             xtemp,ytemp = 0,0
-            xtemp, ytemp = calcul_Spline_lissage(x_pour_spline, y_pour_spline,a,b,nbpoints,rho)
-            # PARAMETRES :
-            # Si la graine vaut 0 (signal stationnaire) : 0.001
-            # Si elle vaut 1 ou 5 : 0.01
-            # Pour le second signal stationnaire :
-            # 0.0001 pour la graine qui vaut 0
             
-            err_temp = 0
-            for i in range(len(x_pour_spline)):
-                i_associe = trouver_ind(x_pour_spline[i],xtemp)
-                err_temp += dist(x_pour_spline[i],y_pour_spline[i],xtemp[i_associe],ytemp[i_associe]) 
+            if para :
+                xtemp,ytemp = calcul_Spline_para(x_pour_spline,y_pour_spline,nbpoints,rho)
+            else :
+                xtemp,ytemp = calcul_Spline_lissage(x_pour_spline, y_pour_spline,a,b,nbpoints,rho)
+                        
+            err_temp = -1
+            if para :
+                err_temp = calcul_erreur_courbe(x_pour_spline,y_pour_spline,xtemp,ytemp,dist)
+                #print(i_points,err_temp)
+            else :
+                err_temp = 0
+                for i in range(len(x_pour_spline)):
+                    i_associe = trouver_ind(x_pour_spline[i],xtemp)
+                    err_temp += dist(x_pour_spline[i],y_pour_spline[i],xtemp[i_associe],ytemp[i_associe]) 
+            
             if errmod == -1 or err_temp < errmod :
                 errmod = err_temp
                 xmod = list(xtemp)
                 ymod = list(ytemp)
                 
                 #ESSAI D'AFFICHAGE DES POINTS ABERRANTS
-                plt.close('all')
+                #plt.close('all')
                 plt.plot(x,y,"+b")
                 plt.plot(x_pour_spline,y_pour_spline,"+y")
                 
@@ -734,11 +847,17 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99):
             if prop_inlier < len(liste_inlier)/len(x):
                 # Il y a plus d'inlier que ce qu'on pensait
                 prop_inlier = len(liste_inlier)/len(x)
+                print(prop_inlier)
                 if prop_inlier == 1 :
                     break; # On a trouvé un modèle correct, pour lequel il n'y aurait pas de points aberrants
-                nbitermax = math.floor(np.log(1 - pcorrect)/np.log(1-prop_inlier**len(x))) # Sera ajusté en fonction de prop_inlier
-                if nbitermax > 500 :
-                    nbitermax = 500
+                #print(pcorrect,prop_inlier)
+                #print(np.log(1-pcorrect))
+                #print(np.log(1-prop_inlier**len(x)))
+                #print()
+                if 1-prop_inlier**len(x) < 0.999 or 1-prop_inlier**len(x) > 1.001:
+                    nbitermax = math.floor(np.log(1 - pcorrect)/np.log(1-prop_inlier**len(x))) # Sera ajusté en fonction de prop_inlier
+                if nbitermax > nbbase :
+                    nbitermax = nbbase
                 nbcorrect = math.floor(prop_inlier*len(x))
         k += 1
     
@@ -750,6 +869,12 @@ def lancement_ransac(x,y,err,rho,nconsidere=-1):
         nconsidere = len(x)//2
     xres,yres = ransac_auto(x,y,err,d_euclidienne,nconsidere,rho)
     plt.plot(xres,yres,"r")        
+    
+def lancement_ransac_para(x,y,err,rho,nconsidere=-1):
+    if (nconsidere == -1):
+        nconsidere = len(x)//2
+    xres,yres = ransac_auto(x,y,err,d_euclidienne,nconsidere,rho,para=True)
+    plt.plot(xres,yres,"r")  
         
 if __name__ == "__main__":
     plt.close('all')
@@ -897,12 +1022,12 @@ if __name__ == "__main__":
 
     # PARAMETRIQUE
     elif num == 32 :
-        x,y = np.loadtxt('2D.txt')
+        x,y = np.loadtxt('2D2.txt')
         xreel = list(x)
         xreel.pop(8)
         yreel = list(y)
         yreel.pop(8)
-        lancement_ransac(x,y,0.5,1)
+        lancement_ransac_para(x,y,2,1,nconsidere=len(x)//2)
         plt.plot(xreel,yreel,"--b")
         plt.title("Ransac : paramétrique")
         plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
