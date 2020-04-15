@@ -48,19 +48,29 @@
 \maketitle
 \tableofcontents
 
+\part{A METTRE QUELQUE PART}
+\paragraph{} (je propose V - Réalisation 1.2  Splines de lissage) Le but, avant de commencer le vif du projet, était de reprendre les programmes écrits pendant les cours d'algèbre linéaire pour le graphique et la CAO. Ces programmes sont adaptés à des énoncés de travaux pratique, il faut donc les reprendre pour les compléter et les adapter à nos besoins.
+\paragraph{} Ne pas oublier de mettre l'étude de la variation des paramètres pour chaque méthode
+
+\part{A ne pas oublier de faire}
+Ajout des références, dans l'ordre, détailler (label dans les sources, nombres cliquables avec "cite" pour y accéder). Intégrer le rapport de la 5c (en attente du .teX de Mohamed). Récupérer les sources de tout le monde (pour chaque partie). Ajouter le local/global de Zak. Ajout des tests des paramètres des méthodes (Bilel). Winsorising (Amélys). Partie technique (Amélys). Finalisation des tests de toutes les méthodes + comparaisons (Zakaria et Mohamed).
+
 \renewcommand\partname{}
-\part{Introduction ? Que mettre dedans ?}
+\part{Introduction}
+    Dans le cadre de notre troisième année de Licence en Mathématiques et Informatique, un stage applicatif est obligatoire. L'objectif de ce stage est de nous préparer au milieu professionnel. Il nous initie au projet de groupe et à la relation avec un client, durant quatre semaines.
 
+    Le projet consiste en la création d'une fonction interpolant des données ainsi qu'en la minimisation de l'impact de données dites "aberrantes" sur cette fonction. Nos objectifs sont donc l'automatisation de la recherche de cette fonction, et la découverte de plusieurs méthodes pour détecter les données dites "aberrantes" et les traiter.\\
 
+    Dans ce compte rendu, nous allons en premier vous décrire le projet, en particulier le sujet, et l'organisation mise en place durant les trois semaines de réalisation. En seconde partie, nous vous présenterons les définitions sur lesquelles nous nous sommes basés, les différentes méthodes découvertes suite à nos recherches, mais aussi une comparaison entre les résultats produits par nos différents algorithmes. Nous expliquerons et illustrerons ensuite le fonctionnement de notre application, répondant au besoin du client, avant de conclure ce projet.
 
 \renewcommand\partname{}
 \part{Description du projet}
-	Quelques phrases présentant le contexte du stage
 	\section{Sujet}
 		Quelques phrases présentant la partie
 		\subsection{Splines}
 			 Objectifs / cas où on a besoin des splines : problèmes
 			Explication de la différence entre interpolation et approximation, expliquer qu'on va toujours dire "interpoler" et donc faire un abus de langage
+			PAS DE DEFINITION DES SPLINES ICI (ou alors très générale, ne pas définir le cubique par morceau)
 		\subsection{Données aberrantes}
 			Définition, explication du problème. Illustration ? (une figure de ce qu'on voudrait comme interpolation, sur un signal du prof, et une figure d'une interpolation obtenue avec des splines sur toutes les données, pour montrer la grosse différence ?)
 	\section{Organisation}
@@ -75,47 +85,353 @@
 	Introduire la partie
 	\section{Splines}
 		Redire en 2/3 mots le problème ?
+		Expliquer le principe des splines : interpolation par des polynômes, dans le but d'avoir du C\^quelquechose
+		
 		\subsection{Splines cubiques}
+
+            Dans cette partie, il est traité de l'interpolation par spline naturelle cubique $C^{2}$.
+
+            Une spline naturelle cubique $C^{2}$ est une fonction définie par morceaux par des polynômes cubiques, dont la dérivée seconde est continue et dont les dérivées secondes aux extrémités de l'intervalle de définition sont nulles. 
+
 		\subsection{Splines de lissage}
+		En effet nous savons créer une spline de lissage, mais celle-ci tient compte de toutes les données sans distinctions quelconque et nécessite un paramètre de lissage explicite.
+		
 			Expliquer ici le principe
+			
+			Une spline de lissage est une fonctions qui minimise une certaine quantité liée à la différence entre la courbe et les données mesurées. L'identification des valeurs aberrantes sera implémentée pour ensuite les supprimer avant de créer la spline, ou pour leur attribuer un poids faible lors de la minimisation de la quantité.
+			 
+			 On considère une séquence de noeuds,  de coordonnées en abscisse où pour n noeuds, nous avons $x_1 < x_2 < ... < x_n$.
+			 
+			 On a besoin de matrices (pourquoi ? Pour calculer les valeurs des points et des dérivées ?)
+			 Elles servent la création des splines de lissage. Plus d'information sur ces matrices se trouvent sur le polycopié de cours fourni par M. Biard aux étudiants L3 MI et disponible depuis sa page internet personnelle (lien fourni en bibliographie).
+			 
+			 
+            Dans ces courbes de lissage uniformes, il existe un paramètre de lissage $\rho$ (soit rho sur la figure ci-dessus). Un de nos objectifs porte sur le calcul automatique optimal de ce paramètre par l'intermédiaire de notre application python.
+
 			\subsubsection{Répartition uniforme}
+			
+                Ce qui diffère les splines de lissage unoforme des autres splines de lissage, ce sont ses noeuds distribués de manière équidistante dans un intervalle déterminé, tel que $x_i+1 - x_i = h > 0, i = 1,...,n-1$ (comme l'illustre la figure ci-dessous, avec différentes splines de lissage).
+                \begin{figure}
+                    \centering
+                    \includegraphics[width=10cm]{Images/UL_exemple}
+                    \caption{Exemple de plusieurs courbes de lissages uniformes avec différents  $\rho$  }
+                    \label{fig:UL1}
+                \end{figure}
+                
+                Le programme a pour principal but de trouver la valeur des dérivées en chaque noeuds pour pouvoir appliquer le procédé d'interpolation d'Hermite.
+                (EXPLICATION RAPIDE D'HERMITE QUELQUE PART ?)
+
+                Pour se faire, on utlise le résultat donné plus haut, donnant la relation entre les données, les noeuds de lissage et les dérivées cherchées.
+                
+                Ainsi, la majorité des fonctions du programme est constituée par de la définition de matrices en fonction de paramètres.
+                
+                
+            
 			\subsubsection{Répartition non-uniforme}
+			    une spline lissante permet de satisfaire un compromis entre la fidélité aux observations bruyantes et le lissage de la spline ajustée. précisément, étant donné un ensemble de points de données $(u_k,z_k)$ avec $$u_{1}<u_{2}< ... <u_{n}$$
+                où les observations $z_k$ sont supposées bruyantes, nous considérons une séquence de nœuds splines $x_{1}< x_{2}<... < x_{n}$
+                tel que $\{{u_k}\}_{1 \leq k \leq N}$, et l'espace $S[x_1,x_2]$ des splines naturelles associées à ces points \\
+                on considère ensuite le problème d'optimisation $$Min_{s \in S[x_1,x_2]}E_{0,2}(s)$$
+                $$E_{0,2}(s)=\sum_{k=1}^{N}(z_k-s(u_k))^2+\rho\int_{x_1}^{x_n}[s^{''}(t)]^2$$
+                de la même maniéré que dans le cas uniforme, on détermine les matrice A,R,S,M,N,$H_{0,3} et H_{1,2}$\\
+                commençant par la matrice A et R on cherche toujours la relation entre y et y' avec les conditions normal de  spline 
+                $(s''(x_1)=s''x_n)=0$ et la condition du cantacte $C^2$ aux nœuds internes($s''_{i-1}(x_i)=s''_i(x_i)$\\
+                à la fin on obtient ces 3 relation entre y et y'\\
+                $2y'_1+y'_2=3/h_1(y_2-y_1)$\\
+                $y'_{n-1}+2y'_n=3/h_{n-1}(y_n-y_{n-1})$\\
+                donc la relation entre y et y' est de la forme Ay'=Ry ,alors on obtient \\
+                $$A=\begin{pmatrix} 2&1&0&0&...&...&...&0&0 \\ h_2&2(h_1+h_2)&h_1&0&...&...&...&0&0 \\ \vdots&.&.&.&.&...&.&.&.\\ \vdots&.&.&.&h_i&2(h_{i-1}+h_i)&h_{i-1}&0&\vdots \\. \\.&.&.&.&.&...&.&.&. \\ 0&0&.&.&.&...&.&1&2 \end{pmatrix}$$\\
+                
+                $$R=1/3\begin{pmatrix} -\frac{1}{h_1}&\frac{1}{h_1}&0&0&...&...&...&0&0 \\ \frac{h_2}{h_1}&\frac{h_2}{h_1}-\frac{h_1}{h_2}&\frac{h_1}{h_2}&0&...&...&...&0&0 \\ \vdots&.&.&.&.&...&.&.&.\\ 0&.&.&.&\frac{-h_i}{h_{i-1}}&\frac{h_i}{h_{i-1}}-\frac{h_{i-1}}{h_i}&\frac{h_{i-1}}{h_i}&\vdots&0 \\.&.&.&.&.&...&.&.&. \\ 0&0&.&.&.&...&.&-1/h_{n-1}&1/h_{n-1} \end{pmatrix}$$\newpage
+                pour trouver la matrice S on considéré  l'intégrale suivant \\
+                $$\int_{x1}^{xn}[s''(t)]^2dt=\sum_{i=1}^{n-1}\int_{x_i}^{x_{i+1}}[s''(t)]^2dt$$
+                on développant en remplaçant h par $h_i$   cette formule on obtient une sorte de forme quadratique  $$\int_{x1}^{xn}[s''(t)]^2dt= Y''^T S y"$$
+                et enfin la matrice S est de la forme 
+                $$S=1/3\begin{pmatrix} 2h_1&\frac{1}{2}h_1&0&0&...&...&...&0&0 \\ \frac{1}{2}h_2&2h_2&\frac{1}{2}h_2&0&...&...&...&0&0 \\ \vdots&.&.&.&.&...&.&.&.\\ \vdots&.&.&.&\frac{1}{2}h_i&2h_i&\frac{1}{2}h_i&0&\vdots \\. \\.&.&.&.&.&...&.&.&. \\ 0&0&.&.&.&...&.&\frac{1}{2}h_{n-1}&2h_{n-1} \end{pmatrix}$$
+                pour obtenir les matrice M et N nous exprimons le vecteur y" en fonction des  vecteurs y et y' .Pour les splines naturelles s $\in$ S, avec des segments $s_i=S_{[x_i,x_{i+1}]}$,i=1,..,n-1.\\
+                enfin on applique l'interpolation d'Hermite avec a les conditions suivantes:$$y"_i=s"_{i-1}(x_i)=s"_i(x_i) ,i=2,..n-1$$
+                qui mène à $$y"=My+Ny'$$ Donc :
+                $$M=3\begin{pmatrix} \frac{1}{h_1^2}&-\frac{1}{h_1^2}-\frac{1}{h_2^2}&\frac{1}{h_2^2}&0&0&...&...&...&0&0 \\ \vdots&...&\vdots&.&...&...&...&.&\vdots \\ \vdots&.&.&.&.&...&.&.&.\\ \vdots&.&.&.&\frac{1}{h_{i-1}^2}&-\frac{1}{h_{i-1}^2}-\frac{1}{h_i^2}&\frac{1}{h_i^2}&0&\vdots \\. \\.&.&.&.&.&...&.&.&. \\ 0&0&.&.&.&...&\frac{1}{h_{n-2}^2}&-\frac{1}{h_{n-2}^2}-\frac{1}{h_{n-1}^2}&\frac{1}{h_{n-1}^2} \end{pmatrix}$$
+                \\
+                \\$$N=\begin{pmatrix} \frac{1}{h_1}&\frac{2}{h_1}-\frac{2}{h_2}&-\frac{1}{h_2}&0&0&...&...&...&0&0 \\ \vdots&...&\vdots&.&...&...&...&.&\vdots \\ \vdots&.&.&.&.&...&.&.&.\\ \vdots&.&.&.&\frac{1}{h_{i-1}}&\frac{2}{h_{i-1}}-\frac{2}{h_i}&-\frac{1}{h_i}&0&\vdots \\. \\.&.&.&.&.&...&.&.&. \\ 0&0&.&.&.&...&\frac{1}{h_{n-2}}&\frac{2}{h_{n-2}}-\frac{2}{h_{n-1}}&-\frac{1}{h_{n-1}} \end{pmatrix}$$\\
+                avec la même méthode dans le cas Uniforme on trouve les matrice $H_{03} et H_{12}$
+                $$H_{03}=\begin{pmatrix} H_0(t_1^1)&H_3(t_1^1)& & & & & & & &  \\ \vdots&\vdots& & & & & & &  \\ H_0(t_{k_1}^1)&H_3(t_k1^1)& & & & & & & \\ &H_0(t_{{k_1}+1}^2)&H_3(t_{{k_1}+1}^2)& & & & & &   \\ &\vdots&\vdots& & & & & &  \\ &H_0(t_{k_2}^2)&H_3(t_{k_2}^2)& & & & & & \\ &\ddots&\ddots & & & & & & & \\ & & & & & & &H_0(t_{{k_{n-2}}+1}^{n-1}) &H_3(t_{{k_{n-2}}+1}^{n-1})\\ & & & & & & &\vdots &\vdots\\ & & & & & & &H_0(t_N^{n-1}) &H_3(t_N^{n-1}) \end{pmatrix}$$
+                
+                
+                $$H_{12}=\begin{pmatrix} h_1H_1(t_1^1)&h_1H_2(t_1^1)& & & & & & & &  \\ \vdots&\vdots& & & & & & &  \\ h_1H_1(t_{k_1}^1)&h_1H_2(t_k1^1)& & & & & & & \\ &h_2H_1(t_{{k_1}+1}^2)&h_2H_2(t_{{k_1}+1}^2)& & & & & &   \\ &\vdots&\vdots& & & & & &  \\ &h_2H_1(t_{k_2}^2)&h_2H_2(t_{k_2}^2)& & & & & & \\ &\ddots&\ddots & & & & & & & \\ & & & & & & &h_{n-1}H_1(t_{{k_{n-2}}+1}^{n-1}) &h_{n-1}H_2(t_{{k_{n-2}}+1}^{n-1})\\ & & & & & & &\vdots &\vdots\\ & & & & & & &h_{n-1}H_1(t_N^{n-1}) &h_{n-1}H_2(t_N^{n-1}) \end{pmatrix}$$
+                
+
+
+    			Les tests ont été réalisés sur des cas précis et sur un jeu de cas aléatoires.
+    
+                \begin{itemize}
+                \item[•] Cas d'une distribution uniforme : On retrouve le même résultat que lors de tests sur le programme de la tache 1. (Figure \ref{NUL1})
+                \item[•] Cas d'une distribution de Chebichev (Figure \ref{NUL2})
+                \item[•] Cas aléatoires : On remarque comme attendu que si la distribution est trop chaotique, alors l'interpolante ne sera plus forcément optimisée. Cela dépend beaucoup des données. (Figures \ref{NUL3},\ref{NUL4})
+                \end{itemize}
+                
+                \begin{figure}
+                \begin{center}
+                \includegraphics[width=8cm]{Images/NUL_unif} 
+                \end{center}
+                \caption{Exemple sur une répartition uniforme}
+                \label{NUL1}
+                \end{figure}
+                
+                \begin{figure}
+                \begin{center}
+                \includegraphics[width=8cm]{Images/NUL_Chebychev} 
+                \end{center}
+                \caption{Exemple sur une répartition de Chebichev}
+                \label{NUL2}
+                \end{figure}
+                
+                \begin{figure}
+                \begin{center}
+                \includegraphics[width=8cm]{Images/NUL_alea} 
+                \end{center}
+                \caption{Exemple sur une répartition alétatoire (1)}
+                \label{NUL3}
+                \end{figure}
+                
+                
+                \begin{figure}
+                \begin{center}
+                \includegraphics[width=8cm]{Images/NUL_alea2} 
+                \end{center}
+                \caption{Exemple sur une répartition alétatoire (2)}
+                \label{NUL4}
+                \end{figure}
+                
+
 			\subsubsection{Estimation automatique du paramètre de lissage}
+    			
+    			Un de nos objectifs envers nos splines est l'optimisation automatique de leur paramètre de lissage. 
+                
+                Après de nombreuses recherches sur une telle optimisation, nous conservons la méthode de tendance linéaire locale de Holt appelée lissage exponentiel. Cette méthode inclut également l'estimation optimale du paramètre de lissage.
+                
+                Les méthodes de lissage exponentiel  consistent en des moyennes pondérées des observations passées, les poids se dégradant de façon exponentielle à mesure que les observations vieillissent. Autrement dit, plus l’observation est récente, plus le poids associé est élevé. 
+                Dans le cas de notre projet, le lissage étudié est le lissage exponentiel simple (SES). Cette méthode est adaptée à la prévision de données sans tendance saisonnière. 
+                Principe de cette optimalité
+                
+                L’application de chaque méthode de lissage exponentiel nécessite le choix de paramètres. Dans notre cas, pour un lissage exponentiel simple, nous devons sélectionner la valeur du paramètre de lissage  $\alpha$. Toutes les prévisions peuvent être calculées à partir des données une fois que nous connaissons cette valeur. 
+                
+                Ce  paramètre de lissage peut évidemment être choisi de manière subjective : par exemple en précisant la valeur des paramètres de lissage en fonction de la précédente expérience. Cependant, une façon plus fiable et objective d’obtenir des valeurs pour ce paramètre inconnu est de l' estimer à partir des données de l'échantillon. La méthode pour le trouver est similaire à celle d'une estimation des  coefficients d’un modèle de régression :  en minimisant la somme des résidus au carré (habituellement appelée SSE ou «moindres carrés »).  Ici, Les résidus sont spécifiés comme $e_t=y_t - \hat{y}_{t|t-1}$ pour $t=1,\dots,T$. Par conséquent, nous trouvons la valeur de $\alpha$ qui minimise :
+                \begin{equation}
+                 \text{SSE}=\sum_{t=1}^T(y_t - \hat{y}_{t|t-1})^2=\sum_{t=1}^Te_t^2
+                \end{equation}
+                Contrairement au cas de régression, nos splines implique un problème de minimisation non linéaire.
+                Après plusieurs tentatives vaines d'implémentation d'une méthode répondant à ce besoin, nous gardons l'outil d’optimisation lié à la méthode de holt, implémenté sous python. 
+
+
 
 	\section{Données aberrantes}
 
-		\subsection{Description des méthodes étudiées (titre à modifier, mais je ne sais pas comment)}
-		Blabla expliquant rapidement pourquoi y'a des sous parties : on a trouvé différents types de méthodes, qui permettent de blablabla
+		\subsection{Description des méthodes étudiées (titre)}
+		
 			\subsubsection{Méthode intuitive : traitement après le tracé de la spline (titre à modifier ?)}
+			
+			Mohamed, en attente du .teX
+			
 			\subsubsection{Traitement des points aberrants avant le tracé de la spline (titre à modifier ?)}
+			
+			Il y a plusieurs méthodes différentes pour interpoler des données malgré des points aberrants. La méthode la plus intuitive en ne voulant calculer la spline qu'une seule fois est de détecter ces points et de les supprimer avant de tracer la spline. C'est cette détection de points aberrants qui a été étudiée durant la tâche 4.
+            Trois membres du projet ont travaillé sur cette tâche : Béryl, Mohamed et Zakaria. Les méthodes ont été réparties entre ces membres du projet. Zakaria a également étudié le moyen de rendre l'étude locale (ce problème sera détaillé plus tard).
+
+            L'objectif de la tâche était de rechercher et d'implémenter quelques méthodes de détection de points aberrants. Peu de temps était prévu pour cette tâche car on pensait que les méthodes seraient plutôt simples. 
+
 				\paragraph{Création d'intervalles pour la détection (= local/global, le fameux) (trouver un autre titre !)}
-				Expliquer le problème ici.
-				Faire une partie par méthode (il y en a deux je crois)
+    				Expliquer le problème ici.
+    				Faire une partie par méthode (il y en a deux je crois)
+    				C'est en effet le cas, néanmoins un problème s'est posé alors qu'on n'y avait pas pensé durant la planification des tâches : l'étude doit être faite localement, pour un groupe de points proches les uns des autres. En effet, si par exemple on prend la fonction identité discrétisée sur [0,10] avec un point aberrant (1,10), ce point ne sera pas detecté si l'on considère tous les points en même temps, car si celui-ci est décrété aberrant (car il se situe trop loin de la moyenne par exemple), alors (10,10) sera aussi considéré comme aberrant bien que ce ne soit pas le cas. Il faut donc trouver un moyen de séparer les points en groupes de points pas trop éloignés (exceptés éventuellement les aberrants) afin de les étudier groupe par groupe.
 
 				\paragraph{Méthodes de détection (des points aberrants) / Détection (des points aberrants)}
-				Blabla à propos de la distribution normale (définition d'échantillon du prof). Expliquer pourquoi cdrtaines méthodes n'ont pas été possibles ou implémentées (ne correspondaient pas aux données)*
-					\subparagraph{Méthode inter-quartiles}
-					\subparagraph{Test de Chauvenet}
-					\subparagraph{Test Tau de Thompson}
-					\subparagraph{Test de Grubbs}
-					\subparagraph{Méthode de la déviation extrême de Student}
-					\subparagraph{Méthode des k plus proches voisins}
+    				Blabla à propos de la distribution normale (définition d'échantillon du prof). Expliquer pourquoi cdrtaines méthodes n'ont pas été possibles ou implémentées (ne correspondaient pas aux données)*
+    				
+                    Les méthodes ont pour certaines des paramètres (coeff, alpha, ...). Ceux-ci sont à adapter manuellement à chaque exemple.
+                    Les estimer automatiquement paraît très compliqué. On essaira cependant de faire ça plus tard.
+                    
+					\subparagraph*{Méthode inter-quartiles}
+                        					
+                        Dans cette partie, il est question de la détection des points aberrants en utilisant le 1er et 3e quartile Le premier algorithme créé prend en argument une liste ordonnée d’éléments et retourne le 1er et 3e quartile de x. Dansunsecondtemps,undeuxièmealgorithmeaétécréé,quiprendenarguments l'intervalle et indique s'il est aberrant ou non : Un point est dit aberrant lorsqu’il est inférieur à Q1 - coeff*(Q3 - Q1) ou supérieur Q3 +coeff*(Q3 - Q1 )
+                        Avec coeff un paramètre de la méthode.
+
+					\subparagraph*{Test de Chauvenet}
+					
+					   Cettefonctionprendenentréeunelistesuivantunedistributiondelanormale,pourchaque élément on applique le théorème central limite et on retourne la liste de valeurs aberrantes Le test s’eﬀectue sur un nombre qui est égale au produit de la longueur de liste par la probabilité que X soit plus grande que l’élément de liste centrée réduit, une valeur est aberrante si ce nombre est inférieur à 0.5
+					   
+					\subparagraph*
+    					Zakaria
+					\subparagraph*{Test de Grubbs}
+                        					
+                        Cette méthode a été inventée par Frank E. Grubbs en 1969. Pour ce test, on n’étudie que la valeur extrême (celle dont la valeur absolue de l’écart à la moyenne est la plus grande). Si plusieurs existent, on peut itérer ce test plusieurs fois tant qu’on trouve des points aberrants, en retirant le point aberrant trouvé. On compare ensuite $\frac{v_{extreme}-moyenne}{ecart-type}$ avec le seuil critique donné par le test de Grubbs : $G_{crit} = \frac{n-1}{\sqrt{n}}\sqrt{\frac{t^2_{\frac{\alpha}{n},n-2}}{n-2+t^2_{\frac{\alpha}{n},n-2}}}$. (n est le nombre de données,$t_{a,b}$ est le résultat de la fonction quantile de Student avec un seuil de conﬁance a et b degrés de liberté, et $\alpha$ une certaine mesure de l’erreur que l’on accepte) Si la première valeur est plus grande que le seuil, alors la méthode de Grubbs considère que le point extrême est aberrant. $\alpha$ est un paramètre que nous décidons de passer à la fonction. Plus celui-ci est faible, plus la chance que les points détectés comme aberrants le soient réellements (mais dans ce cas, peu sont détectés, certains points pourtant aberrants peuvent ne pas être détectés)
+
+
+					\subparagraph*{Méthode de la déviation extrême de Student}
+					
+                        Cette méthode a été inventée par Bernard Rosner en 1983. Ce test est une généralisation du test de Grubbs. En anglais, ce test appelé "extreme Studentized deviate" est abbrégé ESD. L’algorithme suit les étapes suivantes : \\
+                        - Récupération des valeurs extrêmes (même déﬁnition que dans le paragraphe précédent)\\
+                        - Comparaison des valeurs extrêmes normalisées avec le seuil critique, qui dépend du nombre de valeurs extrêmes déjà enlevées. Valeur normalisée : $\frac{v_{extreme}-moyenne}{ecart-type}$ . Seuil critique, avec i le nombre de valeurs déjà enlevées : 
+                        $\frac{    (n-i-1)*t _{     \frac{1-\alpha}{2(n-i)},n-i-2     }       }  {        \sqrt{       (n-i)*(n-i-2+t^2_{   \frac{1-\alpha}{2(n-i)},n-i-2} )      }     }  $ \\
+                         - On ne compare pas les valeurs suivantes si un point est décrété comme non aberrant : en eﬀet, on traite les valeurs dans l’ordre de leur "extrêmitude".
+
 				
-					Ne pas oublier de parler des autres noms de cette méthode (boîte à moustache, ...)
+					\subparagraph*{Méthode des k plus proches voisins}
+					
+    					Calculer pour chaque observation la distance au K plus proche voisin k-distance; Ordonner les observations selon ces distances k-distance; Les données aberrantes ont les plus grandes distances k-distance; Les observations qui ont les n pourcent plus grandes distances k-distance sont des données aberrante, n étant un paramètre à ﬁxer. Dans un premier temps, nous avons crée un algorithme qui prend en entrée une liste et un indice, et retourne une liste contenant les distances de l’élément à la position i à aux éléments de la liste. Ensuite, un deuxième qui comme la précédente prend en entrée une liste, un indice et un entier k et retourne la k-distance de l’élément à la position indice qui représente la moyenne ses k petites distances. Enﬁn,undernierquielleprenduneliste,unentierketunentierncommeindiquéaudessus, retourne la liste contenant les valeurs de la liste qui ont les n pourcent plus grande k-distance.
+    					
+    					
+    				
+    					Ne pas oublier de parler des autres noms de cette méthode (boîte à moustache, ...)
 
 				\paragraph{Traitement / Traitement des points aberrants / Traitement des points détectés}
-					\subparagraph{Suppression}
-					\subparagraph{Méthode (méthode n'est pas le bon mot) Winsorising}
-					\subparagraph{Arttribution de poids}
+					\subparagraph*{Suppression}
+                    					
+                    Dans cette partie, il est question de la suppression des points aberrants avant le procédé d'interpolation.
+                    
+                    Ici, la définition des points aberrants n'est pas fixe, les algorithmes développés en sont indépendants.
 
-			\subsubsection{Interpolation robuste : RanSaC}
+                    
+                    Le premier algorithme créé prend en argument une liste d'ordonnées et une méthode de détection des points aberrants, et traite toute la liste.
+                    
+                    Dans un second temps, un deuxième algorithme a été créé, permettant de ne traiter que le point d'indice i. Cela permettra à l'avenir de reprendre cet algorithme pour supprimer les points aberrants pendant l'interpolation.
+                    
+                    
+					\subparagraph*{Méthode (méthode n'est pas le bon mot) Winsorising}
+					
+					
+					\subparagraph*{Attribution de poids}
+					    cf Loess, blablabla (expliquée plus loin, car aussi une méthode robuste à elle seule
+					    
+			\subsubsection{Interpolation robuste}
+        		algorithme robuste, c'est à dire d'un algorithme qui interpole les données mais dont le résultat n'est pas réellement influencé par les points aberrants.
+        		
+			    \paragraph{Algorithme de RANSAC}
+    			    Il y a plusieurs méthodes différentes pour interpoler des données malgré des points aberrants. La méthode la plus intuitive est de détecter ces points et de les supprimer avant de tracer la spline. Cette méthode a été étudiée durant la tâche 4. La tâche 8 est une autre méthode pour interpoler des données : c'est l'étude d'un 
+                    
+                    L'objectif de la tâche est de comprendre l'algorithme de RANSAC, ainsi que de l'implémenter. Dans un second temps, une fois que tout fonctionne, l'objectif sera de comparer cet algorithme aux autres méthodes.
+                    
+                    RANSAC est l'abréviation de RANdom SAmple Consensus. C'est un algorithme non déterministe, c'est à dire un algorithme qui peut renvoyer des résultats différents pour une même entrée (à cause de l'utilisation du hasard), c'est à dire pour les mêmes données et paramètres.\\
+                    Cet algorithme va un bon nombre de splines et va choisir celle qui correspond aux données mais qui engendre le moins d'erreur possible entre la spline et les données décrétées comme non aberrantes. Voilà, pour chaque modèle, les étapes :\\
+                    
+                    \begin{enumerate}
+                    \item
+                    L'algorithme choisit d'un certain nombre de points (distincts) aléatoires
+                    \item
+                    Il calcule la spline cubique passant par ces points 
+                    \item
+                    Il mesure de la distance entre la courbe et chaque point afin de récupérer les points non aberrants suivant la spline créée
+                    \item
+                    Si les points non aberrants trouvés lors de l'étape précédente sont peu nombreux, au moins un point utilisé pour créer la spline est alors sûrement aberrant. L'algorithme passe donc aux points suivants, en retournant à l'étape 1.
+                    \item
+                    Si la spline passe proche de beaucoup de points, c'est qu'à priori elle correspond bien à la majorité des données (les autres sont décrétés comme aberrantes).  L'algorithme calcule la spline de lissage correspondant aux données considérées comme non aberrantes.
+                    \item
+                    La distance totale des points (non aberrants) par rapport à la courbe est calculée, c'est l'erreur de la spline de lissage. On sauvegarde le modèle s'il est meilleur que le précédent (c'est à dire si cette erreur est plus faible), ou si c'est le premier modèle qui correspond aux données.
+                    Une fois qu'un certain nombre de données ont été testées, c'est le dernier modèle sauvegardé qui est considéré comme le modèle d'interpolation.
+                    \end{enumerate} 
+                    
+                    Avec cette version de l'algorithme, beaucoup de paramètres sont nécessaires (en plus des données) et doivent être réglés manuellement, en fonction des données et de ce que l'on souhaite obtenir : le nombre de spline à créer, l'erreur acceptée entre les points et la spline cubique jusqu'à laquelle les points ne sont pas considérés comme aberrants à l'étape 3, la fonction de distance à utiliser aux questions 3 et 6, le nombre de points non aberrants à partir duquel on considère que la spline correspond aux données, le nombre de points à considérer lors de la construction de la spline de l'étape 2 (c'est à dire le nombre de points tirés à l'étape 1), ainsi que le paramètre de lissage de la spline à l'étape 5.
+                    
+                    Deux paramètres sont estimables au fur et à mesure de l'algorithme :\\ le nombre de spline à créer (c'est à dire le nombre d'itérations), et le nombre de points minimum à considérer pour avoir un résultat correct. Cela n'est possible qu'à condition de fournir à la place la probabilité d'avoir un résultat correct (< 1). \\
+                    Les calculs, détaillés à la 6ième page du document cité en source, nous donne le nombre d'itérations à effecteur pour avoir une probabilité $p_{correct}$ d'avoir un résultat correct, avec une proportion $\omega$ de données non aberrantes (aussi appelées inlier) : $n_{iter} = \frac{log(1 - p_{correct})}{log(1 - \omega^n)}$
+                    
+                    Les deux versions de l'algorithme évoquées ont été implémentées. RANSAC implémente la première version évoquée, tandis que la seconde, ransac\_auto, calcule au fur et à mesure la proportion de données non aberrantes de l'échantillon et actualise le nombre maximum d'itérations grâce au résultat évoqué précédemment.
+                    C'est avec cette seconde que les tests ont été programmés.
+                    
+                    Cet algorithme possède plusieurs limites. On va essayer d'en expliquer quelques-unes :
+                    - Il faut, pour l'instant, définir certains paramètres manuellement, en fonction des exemples (certains ont été fixés avec ransac\_auto). 
+                    - L'algorithme est non déterministe, ce qui signifie que le résultat peut, avec peu de chances, être totalement faux. De plus il varie en fonction des essais.
+                    - Le paramètre de lissage est le même sur toute la fonction donc si celle-ci est stable à un endroit mais bouge beaucoup ailleurs, on ne peut pas avoir les deux. (test 22)
+                    - il est impossible (ou très difficile) de savoir si certains points sont aberrants ou pas (exemple num 20) : comment savoir si ce sont les deux/trois points du haut ou du bas qui sont aberrants ? (à gauche)
+                    - Certains points sont décrétés comme aberrants alors que visuellement, ils ne le sont pas. (Exemple num 11)\\
+                    La distance au carré n'a pas été testée, ne pas oublier de le faire pour la comparaison. (Tous les tests ont actuellement été faits, et réglés, avec la distance euclidienne seulement)
+                    
+                    
+			    \paragraph{Méthode de LOESS}
+			        On en a déjà parlé avant, car blablabla
+			        
+			        Maintenant que nos différentes détectent des points aberrants, nous voulons créer des splines prenant en compte ces points en leur donnant un poids faible et donc réduire leur impact sur le lissage.
+                    
+                    Une des idées était d'intégrer nos poids faibles dans une méthode de lissage faisant intervenir les poids. C'est là qu'intervient la méthode LOESS.
+                    
+                    LOESS (ou LOWESS) est une méthode de régression non paramétrique. Elle utilise la régression linéaire des moindres carrés pondérés et créé une fonction qui décrit la variation des données, point par point, en considèrant de manière plus importante les données les plus proches de ce point.
+                    
+                    L'objectif est d'ajuster $\theta = [\theta_0, \theta_1]$ pour minimiser les moindres carrés pondérés soit : \[\sum_{i=1}^m w_i ( y_i - (\theta_0 + \theta_1 x_i))^2 \ \ \text{(1)}\]
+                    
+                    Avec : 
+                    \begin{itemize}
+                        \item[•]  $\theta_0 \ et \ \theta_1$ les paramètres inconnus dont la valeur permet d'effectuer la procédure d'ajustement  
+                        \item[•]  $(\theta_0 + \theta_1 x_i)$ la coordonnée en y prédite par la méthode en fonction de ces paramètres.
+                        \item[•]  $1 > w_i = \exp \left( - \frac{(x -x_i)^2}{2 \rho} \right)*vpoids_i > 0$ le poids Gaussien affecté par notre vecteur de poids vpoids où  $\rho$ est considéré dans notre cas comme le paramètre de lissage.
+                    \end{itemize}
+                    
+                    Les poids est donc donné en utilisant le calcul des moindres carrés, on a par conséquent :
+                    \begin{itemize}
+                        \item[•] Plus de poids à des points près du point cible $x$ 
+                        \item[•] Moins de poids à des points plus loin de $x$
+                    \end{itemize}
+                    Autrement, si la différence $| x_i - x |$ est petite, alors le poids $w_i$ est proche de 1, et, si dans le cas contraire, elle est grande, alors $w_i$ est proche de 0. 
+                    Notre modèle après la méthode est ajusté, ne retenant que le point du modèle qui est proche du point cible. La procédure se répète pour chaque point par ordre croissant des abscisses.
+                    
+                    \begin{figure}
+                        \centering
+                        \includegraphics[width=10cm]{Images/LOESS}
+                        \caption{Exemple de résultat }
+                        \label{fig:exemple}
+                    \end{figure}
+                    
+                    Dans cet exemple, nous avons en rouge une spline de lissage et en bleu une autre spline de lissage utilisant la méthode LOESS.  Nous avons également les valeurs initiales de l'échantillon en rouge et celle ajustées en bleu. On remarque que la méthode LOESS considère moins les valeurs pouvant être considérées comme aberrantes ou bruitées.
+                    
+                    
+                    Partons de l'expression (1) avec  x et y  des vecteurs de taille m. Appelons cette expression S en fonction de $\theta$, nous avons :
+                    \[S(\theta) = \sum_{i=1}^m w_i \left( y_i - (\theta_0 + \theta_1 x_i) \right)^2\]
+                    
+                    \[\frac{\partial S}{\partial \theta_0} = -2 \sum_{i=1}^m w_i \left( y_i - (\theta_0 + \theta_1 x_i) \right) \]
+                    
+                    \[ \frac{\partial S}{\partial \theta_1} = -2 \sum_{i=1}^m w_i \left( y_i - (\theta_0 + \theta_1 x_i) \right) x_i \]
+                    
+                    
+                    Puis :
+                    
+                    \[\frac{\partial S}{\partial \theta_0} = \sum_{i=1}^m w_i \left( y_i - (\theta_0 + \theta_1 x_i) \right)  = 0\]
+                    
+                    \[ \iff \sum_{i=1}^m w_i  \theta_0 + \sum_{i=1}^m w_i  \theta_1 x_i  = \sum_{i=1}^m w_i y_i  \ \ \ \text{Eq. (1)}\]
+                    
+                    \[\frac{\partial S}{\partial \theta_1} = \sum_{i=1}^m w_i \left( y_i - (\theta_0 + \theta_1 x_i) \right) x_i  = 0\] 
+                    
+                    \[\iff \sum_{i=1}^m w_i  \theta_0 + \sum_{i=1}^m w_i  \theta_1 x_i x_i  = \sum_{i=1}^m w_i y_i  x_i \ \ \ \text{Eq. (2)}\]
+                    
+                    
+                    En écrivant les équations  Eq. (1) et Eq. (2) sous forme de matrice $\mathbf{A \theta = b}$ nous obtenons :
+                    
+                    
+                    
+                        \[\begin{bmatrix} \sum w_i & \sum w_i x_i \\ \sum w_i x_i & \sum w_i x_i x_i \end{bmatrix}  \begin{bmatrix} \theta_0 \\ \theta_1 \end{bmatrix}   = \begin{bmatrix}  \sum w_i y_i \\  \sum w_i y_i x_i \end{bmatrix}\] 
+                    
+                        \[\iff \mathbf{A} \theta = \mathbf{b}\]
+                    
+                        \[\iff \theta = \mathbf{A}^{-1} \mathbf{b}\]
+                    
+                    Il nous suffit donc de résoudre cette matrice.
+                    
+                    On a donc une méthode fonctionnelle donnant un poids faibles aux points aberrants mais peut devenir coûteuse en terme de temps lorsque l'échantillon devient grand.
 
-	\subsection{Comparaison des différentes méthodes}
-
+	\section{Comparaison des différentes méthodes}
+        Zakaria et Mohamed
 
 \renewcommand\partname{}
 \part{Démonstration du logiciel / du produit fini / du produit (fourni) / de l'application fournie / ...}
+\paragraph{tâche 0}
+Le programme adapté possède trois principales fonctionnalités. Toutes s'appuient sur la lecture d'un fichier et créent une courbe (paramétrique ou non) interpolant les données.
+Le choix de l'ordre des points est donné à l'utilisateur sous la forme de trois choix : 
 
+
+\begin{itemize}
+    \item[•] Traitement des données "telles quelles". Les données sont traitées dans l'ordre dans lesquelles elles ont été fournies, sous forme de courbe paramétrique.
+    \item[•] Traitement des données selon la première coordonnée. Les données sont triées par ordre croissant selon la première coordonnée. Cela permet d'éviter d'avoir une courbe paramétrique qui reviendrait sur ses pas. La courbe obtenue est une fonction de $\mathbf{R}$ dans $\mathbf{R}$.
+    \item[•] Traitement des données selon la deuxième coordonnée. Cela correspond à la même manipulation que précédemment, mais selon la deuxième coordonnée.
+\end{itemize}
+Dans le fichier python dédié aux splines de lissage uniformes, un grand nombre de matrices sont calculées.
 
 \renewcommand\partname{}
 \part{Conclusion}
@@ -125,9 +441,18 @@
 
 
 \renewcommand\partname{}
-\part{Sources OU Support bibliographique (perso, je préfère sources)}
+\part{Bibliographie}
 	%\url{http://w3.mi.parisdescartes.fr/~lomn/Cours/CV/SeqVideo/Material/RANSAC-tutorial.pdf} \\
 
+Luc Biard, Cours sur les splines de lissages
+\href{http://www-ljk.imag.fr/membres/Luc.Biard/L3MI_cours/Splines.pdf}{Splines.pdf}
+
+
+\url{https://fr.wikipedia.org/wiki/Donn\%C3\%A9e_aberrante} : beaucoup de méthodes \\
+\url{https://lemakistatheux.wordpress.com/category/tests-statistique-indices-de-liaison-et-coefficients-de-correlation/ les-tests-pour-la-detection-doutliers/} Plusieurs méthodes expliquées permettant de détecter les outliers (Tukey, Test Q de Dixon, Chauvenet, Grubbs, Tietjen-Moore, Déviation extrême généralisée Student, modiﬁé de Thompson, critère de Peirce) + des exemples \\
+\url{ https://en.wikipedia.org/wiki/Grubbs\%27s_test_for_outliers} test de Grubbs \\
+\url{https://ellistat.com/guide-dutilisateur/statistiques-descriptives/tests-de-valeurs-aberrantes/ test-de-grubb/} test de Grubbs (pratique seulement, pas de théorie)\\
+\url{http://w3.mi.parisdescartes.fr/~lomn/Cours/CV/SeqVideo/Material/RANSAC-tutorial.pdf}\\
 
 \renewcommand\partname{}
 \part{Annexes}
