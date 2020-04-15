@@ -9,6 +9,7 @@ import load_tests as ldt
 import splines_naturelles as splnat
 import splines_de_lissage as spllis
 
+import plotingv2 as plot
 ####################
 # Fonctions utiles #
 ####################
@@ -519,20 +520,55 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99,para=False):
         k += 1
     
     return xmod, ymod
-
-def lancement_ransac(x,y,err,rho,nconsidere=-1):
-    x,y = ldt.sortpoints(x,y)
-    if (nconsidere == -1):
-        nconsidere = len(x)//2
-    xres,yres = ransac_auto(x,y,err,d_euclidienne,nconsidere,rho)
-    plt.plot(xres,yres,"r")        
     
-def lancement_ransac_para(x,y,err,rho,nconsidere=-1):
-    if (nconsidere == -1):
-        nconsidere = len(x)//2
-    xres,yres = ransac_auto(x,y,err,d_euclidienne,nconsidere,rho,para=True)
-    plt.plot(xres,yres,"r")  
-        
+def Faire_Ransac(x,y,f = None,para = '1'):
+    plt.figure()
+    if para == '1' :
+        parabool = False
+        x,y = ldt.sortpoints(x,y)
+    else:
+        parabool = True
+    rho = spllis.trouve_rho(y)
+    
+    nconsidere = len(x)//2
+    xres,yres = ransac_auto(x,y,0.5,d_euclidienne,nconsidere,rho,parabool)
+    plt.plot(xres,yres,"r")
+    
+    xreel,yreel = calcul_Spline_lissage(x,y,min(x),max(x),len(x),rho)
+    if f is not None:
+        xi = np.linspace(0, 1, 100)
+        plot.plot1d1d(xi,f(xi),new_fig = False,c = 'g')
+    plt.plot(xreel,yreel,"--b")
+    plt.title("Algorithme de Ransac")
+    plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
+    
+    return xreel,yreel
+    
+def Lancer_Ransac():
+    D_meth = {"1" : "Non paramétrique",
+            "2" : "Paramétrique"}
+    
+    ldt.affiche_separation()
+    print("\nAlgorithme de RanSac")
+    x,y,f,M,is_array,seed = ldt.charge_donnees(D_meth)
+    if is_array :
+        Xtab = []
+        Ytab = []
+        for i in range(len(x)):
+            X,Y = Faire_Ransac(x,y,f,M)
+            Xtab.append(X)
+            Ytab.append(Y)
+    
+    else:
+        Xtab,Ytab = Faire_Ransac(x,y,f,M)
+    
+    if seed is not None :
+        ldt.affiche_separation()
+        print("Graine pour la génération du signal : ",seed)
+        ldt.affiche_separation()
+    
+    plt.legend()
+    
 if __name__ == "__main__":
     plt.close('all')
     plt.figure()
@@ -542,7 +578,7 @@ if __name__ == "__main__":
     ##########################################
     
     # Utilisation : mettre le numéro de l'exemple ici. 0 <= num <= 31
-    num = 32
+    num = 0
     # 11 
     # 14 : paramètres pas trouvés
     
@@ -550,62 +586,9 @@ if __name__ == "__main__":
     
     if num == 0: # Données de CAO
         x,y = np.loadtxt('Tests\\data.txt')
-        lancement_ransac(x,y,0.5,0.1)
-        xreel,yreel = calcul_Spline_lissage(x,y,min(x),max(x),len(x),0.1)
-        plt.plot(xreel,yreel,"--b")
-        plt.title("Ransac : données de CAO")
-        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
-   
+        Faire_Ransac(x, y)
     # Petits tests spécifiques
     
-    elif num == 1 : # Droite plus ou moins nulle, valeurs aberrantes
-        x,y = np.loadtxt('droite_environ_nulle_aberrant.txt')
-        lancement_ransac(x,y,2,5)
-        xreel = x
-        yreel = np.repeat(0,len(x))
-        plt.plot(xreel,yreel,"--b")
-        plt.title("Ransac : droite environ nulle, données aberrantes")
-        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
-    elif num == 2 : # Droite plus ou moins nulle, pas de valeurs aberrantes
-        x,y = np.loadtxt('droite_environ_nulle_pasaberrant.txt')
-        lancement_ransac(x,y,0.2,0.1,nconsidere=8)
-        xreel = x
-        yreel = np.repeat(0,len(x))
-        plt.plot(xreel,yreel,"--b")
-        plt.title("Ransac : droite environ nulle")
-        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
-    elif num == 3 : # Droite identité parfaite
-        x,y = np.loadtxt('droite_identite.txt')
-        lancement_ransac(x,y,0.5,1)
-        xreel = x
-        yreel = x
-        plt.plot(xreel,yreel,"--b")
-        plt.title("Ransac : droite identité")
-        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
-    elif num == 4 : # Droite plus ou moins identité, valeurs aberrantes
-        x,y = np.loadtxt('droite_identite_environ_aberrant.txt')
-        lancement_ransac(x,y,0.5,1)
-        xreel = x
-        yreel = x
-        plt.plot(xreel,yreel,"--b")
-        plt.title("Ransac : droite environ identité, données aberrantes")
-        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
-    elif num == 5 : #Plus ou moins l'identité, sans valeurs aberrantes
-        x,y = np.loadtxt('droite_identite_environ_pasaberrant.txt')
-        lancement_ransac(x,y,0.5,1)
-        xreel = x
-        yreel = x
-        plt.plot(xreel,yreel,"--b")
-        plt.title("Ransac : droite environ identité")
-        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
-    elif num == 6 : # Droite nulle avec une donnée aberrante
-        x,y = np.loadtxt('droite_nulle_un_aberrant.txt')
-        lancement_ransac(x,y,0.5,1)
-        xreel = x
-        yreel = np.repeat(0,len(x))
-        plt.plot(xreel,yreel,"--b")
-        plt.title("Ransac : droite nulle, donnée aberrante")
-        plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
     elif num == 7 :# Droite nulle sans données aberrantes
         x,y = np.loadtxt('droite_nulle_pasaberrant.txt')
         lancement_ransac(x,y,0.5,1)

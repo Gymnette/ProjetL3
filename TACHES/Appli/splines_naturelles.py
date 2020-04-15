@@ -159,7 +159,7 @@ def Affiche_Spline_Para(a,b,X,Y,label="",color="r",type_repartition = ""):
     n = len(X)
     plt.scatter(X,Y)
     if type_repartition == "chordale":
-        T =  Repartition_chordale(X,Y,a,b)
+        T =  Repartition_cordale(X,Y,a,b)
     elif type_repartition == "chebyshev":
         T =  Repartition_chebyshev(a,b,n)
     else:

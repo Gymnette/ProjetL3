@@ -13,6 +13,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import load_tests as ldt
 
+
+import plotingv2 as plot
+
 from statsmodels.tsa.holtwinters import SimpleExpSmoothing
 
 # Les 4 polynomiales cubiques formant la base de Hermite sur [0,1]
@@ -429,6 +432,10 @@ def test_fichier(n,uk,zk,f=None,mode=None,aff_n = None,rho = 1):
     plt.plot(xx,yy,lw=1,label='spline de lissage avec rho = '+str(rho))
     plt.legend()
     plt.show()
+    
+    if f is not None:
+        xi = np.linspace(0, 1, 100)
+        plot.plot1d1d(xi,f(xi),new_fig = False,c = 'g')
     
     ldt.affiche_separation()
     print("Spline créée !")
