@@ -615,7 +615,7 @@ def ind_densite(x):
     p.append(n-1)   
     return p
 
-def regrouper(p,t=8):
+def regrouper(p,t=10):
     """
     cette fonction regroupe les intervalles de taille inferieure à t avec leurs voisins
     """
@@ -783,7 +783,6 @@ if __name__ == "__main__" :
     
     
     ep = esti_epsilon(y)
-    x = list(x)
     n =len(x) #même longueur que y
     #p = pas_inter(y,epsilon = ep) #ESSAI
     p = ind_densite(y)

@@ -304,7 +304,8 @@ def creation_spline_naturelle(x = None,y = None,f= None,is_array = False):
     print("Retour au menu principal...")
     ldt.affiche_separation()
 
-    
+if __name__ == "__main__":
+    print("ce programme ne se lance pas seul. Lancer Appli_Interpolaspline.")
     
     
     
