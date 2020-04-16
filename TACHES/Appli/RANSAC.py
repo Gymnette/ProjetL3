@@ -513,7 +513,10 @@ def ransac_auto(x,y,err,dist,nbpoints,rho,pcorrect=0.99,para=False):
                 prop_inlier = len(liste_inlier)/len(x)
                 if prop_inlier == 1 :
                     break; # On a trouvé un modèle correct, pour lequel il n'y aurait pas de points aberrants
-                nbitermax = math.floor(np.log(1 - pcorrect)/np.log(1-prop_inlier**len(x))) # Sera ajusté en fonction de prop_inlier
+                if np.log(1 - pcorrect)/np.log(1-prop_inlier**len(x))< 0:
+                    break
+                else:
+                    nbitermax = math.floor(np.log(1 - pcorrect)/np.log(1-prop_inlier**len(x))) # Sera ajusté en fonction de prop_inlier
                 if nbitermax > 500 :
                     nbitermax = 500
                 nbcorrect = math.floor(prop_inlier*len(x))
@@ -560,6 +563,7 @@ def Lancer_Ransac():
             Ytab.append(Y)
     
     else:
+        M = ldt.charge_methodes(D_meth,True)
         Xtab,Ytab = Faire_Ransac(x,y,f,M)
     
     if seed is not None :
@@ -570,6 +574,7 @@ def Lancer_Ransac():
     plt.legend()
     
 if __name__ == "__main__":
+    """
     plt.close('all')
     plt.figure()
     
@@ -671,3 +676,4 @@ if __name__ == "__main__":
         plt.plot(xreel,yreel,"--b")
         plt.title("Ransac : paramétrique")
         plt.legend(["Données aberrantes","Données non aberrantes","interpolation aux moindres carrées obtenue","interpolation attendue"])
+    """

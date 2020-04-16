@@ -57,15 +57,18 @@ def affiche_separation(c = '-',n = 50):
     print(c*n)
 
 
-def charge_methodes(D_methodes=None):
+def charge_methodes(D_methodes=None,une_methode = False):
     """
-    Charge fonction, methode, et un booleen qui donne le type de x et y pour pouvoiir appliquer les methodes
+    Charge methode pouvoir appliquer les methodes
     """
     
     if D_methodes is not None:
-        affiche_separation()
-        print("\nDéfinir une methode pour toutes les données ? (y = oui, n = non)")
-        def_M = input_choice()
+        if not une_methode :
+            affiche_separation()
+            print("\nDéfinir une methode pour toutes les données ? (y = oui, n = non)")
+            def_M = input_choice()
+        else:
+            def_M = 'y'
         
         if def_M == 'y':
             
