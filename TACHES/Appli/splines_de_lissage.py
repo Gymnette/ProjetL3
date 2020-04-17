@@ -8,6 +8,7 @@ la présence des observations "bruyantes" et son raccord aux données présenté
 Ce qui fait qu'un lissage est considéré comme différent d'une interpolation
 """
 
+import sys
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -383,6 +384,18 @@ def Repartition_aleatoire(a, b, n):
                 xi[i + 1] = (xi[i] + xi[i + 2]) / 2
     return xi
 
+def presence_intervalle_vide(xi, uk):
+    for i, a in enumerate(xi):
+        if i != len(xi)-1:
+            b = xi[i+1]
+            non_vide = False
+            for p in uk:
+                if a <= p <= b:
+                    non_vide = True
+            if not non_vide:
+                return True
+    return False
+
 
 def trouve_rho(y):
     """
@@ -429,6 +442,14 @@ def test_fichier(n, uk, zk, f=None, mode=None, aff_n=None, rho=1):
         #Test sur une repartition des noeuds aleatoire
         xi = Repartition_aleatoire(a, b, n)
 
+    if presence_intervalle_vide(xi, uk):
+        ldt.affiche_separation()
+        print("\nErreur : Un intervalle vide est detecté.")
+        print("Merci de changer au moins un des paramètres suivants :")
+        print(" - nombre de noeuds")
+        print(" - type de répartition\n")
+        ldt.affiche_separation()
+        sys.exit(1)
 
     if aff_n == 'y':
         plt.scatter(xi, [0] * n, label='noeuds')
@@ -570,6 +591,8 @@ def creation_spline_lissage(x=None, y=None, f=None, is_array=False):
                     rho = choisir_rho(y[i])
             if n_fixe == 'n':
                 n = choisir_n()
+                print("\nAfficher les noeuds ? (y = oui, n = non)")
+                aff_n = ldt.input_choice()
             test_fichier(n, e, y[i], f, M, aff_n, rho)
     else:
 
@@ -582,9 +605,6 @@ def creation_spline_lissage(x=None, y=None, f=None, is_array=False):
         n = choisir_n()
         test_fichier(n, x, y, f, M, rho=rho)
 
-    if seed is not None:
-        print("Graine pour la génération du signal : ", seed)
-        ldt.affiche_separation()
     print("Retour au menu principal...")
     ldt.affiche_separation()
 

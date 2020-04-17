@@ -5,6 +5,8 @@ Created on Thu Apr 16 17:22:04 2020
 @author: Interpolaspline
 """
 
+import sys
+
 from random import sample
 import numpy as np
 
@@ -221,6 +223,15 @@ def calcul_Spline_lissage(uk, zk, a, b, n, rho, mode='1'):
     else:
         #Test sur une repartition des noeuds aleatoire
         xi = splnat.Repartition_aleatoire(a, b, n)
+
+    if spllis.presence_intervalle_vide(xi, uk):
+        ldt.affiche_separation()
+        print("\nErreur : Un intervalle vide est detecté.")
+        print("Merci de changer au moins un des paramètres suivants :")
+        print(" - nombre de noeuds")
+        print(" - type de répartition\n")
+        ldt.affiche_separation()
+        sys.exit(1)
 
     H = [xi[i + 1] - xi[i] for i in range(len(xi) - 1)] # vecteur des pas de la spline
 

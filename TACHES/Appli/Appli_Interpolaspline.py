@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
         print("Veuillez choisir la FONCTIONNALITE desiree :\n")
 
-        print("Note : Pour Quitter le programme, appuyer sur q lors d'un choix.\n")
+        print("Note : Pour Quitter le programme, entrez q lors d'un choix.\n")
 
         for key in D:
             print(key, " : ", D[key][0])
@@ -46,26 +46,26 @@ if __name__ == '__main__':
         RETOUR = D[FONCTIONNALITE][1]()
 
         if RETOUR is not None:
-            (X, Y, f, is_tab) = RETOUR
-            if not is_tab:
+            (X, Y, F, IS_TAB) = RETOUR
+            if not IS_TAB:
                 ldt.affiche_separation()
                 print("\nPoints aberrants supprimés. Que voulez-vous faire ?")
                 print("1 : Creer la spline naturelle associée")
                 print('2 : Creer la spline de lissage associée')
-                print('3 : RETOURner au menu principal')
-                keep_going = ldt.input_choice(['1', '2', '3'])
-                if keep_going == '1':
-                    splnat.creation_spline_naturelle(X, Y, f)
-                elif keep_going == '2':
-                    spllis.creation_spline_lissage(X, Y, f)
+                print('3 : Retourner au menu principal')
+                KEEP_GOING = ldt.input_choice(['1', '2', '3'])
+                if KEEP_GOING == '1':
+                    splnat.creation_spline_naturelle(X, Y, F)
+                elif KEEP_GOING == '2':
+                    spllis.creation_spline_lissage(X, Y, F)
             else:
                 ldt.affiche_separation()
                 print("\nPoints aberrants supprimés. Que voulez-vous faire ?")
                 print("1 : Creer les splines naturelles associées")
                 print('2 : Creer les splines de lissage associées')
-                print('3 : RETOURner au menu principal')
-                keep_going = ldt.input_choice(['1', '2', '3'])
-                if keep_going == '1':
-                    splnat.creation_spline_naturelle(X, Y, f, True)
-                elif keep_going == '2':
-                    spllis.creation_spline_lissage(X, Y, f, True)
+                print('3 : Retourner au menu principal')
+                KEEP_GOING = ldt.input_choice(['1', '2', '3'])
+                if KEEP_GOING == '1':
+                    splnat.creation_spline_naturelle(X, Y, F, True)
+                elif KEEP_GOING == '2':
+                    spllis.creation_spline_lissage(X, Y, F, True)

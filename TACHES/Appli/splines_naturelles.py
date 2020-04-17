@@ -263,6 +263,8 @@ def test_fichier(U, Z, f=None, mode=None):
         xi = np.linspace(0, 1, 100)
         plot.plot1d1d(xi, f(xi), new_fig=False, c='g')
 
+    plot.show()
+
     ldt.affiche_separation()
     print("Spline créée !")
     ldt.affiche_separation()
