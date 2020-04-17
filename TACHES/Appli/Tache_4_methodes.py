@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf - 8 -*-
 """
 Created on Tue Apr  7 14:29:18 2020
 
@@ -19,11 +19,11 @@ def moyenne(x, invisibles=None):
     """
     Cette fonction renvoie la moyenne des valeurs de x
     Les éléments dont l'indice est dans la liste d'invisibles sont ignorés
-    
+
     type des entrées :
         x : vecteur de float ou vecteur d'entiers
         invisibles : list[int]
-    
+
     type des sorties :
         float
     """
@@ -46,12 +46,12 @@ def ecart_type(x, moy, invisibles=None):
     """
     Cette fonction renvoie l'écart type des valeurs de x, à partir de sa moyenne
     Les éléments dont l'indice est dans la liste d'invisibles sont ignorés
-    
+
     type des entrées :
         x : vecteur de float ou vecteur d'entiers
         moy : float
         invisibles : list[int]
-    
+
     type des sorties :
         float
     """
@@ -71,11 +71,11 @@ def ecart_type(x, moy, invisibles=None):
 def calcul_reel(i, indices):
     """
     Calcul l'indice réel de i en sachant que les indices présents dans indices ont été retirés avant, et n'ont donc pas été comptabilisé.
-    
+
     type des entrées :
         i : int
         indices : list[int]
-        
+
     type des sorties :
         int
     """
@@ -89,7 +89,7 @@ def calcul_reel(i, indices):
     return i_reel
 
 
-def voisinsI(x, y, a, b,k):
+def voisinsI(x, y, a, b, k):
     """
     :param x: une liste de réels d'abscisses
     :param y: une liste de réels d'ordonnées
@@ -101,12 +101,12 @@ def voisinsI(x, y, a, b,k):
     l = []
     for j in range(n):
         if y[j] != b and a != x[j]:
-            l.append(np.sqrt((b - y[j])**2 + (a - x[j])**2))
+            l.append(np.sqrt((b - y[j]) ** 2 + (a - x[j]) ** 2))
     l = sorted(l)
     s = 0
     for i in range(k):
         s += l[i]
-    return s/k
+    return s / k
 
 
 
@@ -145,9 +145,9 @@ def KNN_inter(x, k):
         l.append((x[i], voisinsKi(x, i, k)))
     return sorted(l, key=lambda col: col[1], reverse=True)
 
-def isIN(x,i):
+def isIN(x, i):
     for j in range(len(x)):
-        if i == x[j][0] :
+        if i == x[j][0]:
             return True
     return False
 
@@ -162,18 +162,18 @@ def quartile(x, coeff=0.01):
     La fonction prend une liste de valeurs (ordonnées de points) et renvoie un intervalle [a,b] associé.
     L'intervalle est l'interquartile, étendu des deux côtés du coeff * l'écart.
     Un point sera considéré comme aberrant si son ordonnée n'appartient pas à l'intervalle [a,b]
-    
+
     type des entrées :
         x : vecteur de float ou vecteur d'int
-        
+
     type des sorties :
         (float,float)
-        
+
     """
     x_s = sorted(x)
     n = len(x_s)
     if n < 3:
-        return 1, 0  # Intervalle vide : tous les points seront aberrants
+        return 1, 0  # Intervalle vide: tous les points seront aberrants
     elif n == 3:
         return min(x), max(x)  # Intervalle contenant tous les points, aucun ne sera aberrant
     else:
@@ -194,13 +194,13 @@ def eval_quartile(x, i, a, b):
     Méthode inter-quartiles, test d'aberrance du point.
     Si x[i] appartient à l'intervalle [a,b], renvoie faux, sinon renvoie vrai.
     Renvoie vrai si et seulement si le point n'appartient pas à l'intervalle
-    
+
     type des entrées :
         x : vecteur de float ou vecteur d'int
         i : int
         a : int
         b : int
-    
+
     type des sorties :
         booléen
     """
@@ -212,11 +212,11 @@ def test_Chauvenet(x, i):
     Test de Chauvenet
     Renvoie vrai si et seulement si le point x[i] est considéré comme aberrant au regard des autres valeurs de x,
     selon le test de Chauvenet.
-    
+
     type des entrées :
         x : vecteur de float ou vecteur d'int
         i : int
-    
+
     type des sorties :
         booléen
     """
@@ -224,7 +224,7 @@ def test_Chauvenet(x, i):
     x_barre = moyenne(x)
     var_x = (1 / n) * sum(np.array(x) ** 2) - x_barre ** 2
 
-    # Si la variance est nulle, tous les points sont égaux : aucun d'eux n'est aberrant.
+    # Si la variance est nulle, tous les points sont égaux: aucun d'eux n'est aberrant.
     if var_x == 0:
         return False
 
@@ -242,12 +242,12 @@ def thompson(x, i, alpha=0.001):
     Renvoie vrai si et seulement si le point x[i] est considéré comme aberrant au regard des autres valeurs de x,
     en considérant une erreur alpha comme acceptable,
     selon le test Tau de Thompson.
-    
+
     type des entrées :
         x : vecteur de float ou vecteur d'int
         i : int
         alpha : float
-        
+
     type des sorties :
         booléen
     """
@@ -274,18 +274,18 @@ def grubbs(x, alpha=5 / 100):
     l'indice renvoyé est celui de la valeur extrême, et vaut -1 ou -2 dans les cas spéciaux : écart type nul ou 0 valeurs.
     Elle renvoie une liste de booléens indiquant si la valeur associée est considérée comme aberrante selon le test de Grubbs.
     C'est le cas si la distance à la moyenne empirique est supérieure à un certain seuil.
-    
+
     type des entrees :
         x : vecteur de float ou vecteur d'int
         alpha : float
-        
+
     type des sorties :
         booléen, int
     """
     n = len(x)
 
     if n == 0:
-        return False, -2  # False ou True, les deux peuvent être mis ici, aucune coïncidence sur le programme.
+        return False, - 2  # False ou True, les deux peuvent être mis ici, aucune coïncidence sur le programme.
 
     # Calculs de la moyenne et de l'écart type empiriques
     moy = moyenne(x)
@@ -293,7 +293,7 @@ def grubbs(x, alpha=5 / 100):
 
     if (e_t == 0):  # L'égalité à 0 n'est pas exacte avec les calculs.
         # Les valeurs sont toutes identiques, il n'y a pas de points aberrants
-        return False, -1
+        return False, - 1
 
     # Calculs des distances à la moyennes, normalisées par l'écart type
     dist = [0] * n
@@ -304,7 +304,7 @@ def grubbs(x, alpha=5 / 100):
 
     # Calcul de la distance limite
     tcrit = stat.t.ppf(1 - (alpha / (2 * n)),
-                       n - 2)  # Valeur critique selon la loi de Student avec n-2 degrés de liberté et une confiance de alpha/2N
+                       n - 2)  # Valeur critique selon la loi de Student avec n - 2 degrés de liberté et une confiance de alpha /2N
     dist_lim = (n - 1) / sqrt(n) * sqrt(tcrit ** 2 / (n - 2 + tcrit ** 2))
 
     # On cherche la distance maximum avec son indice
@@ -320,13 +320,13 @@ def grubbs(x, alpha=5 / 100):
 
 # Le test de Tietjen Moore est une généralisation du test de Grubbs.
 # Il peut être appliqué peu importe le nombre de valeurs aberrantes
-# Mais il faut connaître ce nombre exactement : on n'implémente donc pas cette méthode.
+# Mais il faut connaître ce nombre exactement: on n'implémente donc pas cette méthode.
 
 def deviation_extreme_student(x, alpha=5 / 100, borne_max=0):
     """
     En anglais : extreme Studentized deviate (ESD)
     C'est la généralisation du test de Grubbs, sans avoir besoin d'itérer.
-    D'après des études de Rosner (Rosner, Bernard (May 1983), Percentage Points for a Generalized ESD Many-Outlier Procedure,Technometrics, 25(2), pp. 165-172.) 
+    D'après des études de Rosner (Rosner, Bernard (May 1983), Percentage Points for a Generalized ESD Many-Outlier Procedure,Technometrics, 25(2), pp. 165-172.)
     , ce test est très précis pour n >= 25 et reste correct pour n>=15.
     Il faut donc faire attention aux résultats obtenus si on l'appelle sur un intervalle avec peu de points !
     Ce test permet de détecter un ou plusieurs points aberrants, c'est en quelques sortes une généralisation de Grubbs.
@@ -334,12 +334,12 @@ def deviation_extreme_student(x, alpha=5 / 100, borne_max=0):
     L'algorithme est appliqué sur les données x. Si la borne maximale vaut 0, alors on considère que c'est 10% du nombre de données (arrondi au supérieur)
     Cette fonction renvoie une liste de booléens indiquant si la valeur associée est considérée comme aberrante.
     Alpha est le risque d'erreur que l'on accepte.
-    
+
     type des entrees :
         x : vecteur de float ou vecteur d'int
         alpha : float
         borne_max : int > 0
-        
+
     type des sorties :
         vecteur de booléens de la longueur de x
     """
@@ -374,7 +374,7 @@ def deviation_extreme_student(x, alpha=5 / 100, borne_max=0):
         borne_max -= 1
 
     i = 0
-    # le i des formules devient i-1 car on est ici indicés en 0
+    # le i des formules devient i - 1 car on est ici indicés en 0
     while i != len(ind_candidats):
         # Calculs à partir de Ri
         p = 1 - alpha / (2 * (n - i))
@@ -383,7 +383,7 @@ def deviation_extreme_student(x, alpha=5 / 100, borne_max=0):
         if dist_candidats[i] <= seuil:
             break;
         i += 1
-    # i-1 est l'indice du dernier point considéré comme aberrant par ce test.
+    # i - 1 est l'indice du dernier point considéré comme aberrant par ce test.
 
     aberrant = [False] * n
     for j in range(i):
@@ -414,7 +414,7 @@ def KNN(x, y, k, m):
     y_na = []
     l = list()
     for i in range(n):
-        l.append(( x[i],y[i], voisinsI(x, y, x[i],y[i],k) ))
+        l.append(( x[i], y[i], voisinsI(x, y, x[i], y[i], k) ))
     z = sorted(l, key=lambda col: col[2], reverse=True)
     p = int((m / 100) * len(z))
     for i in range(p):

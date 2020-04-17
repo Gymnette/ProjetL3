@@ -1,15 +1,12 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf - 8 -*-
 """
 Created on Tue Apr  7 14:29:18 2020
 
 @author: Interpolaspline
 """
-#gestionnaire de programme
-import sys
 
 # Récupération des tests par fichier ou directement des signaux
 import load_tests as ldt
-import signaux_splines as ss
 import plotingv2 as plot
 import numpy as np
 
@@ -22,7 +19,7 @@ import Tache_4_methodes as meth
 ###############################################
 
 
-def supprime(x, methode, sup_poids=True, poids=1 / 100,k=7,m=25,y = None):  # A AJOUTER (AMELYS) : OPTIONS DES METHODES
+def supprime(x, methode, sup_poids=True, poids=1 / 100, k=7, m=25, y = None):  # A AJOUTER (AMELYS): OPTIONS DES METHODES
     """
     Parcours toutes les valeurs de x afin de toutes les traiter.
     La fonction supprime prend un vecteur x d'ordonnées de points, une methode de
@@ -31,13 +28,13 @@ def supprime(x, methode, sup_poids=True, poids=1 / 100,k=7,m=25,y = None):  # A 
     aberrants et un poids = 1 aux points considérés comme adaptés.
     Elle renvoie une liste d'ordonnées ne contenant pas celles supprimées,
     une liste de poids, ainsi qu'une liste des indices dans le vecteur des valeurs supprimées.
-    
+
     type des entrees :
         x : vecteur de float ou vecteur d'int
         methode : fonction :vecteur de float ou vecteur d'int -> (float,float)
         sup_poids : booleen
         poids : float
-        
+
     type des sorties : tuple (x_sup,v_poids,indices)
         x_sup : vecteur de float ou vecteur d'int
         v_poids : vecteur de float
@@ -75,11 +72,11 @@ def supprime(x, methode, sup_poids=True, poids=1 / 100,k=7,m=25,y = None):  # A 
                     x_sup[i] = None
                 else:
                     v_poids[i] = poids
-    
+
     elif methode == meth.KNN:
-        ind,uk_ya,x_sup,y = meth.KNN(x,y,k,m)
-        return x_sup,y
-    
+        ind, uk_ya, x_sup, y = meth.KNN(x, y, k, m)
+        return x_sup, y
+
     else:
 
         for i in range(n):
@@ -119,7 +116,7 @@ def pas_inter(y, epsilon=0.1):
     Type des entrées :
         y : vecteur de float ou vecteur d'int
         epsilon : float
-        
+
     Type des sorties :
         liste[int]
     """
@@ -137,12 +134,12 @@ def pas_inter(y, epsilon=0.1):
 
     return p
 
-def tester(x,y,f = None,M_int = None):
+def tester(x, y, f = None, M_int = None):
     """
     partie du programme principal :
         applique une methode de detection des points aberrants sur un ensemble de donnees
     """
-    
+
     #######################
     # Choix de la méthode #
     #######################
@@ -155,8 +152,8 @@ def tester(x,y,f = None,M_int = None):
         print("4 : Test de Grubbs")
         print("5 : Test de la deviation extreme de Student")
         print("6 : Test des k plus proches voisins ")
-        
-        M_int = ldt.input_choice(['1','2','3','4','5','6'])
+
+        M_int = ldt.input_choice(['1', '2', '3', '4', '5', '6'])
 
     D = {'1': ("Méthode interquartile", meth.eval_quartile),
          '2': ("Test de Chauvenet", meth.test_Chauvenet),
@@ -165,12 +162,12 @@ def tester(x,y,f = None,M_int = None):
          '5': ("Test de la déviation extreme de student", meth.deviation_extreme_student),
          '6': ("Test des k plus proches voisins", meth.KNN)}
 
-    lab,M = D[M_int]
-    
+    lab, M = D[M_int]
+
     ##########################
     # Traitement des données #
     ##########################
-    
+
     p = pas_inter(y, epsilon=0.5)
     b = p[0]
     X = []
@@ -182,63 +179,63 @@ def tester(x,y,f = None,M_int = None):
 
         j = x[a:b]
         g = y[a:b]
-        
+
         if M == meth.KNN:
-            xd,yd = supprime(j, M, y = g)
+            xd, yd = supprime(j, M, y = g)
             X = X + xd
             Y = Y + yd
-        else :
-            yd, v_poids, indices_aberrants = supprime(g, M)  # AMELYS : IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
+        else:
+            yd, v_poids, indices_aberrants = supprime(g, M)  # AMELYS: IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
             indices_aberrants.sort()
             # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
             # On ne garde que les x associés aux y.
             xd = list(j)
-            for ind in range(len(indices_aberrants) - 1, -1,-1):  # On part de la fin pour ne pas avoir de décalage d'indices
+            for ind in range(len(indices_aberrants) - 1, - 1, - 1):  # On part de la fin pour ne pas avoir de décalage d'indices
                 xd.pop(indices_aberrants[ind])
-    
+
             X = X + xd
             Y = Y + yd
 
         i += 1  # On se décale d'un cran à droite
-        
-    plot.scatterdata(x,y,c='b+',legend = "données",title = lab,new_fig = True,show = False)
-    plot.scatterdata(X,Y,c='r+',legend='données conservées, dites "non aberrantes" ',new_fig = False,show = False)
-    
+
+    plot.scatterdata(x, y, c='b+', legend = "données", title = lab, new_fig = True, show = False)
+    plot.scatterdata(X, Y, c='r+', legend='données conservées, dites "non aberrantes" ', new_fig = False, show = False)
+
     if f is not None:
         xi = np.linspace(0, 1, 100)
-        plot.plot1d1d(xi,f(xi),new_fig = False,c = 'g')
-        
+        plot.plot1d1d(xi, f(xi), new_fig = False, c = 'g')
+
     plot.show()
-    return X,Y
+    return X, Y
 
 def trouve_points_aberrants():
-    
-    D_meth = {"1" : "Inter-Quartile",
-            "2" : "Test de Chauvenet",
-            "3" : "Test de Tau Thompson",
-            "4" : "Test de Grubbs",
-            "5" : "Test de la deviation extreme de Student",
-            "6" : "Test des k plus proches voisins "}
-    
+
+    D_meth = {"1": "Inter-Quartile",
+            "2": "Test de Chauvenet",
+            "3": "Test de Tau Thompson",
+            "4": "Test de Grubbs",
+            "5": "Test de la deviation extreme de Student",
+            "6": "Test des k plus proches voisins "}
+
     ldt.affiche_separation()
     print("Bienvenue dans ce gestionnaire des points aberrants !")
-    x,y,f,M,is_array,seed = ldt.charge_donnees(D_meth)
-    if is_array :
+    x, y, f, M, is_array, seed = ldt.charge_donnees(D_meth)
+    if is_array:
         Xtab = []
         Ytab = []
-        for i in range(len(x)):
-            X,Y = tester(x,y,f,M)
+        for _ in range(len(x)):
+            X, Y = tester(x, y, f, M)
             Xtab.append(X)
             Ytab.append(Y)
-    
+
     else:
-        Xtab,Ytab = tester(x,y,f,M)
-    
-    if seed is not None :
+        Xtab, Ytab = tester(x, y, f, M)
+
+    if seed is not None:
         ldt.affiche_separation()
-        print("Graine pour la génération du signal : ",seed)
+        print("Graine pour la génération du signal : ", seed)
         ldt.affiche_separation()
-    return Xtab,Ytab,f,is_array
+    return Xtab, Ytab, f, is_array
 
         #############################################################
         # Epsilon à choisir en fonction des graines et des méthodes #
@@ -254,4 +251,4 @@ def trouve_points_aberrants():
 
 if __name__ == "__main__":
     print("ce programme ne se lance pas seul. Lancer Appli_Interpolaspline.")
-    
+

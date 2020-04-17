@@ -557,7 +557,7 @@ def creation_spline_lissage(x=None, y=None, f=None, is_array=False):
             print("\nAfficher les noeuds ? (y = oui, n = non)")
             aff_n = ldt.input_choice()
 
-        for i in range(len(x)):
+        for i, e in enumerate(x):
             print("Fichier ", i + 1)
             if rho_fixe == 'n':
                 rho = trouve_rho(y[i])
@@ -570,7 +570,7 @@ def creation_spline_lissage(x=None, y=None, f=None, is_array=False):
                     rho = choisir_rho(y[i])
             if n_fixe == 'n':
                 n = choisir_n()
-            test_fichier(n, x[i], y[i], f, M, aff_n, rho)
+            test_fichier(n, e, y[i], f, M, aff_n, rho)
     else:
 
         ldt.affiche_separation()
