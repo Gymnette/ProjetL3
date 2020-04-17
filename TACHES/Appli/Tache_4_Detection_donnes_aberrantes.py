@@ -252,4 +252,6 @@ def trouve_points_aberrants():
         # Grubbs    0.3
         # ESD       0.3
 
+if __name__ == "__main__":
+    print("ce programme ne se lance pas seul. Lancer Appli_Interpolaspline.")
     
