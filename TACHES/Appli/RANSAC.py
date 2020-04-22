@@ -532,7 +532,7 @@ def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False):
 
     return xmod, ymod
 
-def Faire_Ransac(x, y, f=None, para='1'):
+def Faire_Ransac(x, y, rho, f=None, para='1'):
     """
     Parameters
     ----------
@@ -559,7 +559,6 @@ def Faire_Ransac(x, y, f=None, para='1'):
         x, y = ldt.sortpoints(x, y)
     else:
         parabool = True
-    rho = spllis.trouve_rho(y)
 
     nconsidere = len(x) // 2
     xres, yres = ransac_auto(x, y, 0.5, d_euclidienne, nconsidere, rho, parabool)
@@ -588,16 +587,44 @@ def Lancer_Ransac():
     print("\nAlgorithme de RanSac")
     x, y, f, M, is_array, seed = ldt.charge_donnees(D_meth)
     if is_array:
+        ldt.affiche_separation()
+        print("\nDéfinir un paramètre de lissage pour tous les fichiers ? (y = oui, n = non)")
+        print("Si oui, et que vous choisissez ensuite le paramètre automatique,")
+        print("alors ce paramètre sera recalculé pour chaque fichier.")
+        rho_fixe = ldt.input_choice()
+
+        if rho_fixe == 'y':
+            ldt.affiche_separation()
+            print("\nChoix automatique du paramètre de lissage ? (y = oui, n = non)")
+            rho_auto = ldt.input_choice()
+            if rho_auto == 'n':
+                rho = spllis.choisir_rho([], 'n')
+
         Xtab = []
         Ytab = []
-        for _ in range(len(x)):
-            X, Y = Faire_Ransac(x, y, f, M)
+        for i in range(len(x)):
+            if rho_fixe == 'n':
+                rho = spllis.trouve_rho(y[i])
+                print("\nLe paramètre de lissage automatique serait : ", rho)
+                print("Choisir ce paramètre de lissage ? (y = oui, n = non)")
+                rho_auto = ldt.input_choice()
+                rho = spllis.choisir_rho(y[i], rho_auto)
+            else:
+                if rho_auto == 'y':
+                    rho = spllis.choisir_rho(y[i])
+            X, Y = Faire_Ransac(x, y, rho, f, M)
             Xtab.append(X)
             Ytab.append(Y)
 
     else:
         M = ldt.charge_methodes(D_meth, True)
-        Xtab, Ytab = Faire_Ransac(x, y, f, M)
+        ldt.affiche_separation()
+        rho = spllis.trouve_rho(y)
+        print("\nLe paramètre de lissage automatique serait : ", rho)
+        print("Choisir ce paramètre de lissage ? (y = oui, n = non)")
+        rho_auto = ldt.input_choice()
+        rho = spllis.choisir_rho(y, rho_auto)
+        Xtab, Ytab = Faire_Ransac(x, y, rho, f, M)
 
     if seed is not None:
         ldt.affiche_separation()

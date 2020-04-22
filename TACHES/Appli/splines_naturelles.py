@@ -163,7 +163,7 @@ def Affiche_Spline_Para(a, b, X, Y, label="", color="r", type_repartition=""):
         Sx.append(HermiteC1_non_affiche(T[i], X[i], float(Xp[i]), T[i + 1], X[i + 1], float(Xp[i + 1])))
     #Spline des (ti, yi)
     A = Matrix_NU(H)
-    B = Matrix__resulat(Y, H)
+    B = Matrix_NU_resulat(Y, H)
     Yp = np.linalg.solve(A, B)
     Sy = []
     for i in range(0, n - 1):
