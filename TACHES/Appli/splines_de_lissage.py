@@ -432,7 +432,7 @@ def test_fichier(n, uk, zk, f=None, mode=None, aff_n=None, rho=1):
 
     plt.figure()
     plt.title('spline de lissage avec ' + str(n) + ' noeuds') # titre
-    plt.plot(uk, zk, 'rx', label='scattered data') # affichage des points de l'échantillon
+    plt.plot(uk, zk, 'rx', label='données') # affichage des points de l'échantillon
 
     if mode == '1':
         xi = np.linspace(a, b, n)

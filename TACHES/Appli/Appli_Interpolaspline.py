@@ -14,8 +14,8 @@ import splines_de_lissage as spllis
 import Tache_4_Detection_donnes_aberrantes as ptsabe
 import RANSAC as rs
 
-if __name__ == '__main__':
-
+if __name__ == '__main__':    
+    
     #Dictionnaire de choix de la FONCTIONNALITE
     D = {'1': ("Création d'une Spline naturelle", splnat.creation_spline_naturelle),
          '2': ("Création d'une Spline de lissage", spllis.creation_spline_lissage),

@@ -1,11 +1,5 @@
 # !/ usr / bin / env python3
 # -*- coding: utf - 8 -*-
-"""
-Created on Mon Mar 30 11:01:41 2020
-
-@author: Amelys Rodet
-"""
-
 from random import random
 import numpy as np
 import matplotlib.pyplot as plt
@@ -43,9 +37,9 @@ def HermiteC1(x0, y0, y0p, x1, y1, y1p, label="", color='g'):
         som += y1 * H3((t - x0) / (x1 - x0))
         y.append(som)
     if label != "":
-        plt.plot(x, y, color, lw=2, label=label)
+        plt.plot(x, y, color, label=label)
     else:
-        plt.plot(x, y, color, lw=2)
+        plt.plot(x, y, color)
 
 def HermiteC1_non_affiche(x0, y0, y0p, x1, y1, y1p):
     """ Cubic Hermite interpolation of order 1 over 2 points x0 < x1
@@ -132,7 +126,7 @@ def Affiche_Spline_NU(X, Y, n, label="", color='r'):
     Aucun retour
     '''
     H = [X[i + 1] - X[i] for i in range(n - 1)]
-    plt.scatter(X, Y, s=75, c='red', marker='o', label="NU interpolation points")
+    plt.scatter(X, Y, s=75, c='red', marker='+', label="données")
     A = Matrix_NU(H)
     B = Matrix_NU_resulat(Y, H)
     Yp = np.linalg.solve(A, B)
@@ -169,7 +163,7 @@ def Affiche_Spline_Para(a, b, X, Y, label="", color="r", type_repartition=""):
         Sx.append(HermiteC1_non_affiche(T[i], X[i], float(Xp[i]), T[i + 1], X[i + 1], float(Xp[i + 1])))
     #Spline des (ti, yi)
     A = Matrix_NU(H)
-    B = Matrix_NU_resulat(Y, H)
+    B = Matrix__resulat(Y, H)
     Yp = np.linalg.solve(A, B)
     Sy = []
     for i in range(0, n - 1):
@@ -235,7 +229,7 @@ def test_fichier(U, Z, f=None, mode=None):
         #Mode "tel quel" : les donnees sont prises dans l'ordre, en courbe paramétrique
         plt.figure()
 
-        Affiche_Spline_Para(a, b, U, Z, label="pas de tri", color="r")
+        Affiche_Spline_Para(a, b, U, Z, label="Interpolation des données (sans tri préalable)", color="r")
 
         plt.legend(fontsize="10")
 
@@ -245,7 +239,7 @@ def test_fichier(U, Z, f=None, mode=None):
         #Tri sur X
         X, Y = ldt.sortpoints(U, Z)
 
-        Affiche_Spline_NU(X, Y, n, label="tri selon l'axe des abcisses", color='b')
+        Affiche_Spline_NU(X, Y, n, label="Interpolation des données (triées selon l'axe des abscisses)", color='b')
 
         plt.legend(fontsize="10")
 
@@ -255,7 +249,7 @@ def test_fichier(U, Z, f=None, mode=None):
         #Tri sur Y
         Y, X = ldt.sortpoints(Z, U)
 
-        Affiche_Spline_Para(a, b, X, Y, label="tri selon l'axe des ordonnées", color="g")
+        Affiche_Spline_Para(a, b, X, Y, label="Interpolation des données (triées selon l'axe des ordonnées)", color="g")
 
         plt.legend(fontsize="10")
 
