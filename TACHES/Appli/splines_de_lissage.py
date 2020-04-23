@@ -403,7 +403,7 @@ def trouve_rho(y):
     """
     model = SimpleExpSmoothing(y) # crée la classe
     model_fit = model.fit() # met en forme le modèle
-    rho = model_fit.model.params['smoothing_level']# trouve la valeur optimale
+    rho = 1.0 - model_fit.model.params['smoothing_level']# trouve la valeur optimale
     return rho
 
 

@@ -3,6 +3,7 @@ import numpy as np
 from scipy import linalg
 
 def poids_faibles(x, y,v_poids,rho):
+    
     """
     Création du vecteur y_estimated depuis y, où ses valeurs sont estimées par le poid respectif de chacune
     
@@ -16,7 +17,7 @@ def poids_faibles(x, y,v_poids,rho):
     n = len(x)
     y_estimated = np.zeros(n)
    
-   
+
     w = np.array([np.exp(- (x - x[i])**2/(2*rho))*v_poids[i] for i in range(n)])  #initialise tous les poids    
 
     for i in range(n): #Calcule la nouvelle coordonnée de tout point

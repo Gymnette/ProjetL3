@@ -325,21 +325,22 @@ def Matdiag(n):
 MAIN PROGRAM :   
 ------------------------------------------------------"""
 if __name__ == '__main__':
-    (uk,zk) =  np.loadtxt('data.txt') # prépare les donnéeS
-    #nfunc = lambda x: sign.add_bivariate_noise(x, 0.1, prob=0.15)
-    #uk,zk, f = sign.stationary_signal((100,), 0.9, noise_func=nfunc)
+    #(uk,zk) =  np.loadtxt('data.txt') # prépare les donnéeS
+    nfunc = lambda uk: sign.add_bivariate_noise(uk, 0.01, prob=0.01)
+    uk,zk, f = sign.stationary_signal((30,), 0.9, noise_func=nfunc,seed=0)
     data = pandas.Series(zk, uk) # prépare les données pour l'estimateur du paramètre de lissage optimal.
-    rho = SimpleExpSmoothing(data).fit().params['smoothing_level'] # trouve le paramètre de lissage optimal
+    rho = 1 - SimpleExpSmoothing(data).fit().params['smoothing_level'] # trouve le paramètre de lissage optimal
     print(rho)
-     
+    
     N = len(uk) # taille de l'échantillon
     a = uk[0] # intervalle
     b = uk[N-1] # intervalle
     
     
+    
  
-    #M = detect.eval_quartile
-    M =  detect.test_Chauvenet
+    M = detect.eval_quartile
+    #M =  detect.test_Chauvenet
     #M = detect.thompson
     #M = detect.grubbs
     #M = detect.deviation_extreme_student
@@ -363,8 +364,8 @@ if __name__ == '__main__':
         x_aberrantes = np.append(x_aberrantes,uk[indices_aberrants[i]])
         y_aberrantes = np.append(y_aberrantes,zk[indices_aberrants[i]])
     plt.plot(x_aberrantes,y_aberrantes,'rx',label='données aberrantes') # affichage des points aberrants de l'échantillon
-    
-    n=30# nombre des noeuds attendus pour la spline de lissage
+    plt.plot(uk,y_estimated_aberrants,'gx',label='estimations') # affichage des points aberrants de l'échantillon
+    n=15# nombre des noeuds attendus pour la spline de lissage
 
    
     
@@ -393,7 +394,10 @@ if __name__ == '__main__':
         x,y = HermiteC1(xi[i],yi[0][i],yip[0][i],xi[i+1],yi[0][i+1],yip[0][i+1])
         xx_1=np.append(xx_1,x)
         yy_1=np.append(yy_1,y)
-
+        
+    rho = 1 - SimpleExpSmoothing(y_estimated_aberrants).fit().params['smoothing_level'] # trouve le paramètre de lissage optimal
+    
+    
     Y = Vecteur_y(uk,[y_estimated_aberrants],N,xi,n,H,rho)
     yi = np.transpose(Y)
     yip = np.transpose(np.linalg.solve(MatriceA(n,H),(np.dot(MatriceR(n,H),Y))))
@@ -404,8 +408,8 @@ if __name__ == '__main__':
         xx_2=np.append(xx_2,x)
         yy_2=np.append(yy_2,y)
    
-    plt.plot(xx_2,yy_2,lw=1,label='Avec poids faibles')
-    plt.plot(xx_1,yy_1,lw=1,label='Sans poids')
+    #plt.plot(xx_2,yy_2,lw=1,label='Avec poids faibles')
+    
    
     
    
