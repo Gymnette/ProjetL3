@@ -384,6 +384,12 @@ def Repartition_aleatoire(a, b, n):
                 xi[i + 1] = (xi[i] + xi[i + 2]) / 2
     return xi
 
+def Repartition_optimale(uk):
+    xi = [uk[i] for i in range(0,len(uk),10)]
+    if xi[-1] != uk[-1]:
+        xi.append(uk[-1])
+    return xi
+
 def presence_intervalle_vide(xi, uk):
     for i, a in enumerate(xi):
         if i != len(xi)-1:
@@ -423,7 +429,8 @@ def test_fichier(n, uk, zk, f=None, mode=None, aff_n=None, rho=1):
         print("1. repartition uniforme des noeuds")
         print("2. repartition de Chebichev")
         print("3. repartition aléatoire")
-        mode = ldt.input_choice(['1', '2', '3'])
+        print("4. repartition optimale")
+        mode = ldt.input_choice(['1', '2', '3', '4'])
 
     if aff_n is None:
         ldt.affiche_separation()
@@ -438,9 +445,12 @@ def test_fichier(n, uk, zk, f=None, mode=None, aff_n=None, rho=1):
         xi = np.linspace(a, b, n)
     elif mode == '2':
         xi = Repartition_chebyshev(a, b, n)
-    else:
+    elif mode == '3':
         #Test sur une repartition des noeuds aleatoire
         xi = Repartition_aleatoire(a, b, n)
+    else:
+        xi = Repartition_optimale(uk)
+        n = len(xi)
 
     if presence_intervalle_vide(xi, uk):
         ldt.affiche_separation()
@@ -452,7 +462,7 @@ def test_fichier(n, uk, zk, f=None, mode=None, aff_n=None, rho=1):
         sys.exit(1)
 
     if aff_n == 'y':
-        plt.scatter(xi, [0] * n, label='noeuds')
+        plt.scatter(xi, [0] * len(xi), label='noeuds')
 
     H = [xi[i + 1] - xi[i] for i in range(len(xi) - 1)] # vecteur des pas de la spline
 
@@ -543,7 +553,8 @@ def creation_spline_lissage(x=None, y=None, f=None, is_array=False):
 
     D_meth = {'1': "repartition uniforme des noeuds",
               '2': "repartition de Chebichev",
-              '3': "repartition aléatoire"}
+              '3': "repartition aléatoire",
+              '4': "repartition optimale"}
     M = None
 
     if (x is None) or (y is None):
@@ -568,18 +579,25 @@ def creation_spline_lissage(x=None, y=None, f=None, is_array=False):
             if rho_auto == 'n':
                 rho = choisir_rho([], 'n')
 
-        ldt.affiche_separation()
-        print("\nDéfinir un nombre de noeuds constant pour tous les fichiers ? (y = oui, n = non)")
-        n_fixe = ldt.input_choice()
-
-        if n_fixe == 'y':
-            n = choisir_n()
+        if M == '4':
+            n_fixe = 'y'
+            n = 0
             ldt.affiche_separation()
             print("\nAfficher les noeuds ? (y = oui, n = non)")
             aff_n = ldt.input_choice()
+        else:
+            ldt.affiche_separation()
+            print("\nDéfinir un nombre de noeuds constant pour tous les fichiers ? (y = oui, n = non)")
+            n_fixe = ldt.input_choice()
+
+            if n_fixe == 'y':
+                n = choisir_n()
+                ldt.affiche_separation()
+                print("\nAfficher les noeuds ? (y = oui, n = non)")
+                aff_n = ldt.input_choice()
 
         for i, e in enumerate(x):
-            print("Fichier ", i + 1)
+            print("Fichier ", i + 1, "\nNombre de points : ", len(e))
             if rho_fixe == 'n':
                 rho = trouve_rho(y[i])
                 print("\nLe paramètre de lissage automatique serait : ", rho)
@@ -602,7 +620,16 @@ def creation_spline_lissage(x=None, y=None, f=None, is_array=False):
         print("Choisir ce paramètre de lissage ? (y = oui, n = non)")
         rho_auto = ldt.input_choice()
         rho = choisir_rho(y, rho_auto)
-        n = choisir_n()
+        ldt.affiche_separation()
+        print("\nChoisissez le mode de traitement des données :")
+        for key in D_meth.keys():
+            print(key, " : ", D_meth[key])
+
+        M = ldt.input_choice(list(D_meth.keys()))
+        if M == '4':
+            n = 0
+        else:
+            n = choisir_n()
         test_fichier(n, x, y, f, M, rho=rho)
 
     print("Retour au menu principal...")

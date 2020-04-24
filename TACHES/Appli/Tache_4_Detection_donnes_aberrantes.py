@@ -134,7 +134,7 @@ def pas_inter(y, epsilon=0.1):
 
     return p
 
-def tester(x, y, f = None, M_int = None):
+def tester(x, y, f = None, M_int = None, locglob='1'):
     """
     partie du programme principal :
         applique une methode de detection des points aberrants sur un ensemble de donnees
@@ -167,36 +167,64 @@ def tester(x, y, f = None, M_int = None):
     ##########################
     # Traitement des données #
     ##########################
+    if locglob == '1':
+        p = pas_inter(y, epsilon=0.5)
+        b = p[0]
+        X = []
+        Y = []
+        i = 1
+        while i < len(p):  # Tant que i < len(p), il reste une borne droite d'intervalle non utilisée
+            a = b
+            b = p[i]  # On récupère cette borne après avoir décalé
 
-    p = pas_inter(y, epsilon=0.5)
-    b = p[0]
-    X = []
-    Y = []
-    i = 1
-    while i < len(p):  # Tant que i < len(p), il reste une borne droite d'intervalle non utilisée
-        a = b
-        b = p[i]  # On récupère cette borne après avoir décalé
+            j = x[a:b]
+            g = y[a:b]
 
-        j = x[a:b]
-        g = y[a:b]
+            if M == meth.KNN:
+                xd, yd = supprime(j, M, y = g)
+                X = X + xd
+                Y = Y + yd
+            else:
+                yd, v_poids, indices_aberrants = supprime(g, M)  # AMELYS: IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
+                indices_aberrants.sort()
+                # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
+                # On ne garde que les x associés aux y.
+                xd = list(j)
+                for ind in range(len(indices_aberrants) - 1, - 1, - 1):  # On part de la fin pour ne pas avoir de décalage d'indices
+                    xd.pop(indices_aberrants[ind])
 
-        if M == meth.KNN:
-            xd, yd = supprime(j, M, y = g)
+                X = X + xd
+                Y = Y + yd
+
+            i += 1  # On se décale d'un cran à droite
+
+    else:
+
+        #ep = meth.esti_epsilon(y)
+        #p = pas_inter(y,epsilon = ep) #ESSAI
+        p = meth.ind_densite(y)
+        p = meth.regrouper(p,30)
+
+        b = p[0]
+        X = []
+        Y = []
+        i=1
+        while i < len(p) : # Tant que i < len(p), il reste une borne droite d'intervalle non utilisée
+            a = b
+            b = p[i] #On récupère cette borne après avoir décalé
+
+            j = x[a:b+1]
+            g = y[a:b+1]
+            k = (b-a+1)//2
+
+            x_ab, y_ab,xd, yd = meth.KNN(j,g,k,15) #AMELYS : IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
+
+
+
             X = X + xd
             Y = Y + yd
-        else:
-            yd, v_poids, indices_aberrants = supprime(g, M)  # AMELYS: IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
-            indices_aberrants.sort()
-            # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
-            # On ne garde que les x associés aux y.
-            xd = list(j)
-            for ind in range(len(indices_aberrants) - 1, - 1, - 1):  # On part de la fin pour ne pas avoir de décalage d'indices
-                xd.pop(indices_aberrants[ind])
 
-            X = X + xd
-            Y = Y + yd
-
-        i += 1  # On se décale d'un cran à droite
+            i+=1 # On se décale d'un cran à droite
 
     plot.scatterdata(x, y, c='b+', legend = "données", title = lab, new_fig = True, show = False)
     plot.scatterdata(X, Y, c='r+', legend='données conservées, dites "non aberrantes" ', new_fig = False, show = False)
@@ -224,6 +252,7 @@ def trouve_points_aberrants():
         ldt.affiche_separation()
         print("Graine pour la génération du signal : ", seed)
         ldt.affiche_separation()
+
     if is_array:
         Xtab = []
         Ytab = []
@@ -233,7 +262,12 @@ def trouve_points_aberrants():
             Ytab.append(Y)
 
     else:
-        Xtab, Ytab = tester(x, y, f, M)
+        ldt.affiche_separation()
+        print("Choisir la portee de traitement des donnees :")
+        print('1 : Local')
+        print('2 : Global')
+        locglob = ldt.input_choice(['1','2'])
+        Xtab, Ytab = tester(x, y, f, M, locglob)
 
 
     return Xtab, Ytab, f, is_array

@@ -188,16 +188,30 @@ def charge_donnees(D_methodes=None):
         affiche_separation()
         print("\nTest sur génération de signal. Signal stationnaire ? (y = oui, n = non)")
         stationnaire = input_choice()
+        affiche_separation()
+        print("\nCreation de signal rapide ? (y = oui, n = non)")
+        skip = input_choice()
 
         # signaux de tests stationnaires provenant du générateur
-        nfunc = lambda x: ss.add_bivariate_noise(x, 0.05, prob=0.15)
+        if skip == 'y':
+            std1 = 0.05
+            nb_pts = 30
+            prob = 0.1
+            reg = 0.1
+        else:
+            print("Choisissez les valeurs suivantes :")
+            std1 = float(input("(flottant) Ecart type = "))
+            nb_pts = int(input("(entier) Nombre de points = "))
+            if stationnaire == 'n':
+                prob = float(input("(flottant) probabilité de saut = "))
+            else:
+                reg = float(input("(flottant [0,1]) régularité = "))
+        nfunc = lambda x: ss.add_bivariate_noise(x, std1)
 
         if stationnaire == 'y':
-            x, y, f, seed = ss.stationary_signal((30, ), 0.9, noise_func=nfunc)
-            #x, y, f = ss.stationary_signal((30, ), 0.5, noise_func=nfunc)
+            x, y, f, seed = ss.stationary_signal((nb_pts, ), regularity=reg, noise_func=nfunc)
         else:
-            x, y, f, seed = ss.non_stationary_signal((30, ), switch_prob=0.1, noise_func=nfunc)
-            #x, y, f = ss.non_stationary_signal((30, ), switch_prob=0.2, noise_func=nfunc)
+            x, y, f, seed = ss.non_stationary_signal((nb_pts, ), switch_prob=prob, noise_func=nfunc)
 
         return x, y, f, None, False, seed
 
@@ -207,24 +221,39 @@ def charge_donnees(D_methodes=None):
 
     affiche_separation()
     print("\nQuelle graine utiliser ?")
-    n = - 1
-    while n < 0:
+    seed = - 1
+    while seed < 0:
         try:
-            n = int(input("> "))
-            if n < 0 or n >= 2 ** 32 -1:
+            seed = int(input("> "))
+            if seed < 0 or seed >= 2 ** 32 -1:
                 print("Merci d'entrer un nombre valide")
         except ValueError:
             print("Merci d'entrer un nombre valide")
-            n = - 1
-    seed = n
+            seed = - 1
+    # signaux de tests stationnaires provenant du générateur
+    print("\nCreation de signal rapide ? (y = oui, n = non)")
+    skip = input_choice()
 
     # signaux de tests stationnaires provenant du générateur
-    nfunc = lambda x: ss.add_bivariate_noise(x, 0.05, prob=0.15)
+    if skip == 'y':
+        std1 = 0.05
+        nb_pts = 30
+        prob = 0.1
+        reg = 0.1
+    else:
+        print("Choisissez les valeurs suivantes :")
+        std1 = float(input("(flottant) Ecart type = "))
+        nb_pts = int(input("(entier) Nombre de points = "))
+        if stationnaire == 'n':
+            prob = float(input("(flottant) probabilité de saut = "))
+        else:
+            reg = float(input("(flottant [0,1]) régularité = "))
+    nfunc = lambda x: ss.add_bivariate_noise(x, std1)
 
     if stationnaire == 'y':
-        x, y, f, seed = ss.stationary_signal((30, ), 0.9, noise_func=nfunc, seed=seed)
+        x, y, f, seed = ss.stationary_signal((nb_pts, ), regularity=reg, noise_func=nfunc, seed=seed)
     else:
-        x, y, f, seed = ss.non_stationary_signal((30, ), switch_prob=0.1, noise_func=nfunc, seed=seed)
+        x, y, f, seed = ss.non_stationary_signal((nb_pts, ), switch_prob=prob, noise_func=nfunc, seed=seed)
 
     return x, y, f, None, False, seed
 

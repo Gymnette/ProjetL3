@@ -249,9 +249,9 @@ if __name__ == "__main__":
     nfunc = lambda x: add_bivariate_noise(x, 0.05, prob=0.15)
 
     # signal stationnaire bruité de 30 points et régularité à 0.9
-    x1, z1, f1 = stationary_signal((30, ), 0.9, noise_func=nfunc)
+    x1, z1, f1, seed = stationary_signal((30, ), 0.9, noise_func=nfunc)
     # signal stationnaire bruité de 30 points et régularité à 0.5
-    x2, z2, f2 = stationary_signal((30, ), 0.5, noise_func=nfunc)
+    x2, z2, f2, seed = stationary_signal((30, ), 0.5, noise_func=nfunc)
 
     # affichage
     xi = np.linspace(0, 1, 100)
@@ -269,9 +269,9 @@ if __name__ == "__main__":
     nfunc = lambda x: add_student_noise(x, 0.03)
 
     # signal non stationnaire bruité de 30 points
-    x1, z1, f1 = non_stationary_signal((30, ), switch_prob=0.1, noise_func=nfunc)
+    x1, z1, f1, seed = non_stationary_signal((30, ), switch_prob=0.1, noise_func=nfunc)
     # signal non stationnaire bruité de 30 points et probabilité de switch plus grande
-    x2, z2, f2 = non_stationary_signal((30, ), switch_prob=0.2, noise_func=nfunc)
+    x2, z2, f2, seed = non_stationary_signal((30, ), switch_prob=0.2, noise_func=nfunc)
 
     # affichage
     xi = np.linspace(0, 1, 100)
