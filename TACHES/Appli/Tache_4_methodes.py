@@ -9,6 +9,7 @@ Created on Tue Apr  7 14:29:18 2020
 import numpy as np
 import scipy.stats as stat
 from math import sqrt, floor
+import sys
 
 
 ####################
@@ -109,6 +110,72 @@ def voisinsI(x, y, a, b, k):
     return s / k
 
 
+def densite(x,d,f):
+    """
+    cette fonction prend un vecteur x et un intervalle [d,f],et renvoie la densité
+    des points sur l'intervalle[x[d],x[f]]
+    """
+    j = x[d:(f+1)]
+    return len(j)/abs(x[f]-x[d])
+
+
+def ind_int(x,d):
+    """
+    cette fonction prend un vecteur x et un entier d , et elle renvoie un entier i,
+    tel que la densité des points sur l'intervalle [x[d],x[i]] est maximale
+    """
+    n = len(x)
+    i =d+1
+    while(i < n-1 ):
+        ds1 = densite(x,d,i)
+        ds2 = densite(x,d,i+1)
+        if ds2 < ds1 :
+            return i
+        else:
+            i+=1
+    return n-1
+
+def ind_densite(x):
+    """
+    cette fonction prend un vecteur x et elle renvoie une liste des indices
+    des intervalles les plus denses
+    """
+    p = [0]
+    n = len(x)
+    i =0
+    while i < n-2 :
+        i = ind_int(x,i)
+        p.append(i)
+        if i == n-1 :
+            break
+    return p
+
+
+def regrouper(p,t=10):
+    """
+    cette fonction regroupe les intervalles de taille inferieure à t avec leurs voisins
+    """
+    i = 0
+    n = len(p)
+    while i < n-2:
+        if (p[i+1]-p[i]) < t :
+            p.pop(i+1)
+        else:
+            i+=1
+        n = len(p)
+    return p
+
+def esti_epsilon(y):
+        n = len(y)
+        d_yi = y[1:n]-y[0:n-1]
+        delta = abs(d_yi[1:n-1] - d_yi[0:n-2])
+
+        for i in range(len(delta)):
+            if test_Chauvenet(delta,i) == False :
+                list(delta).pop(i)
+
+
+        return sum(delta)/len(delta)
 
 
 def voisinsKi(x, i, k):
@@ -131,6 +198,8 @@ def voisinsKi(x, i, k):
         #except IndexError:
              #pass
     return s / k
+
+
 def KNN_inter(x, k):
     """
     Calculer pour chaque observation la distance au K plus proche voisin k-distance;
@@ -407,7 +476,7 @@ def KNN(x, y, k, m):
     n = len(y)
     if k >= n:
         print("le nombre de voisins à prendre en compte est supérieure à la taille des données")
-        exit(1)
+        sys.exit(1)
     x_ab = []
     y_ab = []
     x_nab = []
