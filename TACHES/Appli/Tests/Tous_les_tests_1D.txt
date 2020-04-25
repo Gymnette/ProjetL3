@@ -1,0 +1,10 @@
+data
+data2
+droite_environ_nulle_aberrant
+droite_environ_nulle_pasaberrant
+droite_identite
+droite_identite_environ_aberrant
+droite_identite_environ_pasaberrant
+droite_nulle_pasaberrant
+droite_nulle_un_aberrant
+test_tache_0

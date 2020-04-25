@@ -262,9 +262,14 @@ def LOESS(uk, zk, f = None, M = None):
     """
     LOESS
     """
-    M = eval_quartile
+    if M is None :
+        print("???")
+        M = eval_quartile
 
     rho = spllis.trouve_rho(zk) # trouve le paramètre de lissage optimal
+
+    if rho == 0:
+        rho = 0.001
 
     yd, v_poids, indices_aberrants = supprimeLOESS(zk, M)
     for i in range(len(indices_aberrants)):

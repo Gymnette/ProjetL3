@@ -262,11 +262,61 @@ def trouve_points_aberrants():
     ldt.affiche_separation()
 
     if sup_poids == "2":
-        x_ab, y_ab, y_esti = meth.LOESS(x, y, f, M)
 
-        plot.scatterdata(x, y, c='bx', legend='données',show=False) # affichage des points de l'échantillon
-        plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False,show=False) # affichage des points aberrants de l'échantillon
-        plot.scatterdata(x,y_esti, c='gx', legend='estimations', new_fig=False) # affichage des points aberrants de l'échantillon
+        D = {'1': ("Méthode interquartile", meth.eval_quartile),
+             '2': ("Test de Chauvenet", meth.test_Chauvenet),
+             '3': ("Méthode de Tau Thompson", meth.thompson),
+             '4': ("Test de Grubbs", meth.grubbs),
+             '5': ("Test de la déviation extreme de student", meth.deviation_extreme_student),
+             '6': ("Test des k plus proches voisins", meth.KNN)}
+
+        if is_array:
+
+            x_ab = []
+            y_ab = []
+            y_esti = []
+
+            for i, xi in enumerate(x):
+                if M is None:
+                    ldt.affiche_separation()
+                    print("Choisissez une méthode de traitement des points aberrants :")
+                    print("1 : Inter-Quartile")
+                    print("2 : Test de Chauvenet")
+                    print("3 : Test de Tau Thompson")
+                    print("4 : Test de Grubbs")
+                    print("5 : Test de la deviation extreme de Student")
+                    print("6 : Test des k plus proches voisins ")
+
+                    M_int = ldt.input_choice(['1', '2', '3', '4', '5', '6'])
+                    lab, Mi = D[M_int]
+                else:
+                    lab, Mi = D[M]
+                x_abi, y_abi, y_estii = meth.LOESS(xi, y[i], f, Mi)
+                x_ab.append(x_abi)
+                y_ab.append(y_abi)
+                y_esti.append(y_estii)
+                plot.scatterdata(xi, y[i], c='bx', legend='données',show=False) # affichage des points de l'échantillon
+                plot.scatterdata(x_abi, y_abi, c='rx', legend='données aberrantes', new_fig=False,show=False) # affichage des points aberrants de l'échantillon
+                plot.scatterdata(xi,y_estii, c='gx', legend='estimations', new_fig=False) # affichage des points aberrants de l'échantillon
+
+        else:
+
+            ldt.affiche_separation()
+            print("Choisissez une méthode de traitement des points aberrants :")
+            print("1 : Inter-Quartile")
+            print("2 : Test de Chauvenet")
+            print("3 : Test de Tau Thompson")
+            print("4 : Test de Grubbs")
+            print("5 : Test de la deviation extreme de Student")
+            print("6 : Test des k plus proches voisins ")
+
+            M = ldt.input_choice(['1', '2', '3', '4', '5', '6'])
+            lab, Mi = D[M]
+            x_ab, y_ab, y_esti = meth.LOESS(x, y, f, Mi)
+
+            plot.scatterdata(x, y, c='bx', legend='données',show=False) # affichage des points de l'échantillon
+            plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False,show=False) # affichage des points aberrants de l'échantillon
+            plot.scatterdata(x,y_esti, c='gx', legend='estimations', new_fig=False) # affichage des points aberrants de l'échantillon
 
         return x, y_esti, f, is_array
     else :
