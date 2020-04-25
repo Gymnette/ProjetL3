@@ -263,7 +263,7 @@ def test_fichier(U, Z, f=None, mode=None):
     print("Spline créée !")
     ldt.affiche_separation()
 
-def creation_spline_naturelle(x=None, y=None, f=None, is_array=False):
+def creation_spline_naturelle(x=None, y=None, f=None, is_array=False, seed=None):
 
     print("\nCreation de la spline naturelle interpolant chaque point donne.\n")
 

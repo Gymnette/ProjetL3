@@ -10,6 +10,9 @@ import numpy as np
 import scipy.stats as stat
 from math import sqrt, floor
 import sys
+from scipy import linalg
+
+import splines_de_lissage as spllis
 
 
 ####################
@@ -224,6 +227,140 @@ def isIN(x, i):
 #############################################
 # Méthodes de détection de points aberrants #
 #############################################
+
+def poids_faibles(x, y,v_poids,rho):
+
+    """
+    Création du vecteur y_estimated depuis y, où ses valeurs sont estimées par le poid respectif de chacune
+
+    Intput :
+        uk,zk : vecteurs de float de l'échantillon étudié
+        v_poids : vecteur de float, poids des valeurs de l'échantillon
+    Output :
+        y_estimated :  vecteurs de float(valeurs en y) de l'échantillon étudié, estimés par la méthode LOESS.
+    """
+
+    n = len(x)
+    y_estimated = np.zeros(n)
+
+
+    w = np.array([np.exp(- (x - x[i])**2/(2*rho))*v_poids[i] for i in range(n)])  #initialise tous les poids
+
+    for i in range(n): #Calcule la nouvelle coordonnée de tout point
+        weights = w[:, i]
+        b = np.array([np.sum(weights * y), np.sum(weights * y * x)])
+        A = np.array([[np.sum(weights), np.sum(weights * x)],
+                      [np.sum(weights * x), np.sum(weights * x * x)]])
+        Theta = linalg.solve(A, b)
+        y_estimated[i] = Theta[0] + Theta[1] * x[i]
+
+
+    return y_estimated
+
+
+def LOESS(uk, zk, f = None, M = None):
+    """
+    LOESS
+    """
+    M = eval_quartile
+
+    rho = spllis.trouve_rho(zk) # trouve le paramètre de lissage optimal
+
+    yd, v_poids, indices_aberrants = supprimeLOESS(zk, M)
+    for i in range(len(indices_aberrants)):
+        v_poids[indices_aberrants[i]] = 0.1
+
+    y_estimated_aberrants = poids_faibles(uk, zk,v_poids,rho) #estimons les nouvelles ordonnées des points de notre échantillon
+
+    x_aberrantes = []
+    y_aberrantes = []
+
+    for i in range(len(indices_aberrants)):
+        x_aberrantes = np.append(x_aberrantes,uk[indices_aberrants[i]])
+        y_aberrantes = np.append(y_aberrantes,zk[indices_aberrants[i]])
+
+    return x_aberrantes, y_aberrantes, y_estimated_aberrants
+
+def supprimeLOESS(x, methode, sup_poids=True, poids=1 / 100,k=7,m=25):  # A AJOUTER (AMELYS) : OPTIONS DES METHODES
+    """
+    Parcours toutes les valeurs de x afin de toutes les traiter.
+    La fonction supprime prend un vecteur x d'ordonnées de points, une methode de
+    detection des points aberrants, un booléen sup_poids égal à True si on veut supprimer
+    les points aberrants, et égal à False si on veut affecter le poids "poids" aux points
+    aberrants et un poids = 1 aux points considérés comme adaptés.
+    Elle renvoie une liste d'ordonnées ne contenant pas celles supprimées,
+    une liste de poids, ainsi qu'une liste des indices dans le vecteur des valeurs supprimées.
+
+    type des entrees :
+        x : vecteur de float ou vecteur d'int
+        methode : fonction :vecteur de float ou vecteur d'int -> (float,float)
+        sup_poids : booleen
+        poids : float
+
+    type des sorties : tuple (x_sup,v_poids,indices)
+        x_sup : vecteur de float ou vecteur d'int
+        v_poids : vecteur de float
+        indices : vecteur d'int
+    """
+    n = len(x)
+    x_sup = list(x)
+    v_poids = [1] * n
+    indices = []
+
+    if methode == eval_quartile:
+        a, b = quartile(x)
+
+    if methode == grubbs:
+        res, ind = grubbs(x)
+        x_cpy = list(x)
+        while (ind >= 0 and res):  # Un point aberrant a été trouvé de manière "classique".
+            ind_reel = calcul_reel(ind, indices)
+            indices.append(ind_reel)
+            if sup_poids:
+                x_sup[ind_reel] = None
+            else:
+                v_poids[ind_reel] = poids
+
+            x_cpy.pop(ind)  # c'est bien ici le relatif
+            res, ind = grubbs(x_cpy)
+        # Si c'est res qui est faux, pas de soucis, on a notre résultat.
+        # Si l'indice est négatif, le résultat sera faux, donc c'est bon, pas de point aberrant détecté.
+    elif methode == deviation_extreme_student:
+        est_aberrant = methode(x)
+        for i in range(n):
+            if est_aberrant[i]:
+                indices.append(i)
+                if sup_poids:
+                    x_sup[i] = None
+                else:
+                    v_poids[i] = poids
+
+    else:
+
+        for i in range(n):
+            aberrant = False
+            if methode == test_Chauvenet or methode == thompson:
+                if methode(x, i):
+                    aberrant = True
+            elif methode == KNN :
+                if KNN(x,i,k,m):
+                    aberrant = True
+            else:  # methode == eval_quartile:
+                if eval_quartile(x, i, a, b):
+                    aberrant = True
+
+            if aberrant:
+                indices.append(i)
+                if sup_poids:
+                    x_sup[i] = None
+                else:
+                    v_poids[i] = poids
+
+    while None in x_sup:
+        x_sup.remove(None)
+
+    return x_sup, v_poids, indices
+
 
 def quartile(x, coeff=0.01):
     """

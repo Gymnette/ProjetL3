@@ -236,6 +236,7 @@ def tester(x, y, f = None, M_int = None, locglob='1'):
     plot.show()
     return X, Y
 
+
 def trouve_points_aberrants():
 
     D_meth = {"1": "Inter-Quartile",
@@ -253,21 +254,38 @@ def trouve_points_aberrants():
         print("Graine pour la génération du signal : ", seed)
         ldt.affiche_separation()
 
-    if is_array:
-        Xtab = []
-        Ytab = []
-        for i, exi in enumerate(x):
-            X, Y = tester(exi, y[i], f, M)
-            Xtab.append(X)
-            Ytab.append(Y)
+    ldt.affiche_separation()
+    print("Supprimer les points aberrants ou les modifier ?\n")
+    print("1 : Supprimer")
+    print("2 : Modifier")
+    sup_poids = ldt.input_choice(['1','2'])
+    ldt.affiche_separation()
 
-    else:
-        ldt.affiche_separation()
-        print("Choisir la portee de traitement des donnees :")
-        print('1 : Local')
-        print('2 : Global')
-        locglob = ldt.input_choice(['1','2'])
-        Xtab, Ytab = tester(x, y, f, M, locglob)
+    if sup_poids == "2":
+        x_ab, y_ab, y_esti = meth.LOESS(x, y, f, M)
+
+        plot.scatterdata(x, y, c='bx', legend='données',show=False) # affichage des points de l'échantillon
+        plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False,show=False) # affichage des points aberrants de l'échantillon
+        plot.scatterdata(x,y_esti, c='gx', legend='estimations', new_fig=False) # affichage des points aberrants de l'échantillon
+
+        return x, y_esti, f, is_array
+    else :
+
+        if is_array:
+            Xtab = []
+            Ytab = []
+            for i, exi in enumerate(x):
+                X, Y = tester(exi, y[i], f, M)
+                Xtab.append(X)
+                Ytab.append(Y)
+
+        else:
+            ldt.affiche_separation()
+            print("Choisir la portee de traitement des donnees :")
+            print('1 : Local')
+            print('2 : Global')
+            locglob = ldt.input_choice(['1','2'])
+            Xtab, Ytab = tester(x, y, f, M, locglob)
 
 
     return Xtab, Ytab, f, is_array
