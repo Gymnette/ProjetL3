@@ -598,20 +598,20 @@ def Lancer_Ransac():
             print("\nChoix automatique du paramètre de lissage ? (y = oui, n = non)")
             rho_auto = ldt.input_choice()
             if rho_auto == 'n':
-                rho = spllis.choisir_rho([], 'n')
+                rho = spllis.choisir_rho([],[], 'n')
 
         Xtab = []
         Ytab = []
         for i in range(len(x)):
             if rho_fixe == 'n':
-                rho = spllis.trouve_rho(y[i])
+                rho = spllis.trouve_rho(x[i],y[i])
                 print("\nLe paramètre de lissage automatique serait : ", rho)
                 print("Choisir ce paramètre de lissage ? (y = oui, n = non)")
                 rho_auto = ldt.input_choice()
-                rho = spllis.choisir_rho(y[i], rho_auto)
+                rho = spllis.choisir_rho(x[i],y[i], rho_auto)
             else:
                 if rho_auto == 'y':
-                    rho = spllis.choisir_rho(y[i])
+                    rho = spllis.choisir_rho(x[i],y[i])
             X, Y = Faire_Ransac(x, y, rho, f, M)
             Xtab.append(X)
             Ytab.append(Y)
@@ -619,11 +619,11 @@ def Lancer_Ransac():
     else:
         M = ldt.charge_methodes(D_meth, True)
         ldt.affiche_separation()
-        rho = spllis.trouve_rho(y)
+        rho = spllis.trouve_rho(x,y)
         print("\nLe paramètre de lissage automatique serait : ", rho)
         print("Choisir ce paramètre de lissage ? (y = oui, n = non)")
         rho_auto = ldt.input_choice()
-        rho = spllis.choisir_rho(y, rho_auto)
+        rho = spllis.choisir_rho(x,y, rho_auto)
         Xtab, Ytab = Faire_Ransac(x, y, rho, f, M)
 
     if seed is not None:

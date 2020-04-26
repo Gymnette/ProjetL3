@@ -12,8 +12,8 @@ import sys
 
 import numpy as np
 import matplotlib.pyplot as plt
-from statsmodels.tsa.holtwinters import SimpleExpSmoothing
-
+from sklearn.model_selection import GridSearchCV
+from sklearn.neighbors import KernelDensity
 import load_tests as ldt
 import plotingv2 as plot
 
@@ -403,13 +403,22 @@ def presence_intervalle_vide(xi, uk):
     return False
 
 
-def trouve_rho(y):
+def trouve_rho(x,y):
     """
     trouve rho ideal
     """
-    model = SimpleExpSmoothing(y) # crée la classe
-    model_fit = model.fit() # met en forme le modèle
-    rho = 1.0 - model_fit.model.params['smoothing_level']# trouve la valeur optimale
+    if len(x) >= 20:
+        fold = 20
+    else:
+        fold = len(x)
+    
+    grid = GridSearchCV(KernelDensity(),
+                    {'bandwidth': x},
+                    cv=fold) # 20-fold cross-validation
+    grid.fit(y[:, None])
+
+    rho =  grid.best_params_['bandwidth']
+    
     return rho
 
 
@@ -488,7 +497,7 @@ def test_fichier(n, uk, zk, f=None, mode=None, aff_n=None, rho=1):
     ldt.affiche_separation()
     return xx, yy
 
-def choisir_rho(zk, rho_auto='y'):
+def choisir_rho(uk,zk, rho_auto='y'):
     """
     Demande à l'utilisateur de choisir un rho'
     rho est le paramètre de lissage qui contrôle le compromis entre
@@ -496,7 +505,7 @@ def choisir_rho(zk, rho_auto='y'):
 
     """
     if rho_auto == 'y':
-        rho = trouve_rho(zk)
+        rho = trouve_rho(uk,zk)
     else:
         ldt.affiche_separation()
         print("\nChoisissez un paramètre de lissage :")
@@ -577,7 +586,7 @@ def creation_spline_lissage(x=None, y=None, f=None, is_array=False):
             print("\nChoix automatique du paramètre de lissage ? (y = oui, n = non)")
             rho_auto = ldt.input_choice()
             if rho_auto == 'n':
-                rho = choisir_rho([], 'n')
+                rho = choisir_rho([],[], 'n')
 
         if M == '4':
             n_fixe = 'y'
@@ -599,14 +608,14 @@ def creation_spline_lissage(x=None, y=None, f=None, is_array=False):
         for i, e in enumerate(x):
             print("Fichier ", i + 1, "\nNombre de points : ", len(e))
             if rho_fixe == 'n':
-                rho = trouve_rho(y[i])
+                rho = trouve_rho(x[i],y[i])
                 print("\nLe paramètre de lissage automatique serait : ", rho)
                 print("Choisir ce paramètre de lissage ? (y = oui, n = non)")
                 rho_auto = ldt.input_choice()
-                rho = choisir_rho(y[i], rho_auto)
+                rho = choisir_rho(x[i],y[i], rho_auto)
             else:
                 if rho_auto == 'y':
-                    rho = choisir_rho(y[i])
+                    rho = choisir_rho(x[i],y[i])
             if n_fixe == 'n':
                 n = choisir_n()
                 print("\nAfficher les noeuds ? (y = oui, n = non)")
@@ -615,11 +624,11 @@ def creation_spline_lissage(x=None, y=None, f=None, is_array=False):
     else:
 
         ldt.affiche_separation()
-        rho = trouve_rho(y)
+        rho = trouve_rho(x,y)
         print("\nLe paramètre de lissage automatique serait : ", rho)
         print("Choisir ce paramètre de lissage ? (y = oui, n = non)")
         rho_auto = ldt.input_choice()
-        rho = choisir_rho(y, rho_auto)
+        rho = choisir_rho(x,y, rho_auto)
         ldt.affiche_separation()
         print("\nChoisissez le mode de traitement des données :")
         for key in D_meth.keys():

@@ -266,16 +266,15 @@ def LOESS(uk, zk, f = None, M = None):
         print("???")
         M = eval_quartile
 
-    rho = spllis.trouve_rho(zk) # trouve le paramètre de lissage optimal
+    rho = spllis.trouve_rho(uk,zk) # trouve le paramètre de lissage optimal
 
-    if rho == 0:
-        rho = 0.001
+
 
     yd, v_poids, indices_aberrants = supprimeLOESS(zk, M)
     for i in range(len(indices_aberrants)):
-        v_poids[indices_aberrants[i]] = 0.1
+        v_poids[indices_aberrants[i]] = 1/len(uk)
 
-    y_estimated_aberrants = poids_faibles(uk, zk,v_poids,rho) #estimons les nouvelles ordonnées des points de notre échantillon
+    y_estimated = poids_faibles(uk, zk,v_poids,rho) #estimons les nouvelles ordonnées des points de notre échantillon
 
     x_aberrantes = []
     y_aberrantes = []
@@ -284,7 +283,7 @@ def LOESS(uk, zk, f = None, M = None):
         x_aberrantes = np.append(x_aberrantes,uk[indices_aberrants[i]])
         y_aberrantes = np.append(y_aberrantes,zk[indices_aberrants[i]])
 
-    return x_aberrantes, y_aberrantes, y_estimated_aberrants
+    return x_aberrantes, y_aberrantes, y_estimated
 
 def supprimeLOESS(x, methode, sup_poids=True, poids=1 / 100,k=7,m=25):  # A AJOUTER (AMELYS) : OPTIONS DES METHODES
     """
