@@ -272,7 +272,7 @@ def LOESS(uk, zk, f = None, M = None):
 
     yd, v_poids, indices_aberrants = supprimeLOESS(zk, M)
     for i in range(len(indices_aberrants)):
-        v_poids[indices_aberrants[i]] = 1/len(uk)
+        v_poids[indices_aberrants[i]] = 1/3
 
     y_estimated = poids_faibles(uk, zk,v_poids,rho) #estimons les nouvelles ordonnées des points de notre échantillon
 
