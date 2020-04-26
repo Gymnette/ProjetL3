@@ -185,7 +185,7 @@ def calcul_Spline_NU(X, Y, a, b, n):
 
     return xres, yres
 
-def calcul_Spline_lissage(uk, zk, a, b, n, rho, mode='1'):
+def calcul_Spline_lissage(uk, zk, a, b, n, rho, mode=None):
     """
     Cette fonction calcule la spline de lissage des données uk zk sur l'intervalle [a,b].
     Elle considère n noeuds, répartis selon Chevyshev.
@@ -211,18 +211,22 @@ def calcul_Spline_lissage(uk, zk, a, b, n, rho, mode='1'):
     if mode is None:
         ldt.affiche_separation()
         print("\nEntrez le mode de traitement du fichier :")
-        print("1. repartition uniforme des noeuds")
-        print("2. repartition de Chebichev")
-        print("3. repartition aléatoire")
-        mode = ldt.input_choice(['1', '2', '3'])
+        print("1 : Repartition uniforme des noeuds")
+        print("2 : Repartition de Chebichev")
+        print("3 : Repartition aléatoire")
+        print("4 : Repartition optimale")
+        mode = ldt.input_choice(['1', '2', '3','4'])
 
     if mode == '1':
         xi = np.linspace(a, b, n)
     elif mode == '2':
         xi = splnat.Repartition_chebyshev(a, b, n)
-    else:
+    elif mode == '3':
         #Test sur une repartition des noeuds aleatoire
         xi = splnat.Repartition_aleatoire(a, b, n)
+    else:
+        xi = spllis.Repartition_optimale(uk)
+        n = len(xi)
 
     if spllis.presence_intervalle_vide(xi, uk):
         ldt.affiche_separation()
@@ -293,87 +297,7 @@ def calcul_Spline_para(x, y):
 # Nombre minimal de points ? Essai avec 3.
 # Interpolation à chaque étape (et non approximation)
 
-def ransac(x, y, nbitermax, err, dist, nbcorrect, nbpoints, rho):
-    """
-    Application de l'algorithme de Ransac avec un modèle de splines cubiques
-    Une approximation aux moindres carrés est effectuée à la fin.
-    On a besoin des données, du nombre maximum d'itérations,
-    de l'erreur maximum acceptée entre un point et la spline, de la fonction distance associée,
-    du nombre de points nécessaires pour qu'un modèle soit considéré comme correct,
-    du nombre de points pour créer la spline d'essai,
-    et du paramètre de lissage
-    xres et yres représentent la spline qui interpole au mieux les données d'après RANSAC
-
-    Type entrées :
-        x : vecteur de float
-        y : vecteur de float
-        nbitermax : int
-        err : float
-        dist : function : (float,float)x(float,float) -> float
-        nbcorrect : int
-        nbpoints : int
-    Type sorties :
-        xres : vecteur de float
-        yres : vecteur de float
-    """
-    a = min(x)
-    b = max(x)
-
-    # Sauvegarde du meilleur modèle trouvé et de l'erreur associé
-    xmod = None
-    ymod = None
-    errmod = - 1
-
-    for _ in range(nbitermax):
-        # Choix d'un échantillon
-        i_points = alea(len(x), nbpoints)
-        x_selec = []
-        y_selec = []
-        for e in i_points:
-            x_selec.append(x[e])
-            y_selec.append(y[e])
-
-        # Création de la courbe à partir de l'échantillon
-        x_selec, y_selec = ldt.sortpoints(x_selec, y_selec)
-        xres, yres = calcul_Spline_NU(x_selec, y_selec, a, b, nbpoints)
-
-        #plt.plot(x, y, "or")
-        #plt.plot(x_selec, y_selec, "og")
-
-        # Calcul des erreurs
-        liste_inlier = list(i_points)
-        for i, e in enumerate(x):
-            if i in i_points:
-                # Inutile de calculer dans ce cas là, déjà compté
-                continue
-            i_associe = trouver_ind(e, xres)
-            if dist(e, y[i], xres[i_associe], yres[i_associe]) <= err:
-                liste_inlier.append(i)
-                #plt.plot(x[i], y[i], "bo")
-
-        if len(liste_inlier) >= nbcorrect:
-            # Le modèle semble ne contenir que des inlier !
-            # On calcule la spline de lissage correspondante, avec l'erreur.
-            # On garde la spline de lissage ayant l'erreur la plus petite.
-
-            x_pour_spline = []
-            y_pour_spline = []
-            for e in liste_inlier:
-                x_pour_spline.append(x[e])
-                y_pour_spline.append(y[e])
-            x_pour_spline, y_pour_spline = ldt.sortpoints(x_pour_spline, y_pour_spline)
-            xtemp, ytemp = calcul_Spline_lissage(x_pour_spline, y_pour_spline, a, b, nbpoints, rho)
-            err_temp = 0
-            for i, e in enumerate(x_pour_spline):
-                i_associe = trouver_ind(x_pour_spline[i], xtemp)
-                err_temp += dist(x_pour_spline[i], y_pour_spline[i], xtemp[i_associe], ytemp[i_associe])
-            if errmod == - 1 or err_temp < errmod:
-                errmod = err_temp
-                xmod = list(xtemp)
-                ymod = list(ytemp)
-    return xmod, ymod
-
-def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False):
+def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False,mode=None):
     """
     Automatisation de l'algorithme de Ransac avec un modèle de splines cubiques :
     le calcul de la proportion de points aberrants (outlier) ou non (inlier)
@@ -486,7 +410,7 @@ def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False):
             if para:
                 xtemp, ytemp = calcul_Spline_para(x_pour_spline, y_pour_spline)
             else:
-                xtemp, ytemp = calcul_Spline_lissage(x_pour_spline, y_pour_spline, a, b, nbpoints, rho)
+                xtemp, ytemp = calcul_Spline_lissage(x_pour_spline, y_pour_spline, a, b, nbpoints, rho, mode)
 
             err_temp = - 1
             if para:
@@ -560,11 +484,22 @@ def Faire_Ransac(x, y, rho, f=None, para='1'):
     else:
         parabool = True
 
-    nconsidere = len(x) // 2
-    xres, yres = ransac_auto(x, y, 0.5, d_euclidienne, nconsidere, rho, parabool)
+    ldt.affiche_separation()
+    print("\nEntrez le mode de traitement du fichier :")
+    print("1 : Repartition uniforme des noeuds")
+    print("2 : Repartition de Chebichev")
+    print("3 : Repartition aléatoire")
+    print("4 : Repartition optimale")
+    mode = ldt.input_choice(['1', '2', '3','4'])
+
+    if mode == '4':
+        nconsidere = len(spllis.Repartition_optimale(x))
+    else:
+        nconsidere = spllis.choisir_n()
+    xres, yres = ransac_auto(x, y, 0.5, d_euclidienne, nconsidere, rho, parabool, mode=mode)
     plt.plot(xres, yres, "r")
 
-    xreel, yreel = calcul_Spline_lissage(x, y, min(x), max(x), len(x), rho)
+    xreel, yreel = calcul_Spline_lissage(x, y, min(x), max(x), len(x), rho, mode)
     if f is not None:
         xi = np.linspace(0, 1, 100)
         plot.plot1d1d(xi, f(xi), new_fig=False, c='g')
