@@ -13,6 +13,7 @@ import splines_naturelles as splnat
 import splines_de_lissage as spllis
 import Tache_4_Detection_donnes_aberrantes as ptsabe
 import RANSAC as rs
+import intuitive
 
 if __name__ == '__main__':
 
@@ -21,7 +22,8 @@ if __name__ == '__main__':
          '2': ("Création d'une Spline de lissage", spllis.creation_spline_lissage),
          '3': ('Gestionnaire de points aberrants avant création des splines',
                ptsabe.trouve_points_aberrants),
-         '4': ("Algorithme de RanSac", rs.Lancer_Ransac)}
+         '4': ("Algorithme de RanSac", rs.Lancer_Ransac),
+         '5': ("Méthode Intuitive",intuitive.Lancer_intuitive)}
 
     #Menu principal
     ldt.affiche_separation()
