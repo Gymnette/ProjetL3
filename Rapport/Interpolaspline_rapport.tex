@@ -17,7 +17,8 @@
 \usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry} %Marges
 \usepackage{float} %Pour image (H)
 \usepackage{subcaption}
-
+\usepackage[backend=biber,sorting=none]{biblatex} %Bibliographie
+\addbibresource{Bibliographie.bib}
 % numérotation et mise en titre des paragraphes et subparagraphes
 \setcounter{secnumdepth}{6}
 \renewcommand\theparagraph{\Alph{paragraph}}
@@ -74,14 +75,14 @@
 		\subsection{Splines}
 		    Nous allons, pour étudier la gestion des valeurs aberrantes, générer des valeurs et essayer de les interpoler ou de les approximer par une fonction (possédant certaines propriétés, comme la continuité). Cette fonction sera une spline, nous définirons ce terme plus loin dans le rapport.\\
 		    
-			 La différence entre l'interpolation et l'approximation mérite d'être expliquée : l'interpolation est la construction d'une fonction qui passe par toutes nos données, tandis que la fonction construite par approximation ne passera pas forcement par tous nos points mais fera au mieux (cette seconde option est privilégiée en présence d'un nuage de points). Les figures suivantes illustrent la différence entre interpolation et approximation.
+			 La différence entre l'interpolation et l'approximation mérite d'être expliquée : l'interpolation est la construction d'une fonction qui passe par toutes nos données, tandis que la fonction construite par approximation ne passera pas forcement par tous nos points mais fera au mieux (cette seconde option est privilégiée en présence d'un nuage de points). Les figures suivantes illustrent la différence entre interpolation (Figure \ref{interp}) et approximation (Figure \ref{approx}).
 			 
 			  \begin{figure}[h]
                     \centering
                     \includegraphics[width=10cm]{Images/interpolation.png}
-                    \caption{Exemple d'interpolation sur un jeu de données quelconque}
+                    \caption{\label{interp}Exemple d'interpolation sur un jeu de données quelconque}
                     \includegraphics[width=10cm]{Images/approximation.png}
-                    \caption{Exemple d'approximation avec mêmes données}
+                    \caption{\label{approx}Exemple d'approximation avec mêmes données}
                 \end{figure}
 			 
 			 Cependant, l'interpolation et l'approximation ont un objectif commun : créer une fonction qui correspond le mieux possible aux données. C'est pourquoi nous allons nous permettre un abus de langage dans la suite de ce rapport : le terme interpolation sera le seul utilisé, même dans le cas d'approximation (pour les splines de lissage par exemple).
@@ -101,7 +102,7 @@
         Lors de cette semaine, nous avions conclu que Béryl serait notre chef de projet. Elle a veillé au mieux sur le bon déroulement de chaque tâche, et a facilité la communication au sein de l'équipe en plus de sa participation à certaines tâches.
     
         Le premier jour a permis à tout le monde de se remettre dans le sujet et de se plonger dans leurs tâches respectives. Pour la suite, ces trois semaines de développement et de recherche ont permis à chaque membre du groupe d'être responsable du bon fonctionnement d'une ou de plusieurs tâches. Notre approche avant ces trois semaines était que les tâches devaient se terminer dans les délais, fixés par nous-mêmes.
-        Mais nous nous sommes logiquement rendus compte qu'avec notre faible expérience dans l'organisation de travaux de groupes et les nombreux facteurs (humains et matériels) qui interviennent, la planification allait être remaniée maintes et maintes fois (nous pouvons voir entre les annexes num et num la différence entre la répartition des tâches originelle et finale).
+        Mais nous nous sommes logiquement rendus compte qu'avec notre faible expérience dans l'organisation de travaux de groupes et les nombreux facteurs (humains et matériels) qui interviennent, la planification allait être remaniée maintes et maintes fois : nous pouvons voir avec les annexes \ref{annexe2} et \ref{annexe3} la différence entre la répartition des tâches originelle et finale. La correspondance entre les numéros et les contenus se trouve à l'annexe \ref{annexe1}.
         
         Nous avons donc rapidement remarqué que la planification que nous avions faite de ce projet ne serait pas respectée. Mais grâce à notre communication, nous avons pu limiter les problèmes de dépendances des tâches et avancer correctement, de manière à effectuer le plus grand nombre possible de nos tâches avant la fin de ces trois semaines.\\
         
@@ -136,7 +137,7 @@
 		
 		\subsection{Splines cubiques $C^2$ naturelles}
 
-            Les splines cubiques sont composées de polynômes de degré trois. Nous allons uniquement considérer les splines $C^2$ dans ce projet. \\
+            Les splines cubiques sont composées de polynômes de degré trois. Nous allons uniquement considérer les splines cubiques $C^2$ dans ce projet. \\
             
             Soit $m$ le nombre de noeuds de la spline, ici confondus avec les données que l'on souhaite interpoler. Ils délimitent $m-1$ intervalles, et donc $m-1$ polynômes. Chaque polynôme de degré trois possède 4 inconnues, ce qui donne $4(m-1) = 4m - 4$ inconnues. Étudions maintenant les contraintes : 
             \begin{itemize}
@@ -151,7 +152,9 @@
             
             Pour avoir une unique spline cubique $C^2$ qui interpole les $m$ noeuds associés à un jeu de données, il ne faut plus avoir de degré de liberté. Une possibilité est de décréter les dérivées premières aux extrémités nulles : cela ajoute deux contraintes, ce qui enlève les deux degrés de liberté laissés par la définition des splines cubiques $C^2$. Lorsque c'est cette solution qui est choisie, la spline cubique $C^2$ recherchée est dite "naturelle".
             
-		\subsection{Splines cubiques $C^2$ de lissage}
+            Nous avons également implémenté les splines naturelles pour des données à deux dimensions. Nous l'avons fait avec la méthode intuitive, c'est à dire en créant une spline A pour les abscisses et une spline B pour les ordonnées, toutes les deux en fonction d'un paramètre t, puis en traçant la spline dont les abscisses sont les valeurs de A et les ordonnées sont les valeurs de B.
+            
+		\subsection{\label{partie_lissage}Splines cubiques $C^2$ de lissage}
 		
 		    Une spline de lissage permet de satisfaire un compromis entre la fidélité aux observations bruyantes et le lissage de la spline ajustée.
 		
@@ -229,33 +232,33 @@
     			Les tests ont été réalisés sur des cas précis et sur un jeu de cas aléatoires.
     
                 \begin{itemize}
-                \item[•] Cas d'une distribution uniforme : on trouve le même résultat qu'avec les matrices du cas uniforme. (Figure \ref{NUL1})
-                \item[•] Cas d'une distribution de Chebichev (explications dans le cours de CAO) (Figure \ref{NUL2})
-                \item[•] Cas aléatoires : On remarque comme attendu que si la distribution est trop chaotique, alors l'interpolation ne sera plus forcément optimisée. Cela dépend beaucoup des données. (Figures \ref{NUL3},\ref{NUL4})
+                \item[•] Cas d'une distribution uniforme : on trouve le même résultat qu'avec les matrices du cas uniforme. (Figure \ref{unif})
+                \item[•] Cas d'une distribution de Chebichev (plus d'explications dans le cours de CAO \cite{CAO_lissage}) (Figure \ref{chebi})
+                \item[•] Cas aléatoires : on remarque que si la distribution est trop chaotique, alors l'interpolation ne sera plus forcément optimisée. Cela dépend beaucoup des données. (Figures \ref{alea1} et \ref{alea2})
                 \end{itemize}
                 
                 \begin{figure}[H]
                 \begin{center}
                 \includegraphics[width=8cm]{Images/NUL_unif} 
                 \end{center}
-                \caption{Exemple sur une répartition uniforme}
-                \label{NUL1}
+                \caption{Spline de lissage avec une répartition uniforme}
+                \label{unif}
                 \end{figure}
                 
                 \begin{figure}[H]
                 \begin{center}
                 \includegraphics[width=8cm]{Images/NUL_Chebychev} 
                 \end{center}
-                \caption{Exemple sur une répartition de Chebichev}
-                \label{NUL2}
+                \caption{Spline de lissage avec une répartition de Chebichev}
+                \label{chebi}
                 \end{figure}
                 
                 \begin{figure}[H]
                 \begin{center}
                 \includegraphics[width=8cm]{Images/NUL_alea} 
                 \end{center}
-                \caption{Exemple sur une répartition aléatoire (1)}
-                \label{NUL3}
+                \caption{Spline de lissage avec une répartition aléatoire (1)}
+                \label{alea1}
                 \end{figure}
                 
                 
@@ -263,94 +266,118 @@
                 \begin{center}
                 \includegraphics[width=8cm]{Images/NUL_alea2} 
                 \end{center}
-                \caption{Exemple sur une répartition aléatoire (2)}
-                \label{NUL4}
+                \caption{Spline de lissage avec une autre répartition aléatoire (2)}
+                \label{alea2}
                 \end{figure}
                 
-
+            AJOUTER ICI UNE REPARTITION ALEATOIRE TRES FOIREUSE (ne pas oublier la référence)
+            
 			\subsubsection{Choix du paramètre de lissage}
-                Comme vu précédemment, il existe un paramètre de lissage $\rho$. Ce paramètre peut être vu comme un compromis entre la fidélité de la courbe aux données et la robustesse de l'interpolation. Un de nos objectifs porte sur le calcul automatique de ce paramètre par l'intermédiaire de notre application écrite en python.\\
+                Comme vu précédemment, il existe un paramètre de lissage $\rho$. Ce paramètre peut être vu comme un compromis entre la fidélité de la courbe aux données et la robustesse de l'interpolation. Il exerce une forte influence sur l'estimation, le lissage résultant. Un de nos objectifs porte sur le calcul automatique de ce paramètre par l'intermédiaire de notre application écrite en python.\\
                 
-                Après de nombreuses recherches sur une telle optimisation, nous avons conservé la méthode d'optimisation utilisée sur la tendance linéaire locale de Holt, appelée lissage exponentiel. 
-                Les méthodes de lissage exponentiel consistent en des moyennes pondérées des observations passée. Ce sont des méthodes de proximité, les poids se dégradant de façon exponentielle à mesure que les observations vieillissent. Autrement dit, plus l’observation est récente, plus le poids associé est élevé. 
-                Dans le cas de notre projet, le lissage étudié est le lissage exponentiel simple (SES, simple exponential smoothing). Cela signifie que l'on cherche à obtenir une valeur lissée en t pour la reporter tout simplement en t + 1.
+                Après de nombreuses recherches sur une telle optimisation, nous avons conservé la méthode d'optimisation utilisée pour l'estimation par noyau (KDE),problème fondamental de lissage des données, car plus proche de notre projet. 
                 
-                Ce  paramètre de lissage peut évidemment être choisi de manière subjective : par exemple en précisant sa valeur en fonction de l'expérience précédente. Cependant, une façon plus fiable et objective d’obtenir une valeur pour ce paramètre inconnu est de l'estimer à partir des données de l'échantillon. La méthode pour trouver ce paramètre est similaire à celle d'une estimation des coefficients d’un modèle de régression :  il faut minimiser la somme des résidus au carré. Cette minimisation est habituellement appelée «moindres carrés ». Soient $e_t=y_t - \hat{y}_{t|t-1}$ les résidus, pour $t=1,\dots,T$. Nous voulons trouver la valeur de $\rho$ qui minimise la somme des carrés de ces résidus :\\
-                $$\text{erreur} =\sum_{t=1}^T (y_t - \hat{y}_{t|t-1})^2
-                $$
-                Cependant, contrairement au cas de régression, cela implique un problème de minimisation des moindres carrés non linéaire.
-                Après plusieurs tentatives vaines d'implémenter une méthode répondant à ce besoin, nous utiliserons seulement  l'outil d’optimisation lié à la méthode de Holt, implémenté sous python. Ce choix permet de proposer a l'utilisateur un paramètre de lissage basé sur des fondements mathématiques, avant de le laisser décider s'il conserve ce paramètre ou s'il en choisit un autre.\\
+                L'estimation par noyau cherche la fonction de densité d'une variable aléatoire (voir une explication détaillée de cette méthode en source \cite{Estimation_par_noyau}).
                 
-                Notre méthode recherchant la minimisation des moindres carrés pondérés non linéaire, il est par conséquent difficile d'avoir un bon jugement sur le fonctionnement de notre méthode. On peut constater des exemples sur lesquels le choix du paramètre du lissage semble logique :
+                Pour comprendre, voyons l'équation suivante :
+                \[{\widehat{f}}_{\rho}(x)={\frac {1}{n}}\sum _{i=1}^{n}K_{\rho}(x-x_{i})={\frac {1}{n\rho}}\sum _{i=1}^{n}K{\Big (}{\frac {x-x_{i}}{\rho}}\Big )\]
                 
-                \begin{figure}[!htb]
-                \minipage{0.32\textwidth}
-                    \includegraphics[width=\linewidth]{Images/ExempleFonctionnel .png}
-                     \caption{Un premier exemple}\label{fig:Exemplefonctionnel}
-                \endminipage\hfill
-                    \minipage{0.32\textwidth}
-                    \includegraphics[width=\linewidth]{Images/ExempleFonctionnel 2.png}
-                     \caption{Un deuxième exemple où $\rho = 0 $}\label{fig:Exemplefonctionnel2}
-                \endminipage\hfill
-                \minipage{0.32\textwidth}%
-                    \includegraphics[width=\linewidth]{Images/ExempleFonctionnel 3.png}
-                    \caption{Un troisième exemple où $\rho = 1 $}\label{fig:Exemplefonctionnel3}
-                \endminipage
-                \end{figure}
+                 On a :
+                 \begin{itemize}
+                        \item   Un vecteur de coordonnées x, de taille n, considéré comme un échantillon tiré dune distribution dont la densité f est inconnue.
+                        \item 	Un noyau K correspondant à la fonction de densité standard.
+                        \item   Et enfin $\rho$ le paramètre de lissage (plus communément appelé "bandwidth").
+                \end{itemize}
                 
-                Autrement nous pouvons avoir des exemples où nous pouvons douter de la bonne valeur choisie par l'estimation automatique de $\rho$ :
+                C'est ce paramètre que nous cherchons. Il peut évidemment être choisi de manière subjective : par exemple en précisant sa valeur en fonction de l'expérience précédente. Cependant, une façon plus fiable et objective d’obtenir une valeur pour ce paramètre inconnu est de l'estimer à partir des données de l'échantillon.
+                
+                On peut illustrer l'importance de son optimisation avec la figure suivante :
+                
+                En gris, nous avons la densité réelle (qui s'apparente avec celle d'une densité normale dont la moyenne est 0 et la variance est 1). Pour le reste, nous avons 3 estimations de densité :
                 
                 \begin{figure}[H]
                 \begin{center}
-                \includegraphics[width=8cm]{Images/Exemple non fonctionnel.png} 
+                \includegraphics[width=8cm]{Images/IllustrationPara.png} 
                 \end{center}
-                \caption{Exemple d'un cas à priori non fonctionnel}
+                \caption{Illustration de différents paramètres de lissage}
                 \label{CasNonfonctionnel}
-                \end{figure} 
+                \end{figure}
                 
-                Plusieurs hypothèses peuvent en découler : Utilise-t-on mal l'implémentation python ? Est-ce nos splines crées à partir de notre cours de CAO, dans lequel le paramètre de lissage n'est pas compris entre 0 et 1, qui posent problème?
+                \begin{itemize}
+                        \item  Celle en rouge possède un paramètre de lissage h proche de 0 et donc essaye de passer par toutes les données de l'échantillon, mais cela induit qu'il considère toutes les fausses données.
+                        \item  Celle en vert obscurcit une grande partie de l'information avec un h grand
+                        \item  Tandis que celle en noir est considérée comme lissée de manière optimale car son estimation est proche de celle réelle.
+                \end{itemize}
+               
+                La méthode nous apprends qu'il y a plusieurs façons :
+                \begin{itemize}
+                        \item   La première, la plus générale, est de minimiser l'équation suivante, appelée MISE (mean integrated squared error) \cite{MISE} :
+                        \[\|{\widehat{f}}_{\rho}(x)-f\|_{2}^{2}=\operatorname \int ({\widehat{f}}_{\rho}(x)-f(x))^{2}dx\]
+                        \item 	La seconde est de supposer que l'échantillon est distribué selon une loi donnée. Comme dans nos cas, selon la loi normale. Alors d'après nos sources, on pourrait prendre : 
+                        \[ \rho=1,06\,{\widehat {\sigma }}\,n^{-1/5}\]
+                \end{itemize}
                 
-                Malgré tout, nous savons donc maintenant créer une spline de lissage de manière totalement automatique, mais celle-ci tient compte de toutes les données sans distinctions. La suite de ce compte rendu va illustrer les techniques d'identification des valeurs aberrantes, d'attribution de poids faibles, et de suppression, et va présenter des algorithmes d'interpolation robustes.
+                Après plusieurs tests, nous avons remarqué que nos paramètres de lissage était très similaire sur les deux façons de le calculer (différence des deux inférieur à $10^{-3}$). Nous avons donc décidé de garder le premier choix, plus général.
+                
+                Notre méthode recherche la minimisation des moindres carrés pondérés de façon non linéaire. Il est par conséquent difficile d'avoir un bon jugement sur le fonctionnement de notre méthode. En effet, sur les exemples \ref{fig:Exemplefonctionnel} et \ref{fig:Exemplefonctionnel2}  ci-dessous, le choix du paramètre du lissage semble logique. Cependant, pour l' exemple \ref{CasNonfonctionnel}, la valeur trouvée n'est pas celle qu'on pourrait attendre.
+
+                
+                \begin{figure}[H]
+                \minipage{0.32\textwidth}
+                    \includegraphics[width=\linewidth]{Images/ExempleFonctionnel .png}
+                     \caption{Spline de lissage quelconque}\label{fig:Exemplefonctionnel}
+                \endminipage\hfill
+                    \minipage{0.32\textwidth}
+                    \includegraphics[width=\linewidth]{Images/ExempleFonctionnel 3.png}
+                     \caption{Nuages de points comportant beaucoup de bruit ($\rho = 1)$ }\label{fig:Exemplefonctionnel2}
+                \endminipage\hfill
+                \minipage{0.32\textwidth}%
+                    \includegraphics[width=\linewidth]{Images/Exemple non fonctionnel.png}
+                    \caption{Cas semblant non optimal}\label{fig:ExempleNonfonctionnel1}
+                \endminipage
+                \end{figure}
+
+    
+                Nous avons tenté de trouver l'origine des possibles mauvaises estimations. La plus plausible serait l'intervalle dans lequel l'optimalité du paramètre de lissage est calculé : Dans notre cours de CAO \cite{CAO_lissage}, le paramètre de lissage est défini sur $\mathds{R}_{+}$. Or, l'estimation par noyau, pourtant consciente que $\rho$ peut avoir une valeur tendant vers l'infini, l'optimalité est calculée seulement sur l'intervalle ]0,1], faute de complexité de temps. Nous avons effectué d'autres recherches pour palier à ce problème. \\
+                D'autres moyens pour calculer ce paramètre existent. Mais soit le problème d'intervalle est le même (comme par exemple les méthodes de lissage exponentiel de Holt, consistant en des moyennes pondérées des observations passées \cite{Param_lissage}), soit la difficulté de son implémentation, car portant sur un problème de minimisation des moindres carrés non linéaire, est telle qu'elle n'a pas abouti en temps et en heure sur notre application python (voir pour illustration ce travail de thèse de Khadijetou El Heda portant sur cette optimisation \cite{Exemple_these}). \\
+            
+                Nous resterons donc sur cette méthode d'optimisation provenant estimation par noyau (KDE). 
+                Ce choix sera proposé à l'utilisateur un paramètre de lissage basé sur des fondements mathématiques, avant de lui laisser le choix  de conserver ce paramètre ou d'en en saisir un autre.\\
+                
+                 
+                Nous savons donc désormais créer une spline de lissage de façon automatique, cependant celle-ci tient compte de toutes les données sans distinctions. La suite de ce compte rendu va illustrer les techniques d'identification des valeurs aberrantes, d'attribution de poids faibles, et de suppression, et va présenter des algorithmes d'interpolation robustes.
 
 
 	\section{Données aberrantes}
 
-		\subsection{Les méthodes étudiées}
-		   	Il existe plusieurs méthodes différentes pour interpoler des données malgré des points aberrants. La méthode la plus intuitive est de tracer la spline, retirer les points trop éloignés de celle-ci et recommencer, jusqu'à ce que tous les points soient proches de la spline construite. En faisant des recherches, nous avons découvert deux autres approches : une approche en trois étapes (détection, traitement, construction de la spline), et une approche robuste. Différentes possibilités vont être évoquées dans ce rapport pour chacune de ces approches, après la partie décrivant la méthode intuitive.
+        Il existe plusieurs méthodes différentes pour interpoler des données malgré des points aberrants. La méthode la plus intuitive est de tracer la spline, retirer les points trop éloignés de celle-ci et recommencer, jusqu'à ce que tous les points soient proches de la spline construite. En faisant des recherches, nous avons découvert deux autres approches : une approche en trois étapes (détection, traitement, construction de la spline), et une approche robuste. Différentes possibilités vont être évoquées dans ce rapport pour chacune de ces approches, après la partie décrivant la méthode intuitive.
             
-			\subsubsection{Méthode intuitive}
+		\subsection{Méthode intuitive}
 			
 			   
-                Dans un premier temps, nous avons créé un algorithme qui, à partir d'un point et d'une courbe, renvoie la distance (euclidienne) du point à la courbe.
+            Dans un premier temps, nous avons créé un algorithme qui, à partir d'un point et d'une courbe, renvoie la distance (euclidienne) du point à la courbe.
                 
-                Ensuite, nous avons écrit et implémenté l'algorithme de comparaison de l'erreur au seuil d'erreur, donné en paramètre, qui permet de déterminer les points aberrants dans les données fournies, par rapport à une spline donnée.
+            Ensuite, nous avons écrit et implémenté l'algorithme de comparaison de l'erreur au seuil d'erreur, donné en paramètre, qui permet de déterminer les points aberrants dans les données fournies, par rapport à une spline donnée.
                 
-                Cela nous a alors permis de créer l'algorithme complet qui calcule une spline, trouve le point le plus éloigné de la courbe et le supprime des données si sa distance à la courbe est supérieure au seuil (ce qui veut dire qu'il est aberrant). On répète ces opérations jusqu'à ce que le point le plus éloigné ne soit plus détecté comme aberrant. La spline est recalculée après chaque suppression de point, car un point aberrant attirait la courbe vers lui inutilement.\\
+            Cela nous a alors permis de créer l'algorithme complet qui calcule une spline, trouve le point le plus éloigné de la courbe et le supprime des données si sa distance à la courbe est supérieure au seuil (ce qui veut dire qu'il est aberrant). On répète ces opérations jusqu'à ce que le point le plus éloigné ne soit plus détecté comme aberrant. La spline est recalculée après chaque suppression de point, car un point aberrant attirait la courbe vers lui inutilement.\\
                 
-                 Le seuil d'erreur à partir duquel une donnée est décrétée aberrante est très important : il doit être choisi avec soin en fonction des données, et conditionne la précision (et même la réussite) de cette méthode. Plus ce seuil est petit, plus le nombre de points considérés comme aberrants augmente, ce qui peut poser des problèmes de complexité, ou encore engendrer un résultat faux en éliminant des données nécessaires, qui ne sont pas aberrantes.
+             Le seuil d'erreur à partir duquel une donnée est décrétée aberrante est très important : il doit être choisi avec soin en fonction des données, et conditionne la précision (et même la réussite) de cette méthode. Plus ce seuil est petit, plus le nombre de points considérés comme aberrants augmente, ce qui peut poser des problèmes de complexité, ou encore engendrer un résultat faux en éliminant des données nécessaires, qui ne sont pas aberrantes.
                 
                 
-			\subsubsection{Traitement avant la création de la spline}
-			    Voici les étapes des algorithmes qui traitent les points aberrants avant de créer la spline :
-			    \begin{enumerate}
-                    \item Détection des points aberrants
-                    \item Traitement des points aberrants
-                    \item Calcul et représentation graphique de la spline
-			    \end{enumerate}
-			    
-				\paragraph{Winsorization}
-				    La Winsorization est une manière de traiter les points extrêmes, qui sont en général les points aberrants. Cette méthode effectue les étapes 1 et 2 de la création de la spline avec traitement préalable, ce qui veut dire qu'elle détecte et traite les points aberrants, mais ne construit pas la spline. Il suffit de construire la spline de lissage associée aux données modifiées par cette méthode, pour avoir l'interpolation des données malgré les points aberrants.\\
-				    
-				    Cet algorithme est plutôt intuitif : il récupère le pourcentage de valeurs données comme aberrantes et modifie les valeurs extrêmes. La modification est équitablement répartie entre les valeurs trop grandes et celles trop petites. La valeur affectée à ces points est la plus proche (la plus grande pour les valeurs trop grandes, la plus petite pour celles trop petites) qui n'est pas aberrante.\\
-				    
-                    Cet algorithme fonctionne également si le pourcentage donné est (un peu) trop grand. En effet, si les valeurs ne sont pas aberrantes, elles vont être proches des autres, et leur valeur ne sera donc que très peu modifiée.
-
-				\paragraph{Gestion des intervalles locaux}  
-    				Un problème s'est posé alors que l'on n'y avait pas pensé durant la planification des tâches : beaucoup de méthodes de détection supposent que la répartition des points suit une loi normale. Cela veut dire que les points doivent être proches (en ordonnées) les uns des autres. Pour cela, on doit découper les données à interpoler en plusieurs intervalles qui contiennent des points ayant presque la même valeurs (et éventuellement quelques points aberrants).
+		\subsection{Traitement avant la création de la spline}
+		    Voici les étapes des algorithmes qui traitent les points aberrants avant de créer la spline :
+		    \begin{enumerate}
+                \item Détection des points aberrants
+                \item Traitement des points aberrants
+                \item Calcul et représentation graphique de la spline
+		    \end{enumerate}
+			  
+		    \subsubsection{Gestion des intervalles locaux}  
+    			Un problème s'est posé alors que l'on n'y avait pas pensé durant la planification des tâches : beaucoup de méthodes de détection supposent que la répartition des points suit une loi normale. Cela veut dire que les points doivent être proches (en ordonnées) les uns des autres. Pour cela, on doit découper les données à interpoler en plusieurs intervalles qui contiennent des points ayant presque la même valeurs (et éventuellement quelques points aberrants).
     				
-    				En effet, si par exemple on prend la fonction identité discrétisée sur [0,10] avec un point aberrant (1,10), ce point ne sera pas détecté si l'on considère tous les points en même temps, car si celui-ci est décrété aberrant (car il se situe trop loin de la moyenne par exemple), alors (10,10) sera aussi considéré comme aberrant bien que ce ne soit pas le cas. 
+    			En effet, si par exemple on prend la fonction identité discrétisée sur [0,10] avec un point aberrant (1,10), ce point ne sera pas détecté si l'on considère tous les points en même temps, car si celui-ci est décrété aberrant (car il se situe trop loin de la moyenne par exemple), alors (10,10) sera aussi considéré comme aberrant bien que ce ne soit pas le cas. 
     				
-    				\begin{figure}[H]
+    			\begin{figure}[H]
                 \begin{center}
                 \includegraphics[width=8cm]{Images/illustration_exemple_local} 
                 \end{center}
@@ -358,14 +385,16 @@
                 \label{NUL3}
                 \end{figure}
     				
-    				Il faut donc trouver un moyen de séparer les points en groupes de points pas trop éloignés (excepté éventuellement les aberrants) afin de les étudier groupe par groupe.
+    			Il faut donc trouver un moyen de séparer les points en groupes de points pas trop éloignés (excepté éventuellement les aberrants) afin de les étudier groupe par groupe.
     				
     				
-				   Pour adapter une série de données en plusieurs petites séries qui semblent suivre une loi normale, nous avons développé deux méthodes. La première, intuitive, ne nous donnait pas satisfaction. C'est pourquoi nous avons cherché à penser d'une manière différente pour développer une seconde méthode, qui n'a rien donc rien à voir avec la première.
-				
-				    \subparagraph*{Méthode par pas}
-				    
-    				    Au départ nous avons considéré nos données (x,y) comme des points qui proviennent d'une fonction. Nous avons donc naturellement pensé à créer des intervalles en étudiant la variation de y en fonction de x.\\
+			   Pour adapter une série de données en plusieurs petites séries qui semblent suivre une loi normale, nous avons développé deux méthodes. La première, intuitive, ne nous donnait pas satisfaction. C'est pourquoi nous avons cherché à penser d'une manière différente pour développer une seconde méthode, qui n'a rien donc rien à voir avec la première.
+		
+		
+			    \paragraph{Méthodes de création d'intervalles}
+		            \subparagraph*{Méthode par pas}
+			    
+    			        Au départ nous avons considéré nos données (x,y) comme des points qui proviennent d'une fonction. Nous avons donc naturellement pensé à créer des intervalles en étudiant la variation de y en fonction de x.\\
     				    
     				    Soit $n$ le nombre de données.
                         Soient $dy_i=|y_{i+1}-y_i|$  et $\Delta y_j=|dy_{j+1}-dy_j|$,  avec  $0\le i < n$, $ 0 \le j< n-1$. Cette méthode fonctionne comme suit : on prend un intervalle $[y_d,…,y_f ]$ ($d,f \in \mathbf{N}, 0 \le d \le f < n$, $d = 0$ et $f = 1$ lors de l'appel initial) et on regarde si $\Delta y_{f-1}<\epsilon$.
@@ -373,10 +402,10 @@
                         \item 	Si $\Delta y_{f-1}<\epsilon$ on rajoute le point suivant à l'intervalle et on teste $\Delta y_f$, puis on continue récursivement
                         \item 	Sinon on ferme l'intervalle courant et on en commence un nouveau qui va contenir initialement deux éléments$[y_f,y_{f+1}]$ (sauf si on est à la fin de l'intervalle).
                         \end{itemize}
-                        Pour trouver le $\epsilon$ qui convient à chaque série des données, on a développé une fonction qui estime ce paramètre automatiquement. On commence par estimer le paramètre en fonction des données, puis on utilise la fonction de création d'intervalles à partir du $\epsilon$ trouvé, passé en argument.
+                        Pour trouver le $\epsilon$ qui convient à chaque série des données, nous avons développé une fonction qui estime ce paramètre automatiquement. Nous commençons par estimer le paramètre en fonction des données, puis nous utilisons la fonction de création d'intervalles à partir du $\epsilon$ trouvé, passés en argument.
                         
-				    \subparagraph*{Méthode par densité}
-    				    Cette méthode, contrairement à la première, considère les points comme des boules placées sur une barre. On a donc pensé à déterminer nos intervalles en fonction de la densité de ces boules sur la barre, c'est à dire en fonction de la densité des abscisses des points sur chaque intervalle.\\
+			        \subparagraph*{Méthode par densité}
+    				    Cette méthode, contrairement à la première, considère les points comme des boules placées sur une barre, sans considérer les ordonnées des données. Nous avons donc pensé à déterminer nos intervalles en fonction de la densité de ces boules sur la barre, c'est à dire en fonction de la densité des abscisses des points sur chaque intervalle.\\
     				    
                         Pour commencer nous avons considéré notre problème comme un problème de maximisation, c'est à dire comme la recherche d'une méthode qui nous permet de trouver des intervalles dont la densité est maximale.
                         
@@ -400,138 +429,140 @@
                         \item 	ind-densite\textbf{(x)}: cette fonction renvoie une liste de tous les intervalles de densité maximale
                         \end{itemize}
 				
-				    \subparagraph*{Regroupement d'intervalles}
+				    \paragraph{Regroupement d'intervalles}
 				        Les intervalles obtenus avec les méthodes précédentes donnent des fois de petits intervalles, sur lesquels certaines méthodes fonctionnent moins bien (en particulier les méthodes interquartile et la méthode des k voisins, qui nécessitent un nombre minimum de données pour renvoyer un résultat correct). Nous avons donc implémenté une fonction qui regroupe tous les intervalles de taille inférieure à un paramètre avec leurs voisins jusqu'à ce que la taille de tous les intervalles soit supérieure ou égale à ce paramètre. 
-				        
-				    
-				
 				
 
-				\paragraph{Méthodes de détection des points aberrants}
-    			    Dans cette partie, nous allons présenter plusieurs méthodes de détection de points aberrants. Elles nécessitent, pour certaines, des paramètres. Cela peut être un coefficient, un taux d'erreur... Ceux-ci sont à adapter manuellement à chaque exemple. Les estimer automatiquement serait possible, mais nous ne l'avons pas fait, nous en parlerons dans les tâches non réalisées(METTRE ICI LE BON TITRE DU 1 DE LA CONCLUSION), dans la conclusion du rapport.
+				\subsubsection{Méthodes de détection des points aberrants}
+    			    Dans cette partie, nous allons présenter plusieurs méthodes de détection de points aberrants. Elles nécessitent, pour certaines, des paramètres. Cela peut être un coefficient, un taux d'erreur... Ceux-ci sont à adapter manuellement à chaque exemple. Les estimer automatiquement serait possible, mais nous ne l'avons pas fait, par manque de temps.
                     
-					\subparagraph*{Méthode inter-quartiles}
+					\paragraph{Méthode inter-quartiles}
                         					
                        Cette méthode, comme son nom l'indique, détecte les points aberrants en utilisant le 1er et le 3e quartile. Cette méthode est aussi nommée méthode de la boîte à moustaches, ou encore méthode de la boîte de Tukey. \\
                        
-                       L'algorithme de cette méthode est implémenté en deux fonctions. La première fonction calcule dans un premier temps les premiers et troisièmes quartiles afin de récupérer l'écart inter-quartiles. Ensuite, elle construit et renvoie un intervalle de confiance , défini de la manière suivante, avec $Q1$ et $Q3$ les premier et troisième quartiles, $écart\_interquartile$ la distance entre $Q1$ et $Q3$ ($écart\_interquartile = Q3 - Q1$), et $coeff$ un certain coefficient valant en général $1.5$ : $[Q1 - coeff*(Q3 - Q1), Q3 +coeff*(Q3 - Q1 )]$.
+                       L'algorithme de cette méthode est implémenté en deux fonctions. La première fonction calcule dans un premier temps les premiers et troisièmes quartiles afin de récupérer l'écart inter-quartiles. Ensuite, elle construit et renvoie un intervalle de confiance , défini de la manière suivante, avec $Q1$ et $Q3$ les premier et troisième quartiles, $écart\_interquartile$ la distance entre $Q1$ et $Q3$ ($écart\_interquartile = Q3 - Q1$), et $coeff$ un certain coefficient : $[Q1 - coeff*(Q3 - Q1), Q3 +coeff*(Q3 - Q1 )]$.
                        
-                       Il faut fixer coeff correctement : s'il est trop grand, on ne détectera pas les points aberrants tandis que s'il est trop petit, des points seront déclarés aberrants alors qu'ils ne le sont pas.
+                       Il faut fixer $coeff$ correctement : s'il est trop grand, nous ne détecterons pas les points aberrants tandis que s'il est trop petit, des points seront déclarés aberrants alors qu'ils ne le sont pas. Beaucoup de sources (en particulier \cite{IQ1} et \cite{IQ2}) conseillent de fixer $coeff$ à 1.5, ce que nous faisons.\\
                        
-                       La seconde fonction renvoie vrai si et seulement si le point est aberrant, c'est à dire en dehors de l'intervalle calculé par la fonction précédente (cet intervalle est passé en paramètre).
+                       Le point est considéré comme aberrant si et seulement si il se situe dans cet intervalle.
                        
-                    \subparagraph*{Test Tau de Thompson}
-                    Le test de Thompson est un test statistique qui détecte les valeurs aberrantes parmi une série de valeurs. Ce test est considéré comme un des meilleurs critères de détection des valeurs aberrantes parce qu'il les détecte statistiquement en tenant compte de l'écart type et de la moyenne.\\
-                    
-                    
-                    Pour ce test on définit deux quantités : $\delta_x=\frac{x-\bar{x}}{s}$ et seuil $=\frac{t_{\alpha/2}*(n-1)}{\sqrt{n}*\sqrt{n-2+t^2_{\alpha/2}}}$
-                    \begin{itemize}
-                    \item $\bar{x}$ est la moyenne de la série de valeurs
-                    \item 	s est l'écart type de la série de valeurs
-                    \item 	x est la valeur testé e
-                    \item $\alpha$ est un paramètre que l'on fixe
-                    \item $t_{\alpha/2}$ est la valeur critique provenant de la loi de Student avec une probabilité égale à  $\alpha/2$ et n-1 degré de liberté 
-                    \item n est le nombre de valeurs 
-                    \end{itemize}
-                    Une valeur x est dite aberrante uniquement si $\delta_x$ est supérieur au seuil ou inférieur à l'opposé du seuil (-seuil).
+                    \paragraph{Test Tau de Thompson}
+                        Le test Tau de Thompson est un test statistique qui détecte les valeurs aberrantes parmi une série de valeurs. Ce test est considéré comme un des meilleurs critères de détection des valeurs aberrantes parce qu'il les détecte statistiquement en tenant compte de l'écart type et de la moyenne.\\
+                        
+                        
+                        Pour ce test on définit deux quantités : $\delta_x=\frac{x-\bar{x}}{s}$ et seuil $=\frac{t_{\alpha/2}*(n-1)}{\sqrt{n}*\sqrt{n-2+t^2_{\alpha/2}}}$
+                        \begin{itemize}
+                        \item $\bar{x}$ est la moyenne de la série de valeurs
+                        \item 	s est l'écart type de la série de valeurs
+                        \item 	x est la valeur testé e
+                        \item $\alpha$ est un paramètre que l'on fixe
+                        \item $t_{\alpha/2}$ est la valeur critique provenant de la loi de Student avec une probabilité égale à  $\alpha/2$ et n-1 degré de liberté 
+                        \item n est le nombre de valeurs 
+                        \end{itemize}
+                        Une valeur x est dite aberrante uniquement si $\delta_x$ est supérieur au seuil ou inférieur à l'opposé du seuil (-seuil).
 
-					\subparagraph*{Test de Chauvenet}
-                    					
-                    Cette méthode permet de détecter les données aberrantes parmi une série de données. Ce test  considère que les données étudiées suivent une loi normale de moyenne égale à la moyenne empirique et de variance égale à la variance empirique.\\
-                    
-                    Le principe de cette méthode est simple : pour chaque donnée testée $x_t$, on calcule la probabilité d'avoir une donnée qui s'écarte de plus de $|x_t-\bar{x}|$ de la moyenne et on la multiplie par la taille de l'échantillon n.\\
-                    	$N = n*P( |X-\bar{x}|>|x_t-\bar{x}|)$ avec $\bar{x}$ la moyenne empirique\\
-                    	Si N est inférieur à tau, on considère que la donnée testée est aberrante sinon on admet qu'elle ne l'est pas. Tau est un paramètre de la méthode. 
+					\paragraph{Test de Chauvenet}
+                        					
+                        Cette méthode permet de détecter les données aberrantes parmi une série de données. Ce test  considère que les données étudiées suivent une loi normale de moyenne égale à la moyenne empirique et de variance égale à la variance empirique.\\
+                        
+                        Le principe de cette méthode est simple : pour chaque donnée testée $x_t$, on calcule la probabilité d'avoir une donnée qui s'écarte de plus de $|x_t-\bar{x}|$ de la moyenne et on la multiplie par la taille de l'échantillon n.\\
+                        	$N = n*P( |X-\bar{x}|>|x_t-\bar{x}|)$ avec $\bar{x}$ la moyenne empirique\\
+                        	Si N est inférieur à tau, on considère que la donnée testée est aberrante sinon on admet qu'elle ne l'est pas. Tau est un paramètre de la méthode. 
                     					   
-					\subparagraph*{Test de Grubbs}
+					\paragraph{Test de Grubbs}
                         					
                         Cette méthode a été inventée par Frank E. Grubbs en 1969. Pour ce test, on n’étudie que la valeur extrême (celle dont la valeur absolue de l’écart à la moyenne est la plus grande). Si plusieurs existent, on peut itérer ce test plusieurs fois tant que l'on trouve des points aberrants, en retirant le point aberrant trouvé. \\
                         
                         L'algorithme fonctionne comme suit : la valeur extrême est récupérée, puis l'on compare ensuite $\frac{v_{extrême}-moyenne}{écart\_type}$ avec le seuil critique donné par le test de Grubbs : $G_{crit} = \frac{n-1}{\sqrt{n}}\sqrt{\frac{t^2_{\frac{\alpha}{n},n-2}}{n-2+t^2_{\frac{\alpha}{n},n-2}}}$, avec $n$ le nombre de données, $t_{a,b}$ le résultat de la fonction quantile de Student avec un seuil de conﬁance $a$ et $b$ degrés de liberté, et $\alpha$ l’erreur que l’on accepte. Si la première valeur est plus grande que le seuil, alors la méthode de Grubbs considère que le point extrême est aberrant.
                         
-                        $\alpha$ est un paramètre que nous décidons de passer à la fonction. Plus celui-ci est faible, plus la chance que les points détectés comme aberrants le soient réellement (mais dans ce cas, peu sont détectés, certains points pourtant aberrants peuvent ne pas être détectés)
+                        $\alpha$ est un paramètre que nous décidons de passer à la fonction. Plus celui-ci est faible, plus la chance que les points détectés comme aberrants le soient réellement (mais dans ce cas, peu sont détectés, certains points pourtant aberrants peuvent ne pas être détectés)\\
+                        
+                        Pour plus de détails sur cette méthode, se référer aux sources \cite{Grubbs1} et \cite{Grubbs2}.
 
 
-					\subparagraph*{Méthode de la déviation extrême de Student}
+					\paragraph{Méthode de la déviation extrême de Student}
 					
                         Cette méthode a été inventée par Bernard Rosner en 1983. Ce test est une généralisation du test de Grubbs. En anglais, ce test appelé "extreme studentized deviate" est abbrégé ESD. L’algorithme suit les étapes suivantes : \\
                         - Récupération des valeurs extrêmes (même déﬁnition que dans le paragraphe précédent)\\
                         - Comparaison des valeurs extrêmes normalisées avec le seuil critique, qui dépend du nombre de valeurs extrêmes déjà enlevées. Valeur normalisée : $\frac{v_{extreme}-moyenne}{ecart-type}$ . Seuil critique, avec i le nombre de valeurs déjà enlevées : 
                         $\frac{    (n-i-1)*t _{     \frac{1-\alpha}{2(n-i)},n-i-2     }       }  {        \sqrt{       (n-i)*(n-i-2+t^2_{   \frac{1-\alpha}{2(n-i)},n-i-2} )      }     }  $ \\
-                         - On ne compare pas les valeurs suivantes si un point est décrété comme non aberrant : en eﬀet, on traite les valeurs dans l’ordre de leur "extrêmitude".
+                         - On ne compare pas les valeurs suivantes si un point est décrété comme non aberrant : en eﬀet, on traite les valeurs dans l’ordre de leur "extrêmitude".\\
+                         
+                         Plus d'informations sur cette méthode sont trouvables à la source \cite{DES}.
 
 				
-					\subparagraph*{Méthode des k plus proches voisins}
+					\paragraph{Méthode des k plus proches voisins}
 					
-					    Cette méthode est aussi appelée KNN pu k-NN, pour k nearest neighbors.
-    					Cette méthode porte bien son nom : chaque point est comparé à ses k plus proches voisins afin de savoir s'il est aberrant ou non.\\
+					    Cette méthode est aussi appelée KNN ou k-NN, pour k nearest neighbors. Elle porte bien son nom : chaque point est comparé à ses k plus proches voisins afin de savoir s'il est aberrant ou non.
     					
+    					Plus précisément, cette méthode cherche, pour chaque donnée, ses k plus proches voisins. L'éloignement est mesuré selon la distance euclidienne, mais on pourrait choisir une autre distance facilement.
+    					On ordonne ensuite les données selon la moyenne de la distance de ses k plus proches voisins. Les données qui obtiennent alors les plus grandes moyennes sont des données aberrantes (car leurs voisins sont trop éloignés). Le pourcentage de données aberrantes est un paramètre de la méthode.\\
     					
-                        Cette méthode en abrégé k-NN ou KNN, consiste à, étant donné un ensemble A de n points, dans un espace métrique E, un entier K plus petit que n, et un point supplémentaire x( x dans ce cas est un point de A), trouver les K points de A les plus proches de x.
-                        \newline
-                        Calculer pour chaque observation (point) sa distance au k plus proche voisin, c'est à dire le kième élément avec la plus petite distance par rapport au point étudié pour k variant entre 1 et K (K inférieur à la taille des données) ; ordonner les observations suivant ces K-distances ; Les données aberrantes sont celles avec les plus grandes K-distances ; donc on trie les points suivant ces distances(ordre décroissant), les observations qui ont les n pourcent plus grandes distances K-distance sont des données aberrantes, n étant un paramètre à fixer.
-                        \newline
-                        \newline
-                        Dans un premier temps, nous avons crée un algorithme qui prend en entrée une liste d’abs-
-                        cisses et une autre d’ordonnées, un point abscisse et ordonnées et un entier k, retourne la
-                        k-distance du point donné en entrée représentant la moyenne ses k petites distances.
-                        \newline
-                        Enfin, notre fonction KNN qui comme la précédente, prend 2 listes une d’abscisses et l’autre
-                        d’ordonnées, un entier k et un entier m comme indiqué au dessus, retourne 4 listes les deux
-                        premières(abscisses et ordonnées) contenant les valeurs de la liste qui ont les n pourcent plus
-                        grande k-distance qui représentent ici les valeurs aberrantes et les 2 dernières les abscisses et
-                        ordonnées des valeurs ici considérées comme non aberrantes.
+    					Cette méthode a cependant un problème de complexité : la recherche des k voisins nécessite, pour chaque donnée, de parcourir toutes les autres. Cela rend les calculs longs si les données sont nombreuses.
                         
-                        \subsection{limites de la méthode}
-                        La recherche linéaire souffre d'un problème de lenteur. Si l'ensemble A est grand, il est alors extrêmement coûteux de tester les n points de l'espace.
+                        Plus k est petit, plus la méthode semble précise. Cependant, si k est trop petit, des données seront détectées alors qu'elles ne sont pas aberrantes. sur les valeurs aberrantes et donne un meilleur nuage de données. Un autre argument très important est la proportion de paramètres à détecter : il faut l'adapter manuellement aux données.\\
                         
-                        Les optimisations de cet algorithme se basent souvent sur des cas particuliers du problème. Le plus souvent, l'optimisation consiste à effectuer au préalable un algorithme (pré-traitement) pouvant avoir une complexité supérieure à O(n) mais permettant d'effectuer par la suite très rapidement un grand nombre de recherches. Il s'agit alors de trouver un juste milieu entre le temps de pré-calculs et le nombre de recherches qui auront lieu par la suite. 
-                        
-                        \subsection{Exemples d’exécutions}
-                        Plus k est petit plus la méthode donne plus de précisions sur les valeurs aberrantes et donne un meilleur nuage de données.    					
-    					la distance au K plus proche voisin k-distance; Ordonner les observations selon ces distances k-distance; Les données aberrantes ont les plus grandes distances k-distance; Les observations qui ont les n pourcent plus grandes distances k-distance sont des données aberrante, n étant un paramètre à ﬁxer. Dans un premier temps, nous avons crée un algorithme qui prend en entrée une liste et un indice, et retourne une liste contenant les distances de l’élément à la position i à aux éléments de la liste. Ensuite, un deuxième qui comme la précédente prend en entrée une liste, un indice et un entier k et retourne la k-distance de l’élément à la position indice qui représente la moyenne ses k petites distances. Enﬁn, un dernier qui elle prend une liste, un entier k et un entier n comme indiqué au dessus, retourne la liste contenant les valeurs de la liste qui ont les n pourcent plus grande k-distance.
-    					
+                        Les sources \cite{KNN1}, \cite{KNN2} et \cite{KNN3} donnent plus d'informations sur cette méthode et ses limites.
 
-				\paragraph{Traitement des points détectés}
+                
+			\subsubsection{Détection et traitement : winsorization}
+				    La Winsorization est une manière de traiter les points extrêmes, qui sont en général les points aberrants. Cette méthode effectue les étapes 1 et 2 de la création de la spline avec traitement préalable, ce qui veut dire qu'elle détecte et traite les points aberrants, mais ne construit pas la spline. Il suffit ensuite de construire la spline de lissage associée aux données modifiées par cette méthode, pour avoir l'interpolation des données malgré les points aberrants.\\
+				    
+				    Cet algorithme est plutôt intuitif : il récupère le pourcentage de valeurs données comme aberrantes et modifie les valeurs extrêmes. La modification est équitablement répartie entre les valeurs trop grandes et celles trop petites. La valeur affectée à ces points est la plus proche (la plus grande pour les valeurs trop grandes, la plus petite pour celles trop petites) qui n'est pas aberrante.\\
+				    
+                    Cet algorithme fonctionne également si le pourcentage donné est (un peu) trop grand. En effet, si les valeurs ne sont pas aberrantes, elles vont être proches des autres, et leur valeur ne sera donc que très peu modifiée.
+			
+			\subsubsection{Traitement des points détectés}
 				
     				Dans cette partie, nous allons évoquer les différents traitement possibles des points aberrants avant l'interpolation des données.\\
                         
                     Deux algorithmes ont été implémentés pour le traitement des points (chacun pouvant être utilisé pour chaque méthode de traitement). AMELYS, EST CE QUE LES DEUX SONT ENCORE UTILISES OU JUSTE UN SEUL ? MODIFIER SI C'EST DEVENU FAUX !
                     Le premier algorithme prend en argument traite toutes les données en une fois, tandis que le deuxième ne traite que le point dont l'indice est passé en paramètre. 
                     
-					\subparagraph*{Suppression}
+					\paragraph{Suppression}
                     					
                         La méthode la plus simple est de simplement supprimer les points aberrants des données utilisées pour le calcul de la spline. Cet algorithme est indépendant de la méthode de détection de points aberrants utilisée.
                         
-					\subparagraph*{Méthode inspirée de la Winsorization}
+					\paragraph{Méthode inspirée de la Winsorization}
 					
     					La Winsorization, que nous avons déjà évoquée au paragraphe 2.1.2.1, nous a donné l'idée d'un autre traitement de valeurs aberrantes : les remplacer par la valeur non aberrante la plus proche. Ce n'est pas la Winsorization, car on ne supprime pas équitablement les valeurs trop grandes et celles trop petites.
     					
-					\subparagraph*{Attribution de poids}
-					    Chaque méthode de détection utilisée nous donne un vecteur de poids qui associe un poids faible pour les points détectés comme aberrants, soit inférieur à 1, et un poids fort égal à 1 pour ceux qui n'ont pas été détectés comme tels.
+					\paragraph{Attribution de poids}
+					    Chaque méthode de détection utilisée nous fournit un vecteur de poids qui affecte un poids aux points détectés comme aberrants strictement inférieur à 1, et un poids fort égal à 1 pour ceux qui n'ont pas été détectés comme tels.
 					    
-					    Les nombreuses recherches effectuées nous ont permis de décider d'une valeur arbitraire pour ce poids faible, elle sera égale à $\frac{1}{taille \ de \ l'échantillon}$. Il nous reste à trouver comment utiliser ce vecteur de poids pour créer des splines de lissage moins impactées par les valeurs aberrantes. Une des idées était d'intégrer notre vecteur de poids dans une méthode faisant elle-même intervenir des poids. C'est là qu'intervient la méthode de régression linéaire pondérée LOESS, une méthode robuste qui réalise le traitement et l'interpolation de cette spline qui priorise les points non aberrants (expliquée de façon détaillée en 2.1.3).
+					    Il n'existe pas de valeur rigoureuse pour ce poids faible, mais voulant atténuer nos points aberrants au profit des autres et non pas les supprimer, nous leur attribuerons un poids égal à 1/3. Nous verrons dans la partie suivante, consacrée à la construction d'une spline, la façon dont nous avons utilisé ce vecteur.
 				
 					    
-			    \paragraph{Construction de la spline}
-			        En ce qui concerne la création de la spline, le système reste le même pour chaque méthode de détection utilisée, voyons cela avec la figure suivante :
+			    \subsubsection{Construction de la spline}
+			        La construction de la spline diffère en fonction des cas : si les données ont été pondérées, nous n'allons pas construire la spline de la même façon que si elles ne l'ont pas été.
+			        \paragraph{Données non pondérées}
 			        
-			        \begin{figure}[H]
-                        \centering
-                        \includegraphics[width=10cm]{Images/ConstructionDeLaSpline.png}
-                        \caption{Exemple de construction}
-                        \label{fig:exemple}
-                    \end{figure}
-                    
-                    On peut voir que la spline est moins attirée par les données aberrantes en rouges puisqu'elles possèdent des poids plus faibles que celles considérés comme non aberrantes. Les données en vert sont les données estimées par LOESS avec un $\rho $ optimal de 0.05.  Ce sont ces nouvelles données, ces points estimés qui vont servir à créer une nouvelle spline, moins influencée par les valeurs détectées comme aberrantes par nos méthodes.
+    			        L'utilisateur peut choisir de construire une spline dont ses points aberrants seront supprimés, où de les traiter à la manière Winsorizing. Cela veut dire que tous les points restant (incluant ceux modifiés à la manière de Winsorizing) seront interpolés pour créer la spline. Pour plus d'information, se référer aux explications sur la construction d'une spline de lissage (Section \ref{partie_lissage} du rapport).
+    			        
+			        \paragraph{Pondérée}
 			        
-			        EXPLIQUER ICI COMMENT EST CONSTRUITE LA SPLINE, EN QUELQUES MOTS EN FONCTION DES METHODES (Qui a fait ça ? Clément pour les poids ? Amélys pour le reste ?) Dire par exemple que plus le poids est faible, moins le point "attire" la spline (mais expliquer rapidement comment c'est fait), ... (Poids, points supprimés, points modifiés). Partie courte à priori.
+    			        Un traitement possible des valeurs aberrantes est de leur affecter un poids. On souhaite dans ce cas que la spline construite tienne compte de notre vecteur de poids, c'est à dire qu'elle soit moins attirée par les données aberrantes.
+                        
+                        L'idée que nous avons eu pour utiliser notre vecteur dans la construction de la spline, c'est d'intégrer notre vecteur de poids dans une méthode faisant elle-même intervenir des poids. C'est là qu'intervient la méthode de régression linéaire pondérée LOESS, une méthode robuste réalisant à la base un travail similaire à celui de nos méthodes construisant nos splines, mais en faisant intervenir des poids de façon locale.  Nous avons ici adapté cette méthode afin qu'elle considère notre vecteur de poids lors l'interpolation de la spline (expliquée de façon détaillée en \ref{partie_loess}). Cela veut dire que l'impact des points aberrants sur les points considérés comme "proches" d'eux sera davantage réduit.
+					   
+					    Cet exemple illustre la construction de la spline à partir de données pondérées :
+					   
+    			        \begin{figure}[H]
+                            \centering
+                            \includegraphics[width=10cm]{Images/ConstructionDeLaSpline.png}
+                            \caption{Exemple de construction}
+                            \label{fig:exemple}
+                        \end{figure}
+                        
+                       Les données en vert sont les données estimées par notre méthode LOESS modifiée avec un $\rho $ optimal de 0.05.  Ce sont  ces points estimés qui vont servir à créer une la nouvelle spline, moins influencée par les valeurs détectées comme aberrantes par nos méthodes.
+                        
+                       Nous avons donc une méthode utilisant notre vecteur de poids donné par nos méthodes de détection et rendant les splines moins influencées par les points aberrants, ce que nous voulions.
 					    
-			\subsubsection{Interpolation robuste}
+			\subsection{Interpolation robuste}
         		
         		Nous avons également trouvé lors de nos recherches des algorithmes robustes, c'est à dire des algorithmes dont le résultat n'est pas réellement influencé par les points aberrants. Ces méthodes calculent la spline tout en détectant les points aberrants au fur et à mesure.
         		
-			    \paragraph{Algorithme de RANSAC}
+			    \subsubsection{Algorithme de RANSAC}
     			   
                     RANSAC est l'abréviation de RANdom SAmple Consensus. Cet algorithme est non déterministe, cela veut dire qu'il peut renvoyer des résultats différents pour une même entrée (mêmes données et paramètres) à cause de l'utilisation du hasard.\\
                     Cet algorithme va calculer un bon nombre de splines et va choisir celle qui correspond aux données mais qui engendre le moins d'erreur possible entre la spline et les données décrétées comme non aberrantes. Voilà les étapes :\\
@@ -552,6 +583,7 @@
                     Une fois qu'un certain nombre de splines a été testé, c'est la dernière sauvegardée qui est considérée comme l'interpolation des données.
                     \end{enumerate} 
                     
+                    
                     Avec cette version de l'algorithme, beaucoup de paramètres sont nécessaires (en plus des données) et doivent être réglés manuellement, en fonction des données et de ce que l'on souhaite obtenir :
                     \begin{itemize}
                     \item[•] Le nombre de spline à créer
@@ -563,7 +595,7 @@
                     \end{itemize}
                     
                     Deux paramètres sont cependant estimables au fur et à mesure de l'algorithme :\\ le nombre de spline à créer (c'est à dire le nombre d'itérations), et le nombre de points minimum à considérer pour avoir un résultat correct. Cela n'est possible qu'à condition de fournir à la place la probabilité d'avoir un résultat correct (cette probabilité doit se trouver dans $]0,1[$.). \\
-                    Les calculs, détaillés à la 6ième page du document cité en source BIEN METTRE LA SOURCE, nous donne le nombre d'itérations à effecteur pour avoir une probabilité $p_{correct}$ d'avoir un résultat correct, avec une proportion $\omega$ de données non aberrantes (aussi appelées inlier) : $n_{iter} = \frac{log(1 - p_{correct})}{log(1 - \omega^n)}$
+                    Les calculs, détaillés à la 6ième page du document \cite{RANSAC}, nous donne le nombre d'itérations à effecteur pour avoir une probabilité $p_{correct}$ d'avoir un résultat correct, avec une proportion $\omega$ de données non aberrantes (aussi appelées inlier) : $n_{iter} = \frac{log(1 - p_{correct})}{log(1 - \omega^n)}$
                     
                     Les deux versions de l'algorithme évoquées ont été implémentées dans l'application, mais seule la seconde peut être lancée et appliquée sur les données.
                     Une première fonction implémente la première version évoquée, tandis qu'une seconde calcule au fur et à mesure la proportion de données non aberrantes de l'échantillon et actualise le nombre maximum d'itérations grâce au résultat évoqué précédemment.
@@ -581,9 +613,9 @@
                    POSSIBLE QUE LORSQUE L'ESTIMATION DU PARAMETRE NE SERA PAS OBLIGATOIREMENT AUTOMATIQUE
                     
                     
-			    \paragraph{Méthode de LOESS}
+			    \subsubsection{\label{partie_loess}Méthode de LOESS}
 			    
-                    LOESS (ou LOWESS) est une méthode robuste de régression non paramétrique. Elle utilise la régression linéaire des moindres carrés pondérés et créé une fonction qui décrit la variation des données, point par point, en considérant de manière plus importante les données les plus proches de ce point.
+                    LOESS (ou LOWESS) est une méthode robuste de régression non paramétrique. Elle utilise la régression linéaire des moindres carrés pondérés, en considérant de manière plus importante les données les plus proches de ce point.
                     
                     L'objectif de cette méthode est d'ajuster $\theta = [\theta_0, \theta_1]$ pour minimiser les moindres carrés pondérés, c'est à dire la quantité suivante : \[\sum_{i=1}^m w_i ( y_i - (\theta_0 + \theta_1 x_i))^2 \ \ \text{(1)}\]
                     
@@ -594,7 +626,7 @@
                         \item[•]  $1 > w_i = \exp \left( - \frac{(x -x_i)^2}{2 \rho} \right) > 0$ le poids Gaussien où  $\rho$ est considéré dans notre cas comme le paramètre de lissage.
                     \end{itemize}
                     
-                    Les poids est donc donné en utilisant le calcul des moindres carrés, on a par conséquent :
+                    Les poids sont donc donnés en utilisant le calcul des moindres carrés, on a par conséquent :
                     \begin{itemize}
                         \item[•] Plus de poids à des points près du point cible $x$ 
                         \item[•] Moins de poids à des points plus loin de $x$
@@ -631,27 +663,57 @@
                     
                         \[\iff \theta = \mathbf{A}^{-1} \mathbf{b}\]
                     
-                    Il nous suffit donc de résoudre cette matrice et de combiner notre vecteur de poids faible avec celui de cette méthode, soit :
+                    Il nous suffit donc de résoudre cette matrice et de combiner notre vecteur de poids  avec celui de cette méthode, soit :
                     \[1 > w_i = \exp \left( - \frac{(x -x_i)^2}{2 \rho} \right)*vpoids_i > 0\] 
-                    où vpoids est notre vecteur de poids trouvé avec l'aide de nos méthodes de détection et affectant un poids faible aux points aberrants.
-                    Ainsi, pour n'importe quel point étudié, les points aberrants ont un impact réduit sur le tracé de la spline.
-                    
-                    \begin{figure}[H]
-                        \centering
-                        \includegraphics[width=10cm]{Images/LOESS}
-                        \caption{Exemple de résultat }
-                        \label{fig:exemple}
-                    \end{figure}
-                    
-                    Dans cet exemple, nous avons en rouge une spline de lissage et en bleu une autre spline de lissage utilisant la méthode LOESS.  Nous avons également les valeurs initiales de l'échantillon en rouge et celles ajustées en bleu. On remarque que la méthode LOESS considère moins les valeurs pouvant être considérées comme aberrantes ou bruitées.
+                    où $vpoids$ est notre vecteur de poids trouvé avec l'aide de nos méthodes de détection et affectant un poids faible aux points aberrants.
+                    Ainsi, pour n'importe quel point étudié, les points aberrants ont un impact réduit sur le tracé de la spline.\\
                     
                     
-                    On a donc une méthode fonctionnelle donnant un poids faibles aux points aberrants. Cependant, cette méthode peut devenir coûteuse en terme de temps lorsque l'échantillon devient grand.
 
-	\section{Tests et comparaison des différentes méthodes}
+\renewcommand\partname{}
+\part{Tests et comparaison des différentes méthodes de gestion de points aberrants}
+
+    \section{Méthode intuitive}
+    
+    TROUVER AUSSI DES EXEMPLES NE MARCHANT PAS CORRECTEMENT.
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=10cm\textwidth]{Images/intuitif1.PNG}
+        \caption*{\begin{center}ICI\end{center}}
+    \end{figure}
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=10cm\textwidth]{Images/intuitif2.PNG}
+        \caption*{\begin{center}ICI\end{center}}
+    \end{figure}
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=10cm\textwidth]{Images/intuitif3.PNG}
+        \caption*{\begin{center}ICI\end{center}}
+    \end{figure}
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=10cm\textwidth]{Images/intuitif4.png}
+        \caption*{\begin{center}ICI\end{center}}
+    \end{figure}
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=10cm\textwidth]{Images/intuitif5.png}
+        \caption*{\begin{center}ICI\end{center}}
+    \end{figure}
+              
+    
+    \section{Détection, traitement, et interpolation}
+    
+    
         Après plusieurs tests de chaque méthode de détection des données aberrantes, nous avons constaté deux choses :
         \begin{itemize}
-        \item Les paramètres de toutes les méthodes semblent dépendre de la taille de l’échantillon et non pas de la distribution des données 
+        \item Les paramètres de toutes les méthodes de détection semblent dépendre de la taille de l’échantillon et non pas de la distribution des données 
         \item Ces paramètres semblent se stabiliser lorsqu’on augmente la taille de l’échantillon, autrement dit, ces paramètres convergent vers les valeurs fixées par défaut dans chaque fonction, lorsque la taille de l’échantillon augmente \\($\ge 100 $)
         \end{itemize}
         Voici ci-dessous le résultat d'une méthode particulière avec différentes tailles. Les données en rouges sont les données conservées tandis que celles en bleu sont considérées comme aberrantes par l'algorithme. La courbe bleue représente l'interpolation attendue.
@@ -674,213 +736,216 @@
         
         \end{figure}
         \\
+        
         Pour tous les tests qui viennent, nous allons fixer la taille de l’échantillon à 200 pour les signaux stationnaires et à 300 pour les signaux non-stationnaires.
         
+       \subsection{Création des intervalles}
+            Pour tester ces méthodes, nous avons simplement détecté les points aberrants. Pour reproduire ces tests, il faut choisir l'option ... AMELYS AJOUTER LA BONNE OPTION ICI. En effet, nous avons ici considéré seulement la détection, et donc ignoré les étapes de traitement de points aberrants et la construction de la spline.
+            
+             \subsubsection{Création d'intervalles selon un pas}
+                   Cette méthode, comme mentionné dans la partie la concernant, ne fonctionne pas dans tous les cas. Voici ci-dessous quelques cas avec lesquels elle fonctionne et d'autres avec lesquels elle ne fonctionne pas. Dans chaque exemple, la graine a été fixée afin de pouvoir reproduire le même test. La graine (seed) est celle fournie au générateur de signal : cela permet de "fixer" le hasard.
+                   
+                \paragraph{Cas stationnaire (seed = 5505361)}
+                   	Dans le cas d’un signal variant peu, cette méthode est correcte avec certaines méthodes de gestion de données aberrantes (test de Chauvenet, ..., ...), mais pas avec toutes (déviation extrême de Student, ..., ...). (A COMPLETER Béryl)
+                   	
+                   	
+                   	    \begin{figure}[H]
+                        \centering
+                        \begin{subfigure}[b]{0.4\textwidth}
+                            \includegraphics[width=\textwidth]{Images/comp1.PNG}
+                            \caption*{\begin{center}Test de Chauvenet, \\ régularité = 0.9\end{center}}
+                        \end{subfigure}
+                        \begin{subfigure}[b]{0.4\textwidth}
+                            \includegraphics[width=\textwidth]{Images/comp2.PNG}
+                            \caption*{\begin{center}Déviation extrême de Student, \\régularité = 0.9\end{center}}
+                        \end{subfigure}
+                        \caption{}
+                        \end{figure}
+                        
+                        Cette méthode de création d'intervalles fonctionne mieux dans le cas de signaux avec de grandes variations comme l'illustrent les exemples suivants.
+                        \begin{figure}[H]
+                            \centering
+                            \begin{subfigure}[b]{0.4\textwidth}
+                                \includegraphics[width=\textwidth]{Images/kmn1.PNG}
+                                \caption*{\begin{center}k plus proches voisins, \\régularité = 0.65\end{center}}
+                            \end{subfigure}
+                            \begin{subfigure}[b]{0.4\textwidth}
+                                \includegraphics[width=\textwidth]{Images/kmn2.PNG}
+                                \caption*{\begin{center}Déviation extrême de Student, \\régularité = 0.7\end{center}}
+                            \end{subfigure}
+                            \caption{}
+                        \end{figure}
+                        
+                        
+               \paragraph{Cas non-stationnaire (seed = 32427415 )}\\
+               
+               
+                    Les cas qui ne fonctionnent pas dans le cas stationnaire ne fonctionnent pas non plus dans le cas stationnaire, comme le montrent entre autres les figures suivantes.      
+                                  
+                    \begin{figure}[H]
+                        \centering
+                        \begin{subfigure}[b]{0.4\textwidth}
+                            \includegraphics[width=\textwidth]{Images/dev1.PNG}
+                            \caption*{\begin{center}Déviation extrême de Student,\\switch-prob = 0.1\end{center}}
+                        \end{subfigure}
+                        \begin{subfigure}[b]{0.4\textwidth}
+                            \includegraphics[width=\textwidth]{Images/grub1.PNG}
+                            \caption*{\begin{center}Test de Grubbs,\\ switch-prob = 0.2\end{center}}
+                        \end{subfigure}
+                        \caption{}
+                    \end{figure}
+                    
+                    Dans les cas où la méthode fonctionne sur un signal stationnaire, le résultat pour un signal non stationnaire est satisfaisant lorsqu'on prend de petites valeurs de switch-prob (paramètre lié à l'apparition d'une grande variation à chaque instant, donc lié à la largeur des créneaux) et reste acceptable pour de grandes valeurs, bien que moins précis.
+                    
+                    \begin{figure}[H]
+                        \centering
+                        \begin{subfigure}[b]{0.4\textwidth}
+                            \includegraphics[width=\textwidth]{Images/ch1.PNG}
+                            \caption*{\begin{center}Test de chauvenet, \\switch-prob = 0.1\end{center}}
+                        \end{subfigure}
+                        \begin{subfigure}[b]{0.4\textwidth}
+                            \includegraphics[width=\textwidth]{Images/ch2.PNG}
+                            \caption*{\begin{center}Test de chauvenet, \\switch-prob =0.5\end{center}}
+                        \end{subfigure}
+                        \caption{}
+                    \end{figure}
+            
+            
+            \subsubsection{Création d’intervalles selon la densité}
+                Cette méthode semble renvoyer un résultat correct dans tous les cas étudiés précédemment (stationnaire et non stationnaire, petites et grandes variations) et avec toutes les méthodes de détection de points aberrants étudiées.
+                
+                \begin{figure}[H] %on ouvre l'environnement figure
+                  \minipage{0.32\textwidth}%
+                \includegraphics[width=\linewidth]{Images/ext1.PNG} %ou image.png, .jpeg etc.
+                \caption{\\Déviation extrême de Student,\\ régularité = 0.9} %la légende
+                \label{m15} %l'étiquette pour faire référence à cette image
+                \endminipage
+                \minipage{0.02\textwidth}
+                \hfill
+                \endminipage
+                \minipage{0.32\textwidth}%
+                \includegraphics[width=\linewidth]{Images/ext2.PNG}
+                \caption{\\k plus proches voisins,\\ régularité = 0.65}
+                \label{m5}
+                \endminipage
+                \minipage{0.02\textwidth}
+                \hfill
+                \endminipage
+                \minipage{0.32\textwidth}%
+                \includegraphics[width=\linewidth]{Images/ext3.PNG}  
+                
+                \caption{\\Déviation extrême de Student,\\ switch-prob = 0.1}
+                
+                \label{m35}
+                \endminipage
+                \end{figure}
+                \\
+                Cette méthode admet cependant la même limite que la précédente, dans le cas de signaux non stationnaires avec de grandes valeurs de switch-prob : elle fonctionne moins bien que ce que l'on pourrait attendre sur certains exemples. Voici ci-dessous deux exemples qui illustrent cette limite. On constate que les résultats obtenus restent pas très éloignés de ceux attendus : ils ne sont pas totalement faux, juste moins précis que ce qu'on pourrait attendre.
+                \begin{figure}[H] %on ouvre l'environnement figure
+                  \minipage{0.4\textwidth}%
+                \includegraphics[width=\linewidth]{Images/tch1.PNG} %ou image.png, .jpeg etc.
+                \caption{\\Test de Chauvenet,\\switch-prob = 0.5,seed = 32427415} %la légende
+                \label{m15} %l'étiquette pour faire référence à cette image
+                \endminipage
+                \minipage{0.4\textwidth}%
+                \includegraphics[width=\linewidth]{Images/tch2.PNG}  
+                \caption{\\Test de Chauvenet,\\switch-prob = 0.5, seed = 54441996}
+                \label{m5}
+                \endminipage
+                \end{figure}
+            
+            
+            \subsubsection{Regroupement}
+            
+            
+                 On a évoqué, lors de l'explication de l'utilité de cette fonction, que deux méthodes de détection de points aberrants nécessitent que les intervalles ne soient pas trop petits afin de fonctionner correctement : les méthodes interquartile et k plus proches voisins. L'exemple ci-dessous montre la détection obtenue avec l'une des deux méthodes, mais c'est similaire pour la seconde. Le paramètre t est le nombre minimal de points par intervalle.
+                 \begin{figure}[H] %on ouvre l'environnement figure
+                  \minipage{0.4\textwidth}%
+                \includegraphics[width=\linewidth]{Images/int1.PNG} %ou image.png, .jpeg etc.
+                \caption{inter-quartile, t=5} %la légende
+                \label{m15} %l'étiquette pour faire référence à cette image
+                \endminipage
+                \minipage{0.4\textwidth}%
+                \includegraphics[width=\linewidth]{Images/int2.PNG}  
+                \caption{inter-quartile, t=10}
+                \label{m5}
+                \endminipage
+                \end{figure}
+                Pour fixer le t, nous devons cependant voir s'il n'existe pas une valeur à partir de laquelle les résultats deviennent moins bons, car on retombe sur la même problématique qu'en l'abscence d'intervalles. Voici l'exemple précédent avec 30 points minimum par intervalle, qui est moins bon que celui avec t = 10.
+                \begin{figure}[H]
+                    \centering
+                 \includegraphics[width=8cm\linewidth]{Images/int3.PNG} %ou image.png, .jpeg etc.
+                \caption{inter-quartile, t=30} 
+                \end{figure}
+                
+                Après plusieurs autres tests, nous avons fixé le paramètre t de la fonction regroupe à 10 pour la méthode interquartile et à 30 pour la méthode des k plus proches voisins.
         
-        \subsection{Tests des méthodes de création d'intervalles}
-        Pour tester ces méthodes, nous avons simplement détecté les points aberrants. Pour reproduire ces tests, il faut choisir l'option ... AMELYS AJOUTER LA BONNE OPTION ICI. En effet, nous avons ici considéré seulement la détection, et donc ignoré les étapes de traitement de points aberrants et la construction de la spline.
-        
-        \subsubsection{Création d'intervalles selon un pas}
-        Cette méthode, comme mentionné dans la partie la concernant, ne fonctionne pas dans tous les cas. Voici ci-dessous quelques cas avec lesquels elle fonctionne et d'autres avec lesquels elle ne fonctionne pas. Dans chaque exemple, la graine a été fixée afin de pouvoir reproduire le même test. La graine (seed) est celle fournie au générateur de signal : cela permet de "fixer" le hasard.
-        
-       \paragraph{Cas stationnaire (seed = 5505361)}\\
-        	Dans le cas d’un signal variant peu, cette méthode est correcte avec certaines méthodes de gestion de données aberrantes (par exemple le test de Chauvenet), mais pas avec toutes (par exemple la déviation extrême de Student). METTRE ICI LES AUTRES METHODES (INDIQUER CELLES  QUI MARCHENT, CELLES QUI NE MARCHENT PAS) ZAK,BILEL
-        	
-        \begin{figure}[H]
-            \centering
-            \begin{subfigure}[b]{0.4\textwidth}
-                \includegraphics[width=\textwidth]{Images/comp1.PNG}
-                \caption*{\begin{center}Test de Chauvenet, \\ régularité = 0.9\end{center}}
-            \end{subfigure}
-            \begin{subfigure}[b]{0.4\textwidth}
-                \includegraphics[width=\textwidth]{Images/comp2.PNG}
-                \caption*{\begin{center}Déviation extrême de Student, \\régularité = 0.9\end{center}}
-            \end{subfigure}
-            \caption{}
-        \end{figure}
-        
-        Cette méthode de création d'intervalles fonctionne mieux dans le cas de signaux avec de grandes variations comme l'illustrent les exemples suivants.
-        
-        \begin{figure}[H]
-            \centering
-            \begin{subfigure}[b]{0.4\textwidth}
-                \includegraphics[width=\textwidth]{Images/kmn1.PNG}
-                \caption*{\begin{center}k plus proches voisins, \\régularité = 0.65\end{center}}
-            \end{subfigure}
-            \begin{subfigure}[b]{0.4\textwidth}
-                \includegraphics[width=\textwidth]{Images/kmn2.PNG}
-                \caption*{\begin{center}Déviation extrême de Student, \\régularité = 0.7\end{center}}
-            \end{subfigure}
-            \caption{}
-        \end{figure}
-        
-        
-       
-        \paragraph{Cas non-stationnaire (seed = 32427415 )}\\
-        Les cas qui ne fonctionnent pas dans le cas stationnaire ne fonctionnent pas non plus dans le cas stationnaire, comme le montrent entre autres les figures suivantes.
-        
-        \begin{figure}[H]
-            \centering
-            \begin{subfigure}[b]{0.4\textwidth}
-                \includegraphics[width=\textwidth]{Images/dev1.PNG}
-                \caption*{\begin{center}Déviation extrême de Student,\\switch-prob = 0.1\end{center}}
-            \end{subfigure}
-            \begin{subfigure}[b]{0.4\textwidth}
-                \includegraphics[width=\textwidth]{Images/grub1.PNG}
-                \caption*{\begin{center}Test de Grubbs,\\ switch-prob = 0.2\end{center}}
-            \end{subfigure}
-            \caption{}
-        \end{figure}
-        
-        Dans les cas où la méthode fonctionne sur un signal stationnaire, le résultat pour un signal non stationnaire est satisfaisant lorsqu'on prend de petites valeurs de switch-prob (paramètre lié à l'apparition d'une grande variation à chaque instant, donc lié à la largeur des créneaux) et reste acceptable pour de grandes valeurs, bien que moins précis.
-        
-        \begin{figure}[H]
-            \centering
-            \begin{subfigure}[b]{0.4\textwidth}
-                \includegraphics[width=\textwidth]{Images/ch1.PNG}
-                \caption*{\begin{center}Test de chauvenet, \\switch-prob = 0.1\end{center}}
-            \end{subfigure}
-            \begin{subfigure}[b]{0.4\textwidth}
-                \includegraphics[width=\textwidth]{Images/ch2.PNG}
-                \caption*{\begin{center}Test de chauvenet, \\switch-prob =0.5\end{center}}
-            \end{subfigure}
-            \caption{}
-        \end{figure}
-        
-        
-        \subsubsection{Création d’intervalles selon la densité}
-        Cette méthode semble renvoyer un résultat correct dans tous les cas étudiés précédemment (stationnaire et non stationnaire, petites et grandes variations) et avec toutes les méthodes de détection de points aberrants étudiées.
-        
-        \begin{figure}[H] %on ouvre l'environnement figure
-          \minipage{0.32\textwidth}%
-        \includegraphics[width=\linewidth]{Images/ext1.PNG} %ou image.png, .jpeg etc.
-        \caption{\\Déviation extrême de Student,\\ régularité = 0.9} %la légende
-        \label{m15} %l'étiquette pour faire référence à cette image
-        \endminipage
-        \minipage{0.02\textwidth}
-        \hfill
-        \endminipage
-        \minipage{0.32\textwidth}%
-        \includegraphics[width=\linewidth]{Images/ext2.PNG}
-        \caption{\\k plus proches voisins,\\ régularité = 0.65}
-        \label{m5}
-        \endminipage
-        \minipage{0.02\textwidth}
-        \hfill
-        \endminipage
-        \minipage{0.32\textwidth}%
-        \includegraphics[width=\linewidth]{Images/ext3.PNG}  
-        
-        \caption{\\Déviation extrême de Student,\\ switch-prob = 0.1}
-        
-        \label{m35}
-        \endminipage
-        \end{figure}
-        \\
-        Cette méthode admet cependant la même limite que la précédente, dans le cas de signaux non stationnaires avec de grandes valeurs de switch-prob : elle fonctionne moins bien que ce que l'on pourrait attendre sur certains exemples. Voici ci-dessous deux exemples qui illustrent cette limite. On constate que les résultats obtenus restent pas très éloignés de ceux attendus : ils ne sont pas totalement faux, juste moins précis que ce qu'on pourrait attendre.
-        \begin{figure}[H] %on ouvre l'environnement figure
-          \minipage{0.4\textwidth}%
-        \includegraphics[width=\linewidth]{Images/tch1.PNG} %ou image.png, .jpeg etc.
-        \caption{\\Test de Chauvenet,\\switch-prob = 0.5,seed = 32427415} %la légende
-        \label{m15} %l'étiquette pour faire référence à cette image
-        \endminipage
-        \minipage{0.4\textwidth}%
-        \includegraphics[width=\linewidth]{Images/tch2.PNG}  
-        \caption{\\Test de Chauvenet,\\switch-prob = 0.5, seed = 54441996}
-        \label{m5}
-        \endminipage
-        \end{figure}
-        
-        \subsubsection{Fonction de regroupement}
-        On a évoqué, lors de l'explication de l'utilité de cette fonction, que deux méthodes de détection de points aberrants nécessitent que les intervalles ne soient pas trop petits afin de fonctionner correctement : les méthodes interquartile et k plus proches voisins. L'exemple ci-dessous montre la détection obtenue avec l'une des deux méthodes, mais c'est similaire pour la seconde. Le paramètre t est le nombre minimal de points par intervalle.
-         \begin{figure}[H] %on ouvre l'environnement figure
-          \minipage{0.4\textwidth}%
-        \includegraphics[width=\linewidth]{Images/int1.PNG} %ou image.png, .jpeg etc.
-        \caption{inter-quartile, t=5} %la légende
-        \label{m15} %l'étiquette pour faire référence à cette image
-        \endminipage
-        \minipage{0.4\textwidth}%
-        \includegraphics[width=\linewidth]{Images/int2.PNG}  
-        \caption{inter-quartile, t=10}
-        \label{m5}
-        \endminipage
-        \end{figure}
-        \\
-        Après plusieurs autres tests, nous avons fixé le paramètre t de la fonction regroupe à 10 pour la méthode interquartile et à 30 pour la méthode des k plus proches voisins.
-        
-        
-        \subsection{Comparaison des méthodes de détection des points aberrants}
-        Les six méthodes de gestion de points aberrants donnent un résultat plus ou moins similaire, peu importe le signal choisi. On ne peut pas dire qu'une méthode fonctionne mieux que les autres parce qu'on peut toujours améliorer le résultat de chaque méthode en trouvant la valeur exacte de son paramètre pour un l'échantillon de points considéré. Voici les résultats très similaires des six méthodes de détection obtenus pour un exemple quelconque de signal stationnaire (seed = 5505361) :
-        \begin{figure}[H] %on ouvre l'environnement figure
-          \minipage{0.32\textwidth}%
-        \includegraphics[width=\linewidth]{Images/fin1.PNG} %ou image.png, .jpeg etc.
-        \caption{\\Test de Chauvenet} %la légende
-        \label{m15} %l'étiquette pour faire référence à cette image
-        \endminipage
-        \minipage{0.02\textwidth}%
-        \hfill
-        \endminipage
-        \minipage{0.32\textwidth}%
-        \includegraphics[width=\linewidth]{Images/fin2.PNG}  
-        \caption{\\Déviation extrême de Student}
-        \label{m5}
-        \endminipage
-        \minipage{0.02\textwidth}%
-        \hfill
-        \endminipage
-        \minipage{0.32\textwidth}%
-        \includegraphics[width=\linewidth]{Images/fin3.PNG}  
-        \caption{\\Test de Grubbs}
-        \label{m35}
-        \endminipage
-        \end{figure}
-        
-        \begin{figure}[H] %on ouvre l'environnement figure
-          \minipage{0.32\textwidth}%
-        \includegraphics[width=\linewidth]{Images/fin4.PNG} %ou image.png, .jpeg etc.
-        \caption{\\Inter-quartile} %la légende
-        \label{m15} %l'étiquette pour faire référence à cette image
-        \endminipage
-        \minipage{0.02\textwidth}%
-        \hfill
-        \endminipage
-        \minipage{0.32\textwidth}%
-        \includegraphics[width=\linewidth]{Images/fin5.PNG}  
-        \caption{\\k plus proches voisins}
-        \label{m5}
-        \endminipage
-        \minipage{0.02\textwidth}%
-        \hfill
-        \endminipage
-        \minipage{0.32\textwidth}%
-        \includegraphics[width=\linewidth]{Images/fin6.PNG}  
-        \caption{\\Test tau de Thompson}
-        \label{m35}
-        \endminipage
-        \end{figure}
-        
-        A FAIRE ICI (ENCORE UN GROS BOUT DU RAPPORT) :
-        RANSAC
-        LOESS
-        Méthode de détection intuitive (déjà faite par Mohamed, cf discord Béryl)
-        
-        COMPARER CES TROIS + LES SPLINES OBTENUES A PARTIR DE LA DETECTION (les 6) sur certains exemples !!!
-
+        \subsection{Détection}
+            Les six méthodes de gestion de points aberrants donnent un résultat plus ou moins similaire, peu importe le signal choisi. On ne peut pas dire qu'une méthode fonctionne mieux que les autres parce qu'on peut toujours améliorer le résultat de chaque méthode en trouvant la valeur exacte de son paramètre pour un l'échantillon de points considéré. Voici les résultats très similaires des six méthodes de détection obtenus pour un exemple quelconque de signal stationnaire (seed = 5505361) :
+            \begin{figure}[H] %on ouvre l'environnement figure
+              \minipage{0.32\textwidth}%
+            \includegraphics[width=\linewidth]{Images/fin1.PNG} %ou image.png, .jpeg etc.
+            \caption{\\Test de Chauvenet} %la légende
+            \label{m15} %l'étiquette pour faire référence à cette image
+            \endminipage
+            \minipage{0.02\textwidth}%
+            \hfill
+            \endminipage
+            \minipage{0.32\textwidth}%
+            \includegraphics[width=\linewidth]{Images/fin2.PNG}  
+            \caption{\\Déviation extrême de Student}
+            \label{m5}
+            \endminipage
+            \minipage{0.02\textwidth}%
+            \hfill
+            \endminipage
+            \minipage{0.32\textwidth}%
+            \includegraphics[width=\linewidth]{Images/fin3.PNG}  
+            \caption{\\Test de Grubbs}
+            \label{m35}
+            \endminipage
+            \end{figure}
+            
+            \begin{figure}[H] %on ouvre l'environnement figure
+              \minipage{0.32\textwidth}%
+            \includegraphics[width=\linewidth]{Images/fin4.PNG} %ou image.png, .jpeg etc.
+            \caption{\\Inter-quartile} %la légende
+            \label{m15} %l'étiquette pour faire référence à cette image
+            \endminipage
+            \minipage{0.02\textwidth}%
+            \hfill
+            \endminipage
+            \minipage{0.32\textwidth}%
+            \includegraphics[width=\linewidth]{Images/fin5.PNG}  
+            \caption{\\k plus proches voisins}
+            \label{m5}
+            \endminipage
+            \minipage{0.02\textwidth}%
+            \hfill
+            \endminipage
+            \minipage{0.32\textwidth}%
+            \includegraphics[width=\linewidth]{Images/fin6.PNG}  
+            \caption{\\Test tau de Thompson}
+            \label{m35}
+            \endminipage
+            \end{figure}
+            
+            
+    \section{RANSAC}
+    \section{LOESS}
+    \section{Comparaison}
+    
+      
+    
+    
 \renewcommand\partname{}
 \part{Produit rendu}
 
-Expliquer que les méthodes de détection des points aberrants sont implémentées en deux parties : une partie qui fait les calculs pour tout un jeu de donnée, et une partie qui renvoie pour chaque point s'il est aberrant ou non (avec le résultat calculé précédemment en paramètre). Exemple, avec interquartile : pour un intervalle, une première fonction renvoie un intervalle, la seconde renvoie vrai ssi la donnée se trouve dans l'intervalle. 
+\section{Description de l'application}
 
-\paragraph{tâche 0}
-Le programme adapté possède trois principales fonctionnalités. Toutes s'appuient sur la lecture d'un fichier et créent une courbe (paramétrique ou non) interpolant les données.
-Le choix de l'ordre des points est donné à l'utilisateur sous la forme de trois choix : 
+Pour améliorer l'accessibilité de nos méthodes, nous avons décider de toutes les regrouper en une seule application multi-fonction.
 
-\begin{itemize}
-    \item[•] Traitement des données "telles quelles". Les données sont traitées dans l'ordre dans lesquelles elles ont été fournies, sous forme de courbe paramétrique.
-    \item[•] Traitement des données selon la première coordonnée. Les données sont triées par ordre croissant selon la première coordonnée. Cela permet d'éviter d'avoir une courbe paramétrique qui reviendrait sur ses pas. La courbe obtenue est une fonction de $\mathbf{R}$ dans $\mathbf{R}$.
-    \item[•] Traitement des données selon la deuxième coordonnée. Cela correspond à la même manipulation que précédemment, mais selon la deuxième coordonnée.
-\end{itemize}
-
+Elle se présente sous la forme de plusieurs fichier python, et l'utilisteur 
 
 \renewcommand\partname{}
 \part{Conclusion}
@@ -888,6 +953,7 @@ Le choix de l'ordre des points est donné à l'utilisateur sous la forme de troi
     le projet initial a-t-il été suivi ?
     Comme souligné dans la sous-partie nommée Organisation en II-2, nous avons très rapidement dû modifier notre planification des tâches, nous avons rencontrés plusieurs difficultés durant ce stage applicatif :
     (ici on peut parler des difficultés rencontrées, les raisons de notre changement de planning / abandon des tâches / choix des solutions)
+    PARLER DE LA TACHE 7 BILEL ET AMELYS
     
     (puis un changement de paragraphe pour conclure sur les objectifs qui n'ont donc pas été atteints, à cause des difficultés rencontrées)
     
@@ -900,49 +966,120 @@ Le choix de l'ordre des points est donné à l'utilisateur sous la forme de troi
 	Le confinement n'a pas été pratique, le télétravail à réduit cette sensation de convivialité que pourrait procurer un travail de groupe, et le partage d'écran pour faire comprendre son travail aux autres à montré ses limites. Mais nous avons tous oeuvré pour maintenir une bonne ambiance au sein du groupe. 
 	L'application de communication Discord nous a permis d'avoir une bonne circulation de l'information, puisque nous avions principalement des traces écrites de nos discussions et de nos décisions. 
     Étant auteurs de notre planification des tâches et n'ayant pas ou peu d'expérience dans les projets de groupes sur plusieurs semaines, comme évoqué dans la partie II-2, nous sommes satisfait d'avoir garder en vue de livrer une application répondant à nos objectifs, au prix de certaines fonctionnalités. Cela est  principalement dû à la fluidité de nos interactions sur Discord, qui ont permis de communiquer sur nos avancées, et donc de réaligner nos priorités pour satisfaire nos objectifs et d'en répartir les responsabilités. 
-
+    
+    \section{Extensions envisagées}
+    Nous avons écarté plusieurs idées durant le projet car nous manquions de temps. Nous tenons à les lister, afin de laisser des pistes de réflexion en cas de reprise du projet (par nous-même ou par d'autres personnes).
+    
+    La première d'entre elles consiste en une autre méthode de création d'intervalles : une autre approche pourrait être de créer deux répartitions distinctes des données en intervalles. Cela signifierait que chaque donnée serait dans deux intervalles. Il faudrait ensuite appliquer les méthodes de détection des points aberrants sur les intervalles des deux répartitions, et ne considérer un point aberrant que s'il l'est pour les deux répartitions (sinon, cela signifierait que ce point est juste au bord d'un des deux intervalles.
+    
+    Nous pourrions également chercher à automatiser la recherche des paramètres nécessaires, par exemple pour les méthodes de détection de points aberrants.
+    
 	
+	
+	
+	A ENLEVER APRES (images)
+	On peut le voir sur les figures ci-dessous :
+    			        
+    			         \begin{figure}[H]
+                            \centering
+                            \includegraphics[width=10cm]{Images/Suppressed.png}
+                            \caption{Détection des points aberrants}
+                            \label{fig:exemple}
+                        \end{figure}
+                        
+                        
+                         \begin{figure}[H]
+                            \centering
+                            \includegraphics[width=10cm]{Images/Suppressed 2.png}
+                            \caption{Construction de la spline sans ces points}
+                            \label{fig:exemple}
+                        \end{figure}
+                        
+\begin{figure}[H]
+                        \centering
+                        \includegraphics[width=10cm]{Images/LOESS}
+                        \caption{Exemple de résultat }
+                        \label{fig:exemple}
+                    \end{figure}
+                    
+                    Dans cet exemple, nous avons en rouge une spline de lissage et en bleu une autre spline de lissage utilisant la méthode LOESS.  Nous avons également les valeurs initiales de l'échantillon en rouge et celles ajustées en bleu. On remarque que la méthode LOESS considère moins les valeurs pouvant être considérées comme aberrantes ou bruitées.
+                        
+                        
+
+\cite{CAO_site}
+\cite{CAO_lissage}
+\cite{RANSAC}
+\cite{Param_lissage}
+\cite{LOESS1}
+\cite{LOESS2}
+\cite{Detection}
+\cite{DES}
+\cite{Grubbs1}
+\cite{Grubbs2}
+\cite{MC}
+\cite{Win1}
+\cite{Win2}
+\cite{KNN1}
+\cite{KNN2}
+\cite{KNN3}
 
 
 
 
 \renewcommand\partname{}
 \part{Bibliographie}
-	%\url{http://w3.mi.parisdescartes.fr/~lomn/Cours/CV/SeqVideo/Material/RANSAC-tutorial.pdf} \\
 
-Luc Biard, Page Internet Personnelle\\
-\url{http://www-ljk.imag.fr/membres/Luc.Biard}\\
-Luc Biard, Cours sur les splines de lissages\\
-\url{http://www-ljk.imag.fr/membres/Luc.Biard/L3MI_cours/Splines.pdf}\\
-Hyndman, Rob J., and George Athanasopoulos   Forecasting: principles and practice. OTexts, 2014.\\
-\url{https://otexts.com/fpp2/ses.html}\\
-Xavier Bourret Sicotte, Locally Weighted Linear Regression (Loess)\\
-\url{https://xavierbourretsicotte.github.io/loess.html}\\
-Wikipedia, Local Regression\\
-\url{https://en.wikipedia.org/wiki/Local_regression}{Wikipedia, Local Regression}\\
-Wikipedia, Méthode des moindres carrés\\
-\url{https://fr.wikipedia.org/wiki/Méthode_des_moindres_carrés}\\
+\printbibliography
 
 
-\url{https://fr.wikipedia.org/wiki/Donn\%C3\%A9e_aberrante} : beaucoup de méthodes \\
-\url{https://lemakistatheux.wordpress.com/category/tests-statistique-indices-de-liaison-et-coefficients-de-correlation/ les-tests-pour-la-detection-doutliers/} Plusieurs méthodes expliquées permettant de détecter les outliers : Déviation extrême généralisée Studen (et autres méthodes \\
-\url{ https://en.wikipedia.org/wiki/Grubbs\%27s_test_for_outliers} test de Grubbs \\
-\url{https://ellistat.com/guide-dutilisateur/statistiques-descriptives/tests-de-valeurs-aberrantes/ test-de-grubb/} test de Grubbs (pratique seulement, pas de théorie)\\
-\url{http://w3.mi.parisdescartes.fr/~lomn/Cours/CV/SeqVideo/Material/RANSAC-tutorial.pdf}\\
-\url{https://blogs.sas.com/content/iml/2017/02/08/winsorization-good-bad-and-ugly.html}
-\url{https://en.wikipedia.org/wiki/Winsorizing}
-
-Pour les k plus proches voisins
-
-https://medium.com/@kenzaharifi/bien-comprendre-lalgorithme-des-k-plus-proches-voisins-fonctionnement-et-impl%C3%A9mentation-sur-r-et-a66d2d372679
-
-https://fr.qwe.wiki/wiki/K-nearest_neighbors_algorithm
-
-http://exorciste2.free.fr/Amine/nouveau%20dossier/MOAB/coursDM_KNN.pdf
 
 \renewcommand\partname{}
 \part{Annexes}
-	\section*{Annexe 1 : blablabla}
+
+    \section{\label{annexe1}Correspondance numéro/contenu des tâches}
+        
+        	\begin{figure}[H]
+        	    \centering
+        	    \includegraphics{Images/taches_nums.png}
+        	    \caption{Tâches prévues}
+        	\end{figure}
+        
+        	\begin{figure}[H]
+        	    \centering
+        	    \includegraphics{Images/taches_nums_new.png}
+        	    \caption{Tâches rajoutées}
+        	\end{figure}
+
+	\section{\label{annexe2}Répartition des tâches originelle}
+	
+    	\begin{figure}[H]
+    	    \centering
+    	    \includegraphics{Images/annexe1_1.png}
+    	    \caption{Répartition des tâches : semaine 1}
+    	\end{figure}
+    	
+    	\begin{figure}[H]
+    	    \centering
+    	    \includegraphics{Images/annexe1_2.png}
+    	    \caption{Répartition des tâches : semaine 2}
+    	\end{figure}
+    	
+    	\begin{figure}[H]
+    	    \centering
+    	    \includegraphics{Images/annexe1_3.png}
+    	    \caption{Répartition des tâches : semaine 3}
+    	\end{figure}
+    	
+    	\begin{figure}[H]
+    	    \centering
+    	    \includegraphics{Images/annexe1_4.png}
+    	    \caption{Répartition des tâches : légende}
+    	\end{figure}
+	
+	
+	
+	
+	\section{\label{annexe3}Répartition des tâches réelle}
 
 \begin{figure}
 \begin{center}
