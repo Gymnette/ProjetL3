@@ -183,8 +183,8 @@ def Faire_intuitive(uk, zk, f, mode):
         #plt.scatter(xi,[0]*n,label = 'noeuds')
 
         H = [xi[i+1]-xi[i] for i in range(len(xi)-1)] # vecteur des pas de la spline
-        #rho = spllis.trouve_rho(uk, zk)
-        rho = 0.04
+        rho = spllis.trouve_rho(uk, zk)
+        #rho = 0.04
         #print(H03(N,n,uk,xi,H))
 
         Y = spllis.Vecteur_y(uk,[zk],xi,n,H,rho)
