@@ -411,14 +411,16 @@ def trouve_rho(x,y):
         fold = 20
     else:
         fold = len(x)
-    
+
     grid = GridSearchCV(KernelDensity(),
                     {'bandwidth': x},
                     cv=fold) # 20-fold cross-validation
-    grid.fit(y[:, None])
+    ybis = [[e] for e in y]
+    #grid.fit(y[:, None])
+    grid.fit(ybis)
 
     rho =  grid.best_params_['bandwidth']
-    
+
     return rho
 
 
