@@ -200,9 +200,16 @@ def tester(x, y, f = None, M_int = None, locglob='1'):
 
     else:
 
-        #ep = meth.esti_epsilon(y)
-        #p = pas_inter(y,epsilon = ep) #ESSAI
-        p = meth.ind_densite(y)
+        ldt.affiche_separation()
+        print("Quelle methode de création d'intervalles utiliser ?")
+        print("1 : Par ???????")
+        print("2 : Par densité")
+        p_meth = ldt.input_choice(['1','2'])
+        if p_meth == '1':
+            ep = meth.esti_epsilon(y)
+            p = pas_inter(y,epsilon = ep) #ESSAI
+        else:
+            p = meth.ind_densite(y)
         p = meth.regrouper(p,30)
 
         b = p[0]
