@@ -11,12 +11,12 @@ from random import sample
 import numpy as np
 
 import matplotlib.pyplot as plt
+import plotingv2 as plot
 
 import load_tests as ldt
 import splines_naturelles as splnat
 import splines_de_lissage as spllis
 
-import plotingv2 as plot
 ####################
 # Fonctions utiles #
 ####################
@@ -139,7 +139,6 @@ def calcul_Spline_NU(X, Y, a, b, n):
     la discrétisation de la spline.
     '''
     H = [X[i + 1] - X[i] for i in range(n - 1)]
-    #plt.scatter(X, Y, s=75, c='red', marker = 'o', label = "NU interpolation points")
     A = splnat.Matrix_NU(H)
     B = splnat.Matrix_NU_resulat(Y, H)
     Yp = np.linalg.solve(A, B)
@@ -363,15 +362,8 @@ def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False,mode=N
         xres, yres = [], []
         if para:
             xres, yres = calcul_Spline_para(x_selec, y_selec)
-            #plt.plot(x_selec, y_selec, "ro")
-            #print(x_selec, y_selec)
-            #plt.plot(xres, yres, "bo")
         else:
             xres, yres = calcul_Spline_NU(x_selec, y_selec, a, b, nbpoints)
-
-        #plt.plot(x, y, "or")
-        #plt.plot(x_selec, y_selec, "og")
-
         # Calcul des erreurs
         liste_inlier = list(i_points)
         for i, e in enumerate(x):
@@ -428,9 +420,11 @@ def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False,mode=N
                 ymod = list(ytemp)
 
                 #ESSAI D'AFFICHAGE DES POINTS ABERRANTS
-                #plt.close('all')
-                plt.plot(x, y, "+b")
-                plt.plot(x_pour_spline, y_pour_spline, "+y")
+                plot.scatterdata(x,y,c="+b",new_fig=False,show=False,legend="Pts aberrants")
+                #plt.plot(x, y, "+b")
+                plot.scatterdata(x_pour_spline, y_pour_spline, c="+y", new_fig=False, show=False,legend="Pts non aberrants")
+                #plt.plot(x_pour_spline, y_pour_spline, "+y")
+
 
                 # AFFICHAGE DE LA SPLINE INTERMEDIAIRE
                 # A LAISSER. DANS L'IDEE, OPTION A PROPOSER
@@ -477,7 +471,6 @@ def Faire_Ransac(x, y, rho, f=None, para='1'):
         DESCRIPTION.
 
     """
-    plt.figure()
     if para == '1':
         parabool = False
         x, y = ldt.sortpoints(x, y)
@@ -497,15 +490,17 @@ def Faire_Ransac(x, y, rho, f=None, para='1'):
     else:
         nconsidere = spllis.choisir_n()
     xres, yres = ransac_auto(x, y, 0.5, d_euclidienne, nconsidere, rho, parabool, mode=mode)
-    plt.plot(xres, yres, "r")
+
+    plot.scatterdata(xres, yres, c= "r", show=False, new_fig=False, legend="Splines attendue")
+    #plt.plot(xres, yres, "r")
 
     xreel, yreel = calcul_Spline_lissage(x, y, min(x), max(x), len(x), rho, mode)
+    plot.plot1d1d(xreel, yreel, c="b", show=False, new_fig=False, legend="Spline obtenue")
+    plt.title("Algorithme de Ransac")
     if f is not None:
         xi = np.linspace(0, 1, 100)
-        plot.plot1d1d(xi, f(xi), new_fig=False, c='g')
-    plt.plot(xreel, yreel, "--b")
-    plt.title("Algorithme de Ransac")
-    plt.legend(["Données aberrantes", "Données non aberrantes", "interpolation aux moindres carrées obtenue", "interpolation attendue"])
+        plot.plot1d1d(xi, f(xi), new_fig=False, c='g',show=False,legend="signal")
+    plot.show()
     return xreel, yreel
 
 def Lancer_Ransac():
@@ -565,7 +560,6 @@ def Lancer_Ransac():
         ldt.affiche_separation()
         print("Graine pour la génération du signal : ", seed)
         ldt.affiche_separation()
-
 
 if __name__ == "__main__":
     print("ce programme ne se lance pas seul. Lancer Appli_Interpolaspline.")
