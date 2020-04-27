@@ -448,9 +448,6 @@ def test_fichier(n, uk, zk, f=None, mode=None, aff_n=None, rho=1):
         print("\nAfficher les noeuds ? (y = oui, n = non)")
         aff_n = ldt.input_choice()
 
-    plot.scatterdata(uk, zk, 'rx', new_fig=False, show=False, legend='données') # affichage des points de l'échantillon
-    plt.title('spline de lissage avec ' + str(n) + ' noeuds') # titre
-
     if mode == '1':
         xi = np.linspace(a, b, n)
     elif mode == '2':
@@ -461,6 +458,11 @@ def test_fichier(n, uk, zk, f=None, mode=None, aff_n=None, rho=1):
     else:
         xi = Repartition_optimale(uk)
         n = len(xi)
+
+    plot.scatterdata(uk, zk, 'rx', new_fig=False, show=False, legend='données') # affichage des points de l'échantillon
+    plt.title('spline de lissage avec ' + str(n) + ' noeuds') # titre
+
+
 
     if presence_intervalle_vide(xi, uk):
         ldt.affiche_separation()
