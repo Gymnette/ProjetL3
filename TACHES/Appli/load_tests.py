@@ -262,6 +262,13 @@ def charge_donnees(D_methodes=None):
             seed = - 1
     # signaux de tests stationnaires provenant du générateur
     print("\nCreation de signal rapide ? (y = oui, n = non)")
+    print("Les paramètres seraient :")
+    print("- Ecart type = ",std1)
+    print("- Nombre de points = ",nb_pts)
+    if stationnaire == 'y':
+        print("- Régularité = ",reg)
+    else:
+        print("- Probabilité de saut = ",prob)
     skip = input_choice()
 
     # signaux de tests stationnaires provenant du générateur

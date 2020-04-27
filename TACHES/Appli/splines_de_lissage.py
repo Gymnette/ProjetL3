@@ -448,9 +448,8 @@ def test_fichier(n, uk, zk, f=None, mode=None, aff_n=None, rho=1):
         print("\nAfficher les noeuds ? (y = oui, n = non)")
         aff_n = ldt.input_choice()
 
-    plt.figure()
+    plt.plot1d1d(uk, zk, 'rx', new_fig=False, show=False, legend='données') # affichage des points de l'échantillon
     plt.title('spline de lissage avec ' + str(n) + ' noeuds') # titre
-    plt.plot(uk, zk, 'rx', label='données') # affichage des points de l'échantillon
 
     if mode == '1':
         xi = np.linspace(a, b, n)

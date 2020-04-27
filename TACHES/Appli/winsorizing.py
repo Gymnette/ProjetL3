@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import math
+import Tache_4_Detection_donnes_aberrantes as det
+import load_tests as ldt
+import Tache_4_methodes as meth
 
 def winsorization(y,quantite_aberrante):
     """
@@ -75,6 +78,59 @@ def traitement_winsorizing(y,indices_points_aberrants):
             ybis[i] = minimum
 
     return ybis
+
+def Faire_win(x, y, f, m_proba, M):
+
+    print("Choisir la portee de traitement des donnees :")
+    print('1 : Local')
+    print('2 : Global')
+    locglob = ldt.input_choice(['1','2'])
+
+    if M == meth.KNN:
+        M = meth.eval_quartile
+
+
+    ##########################
+    # Traitement des données #
+    ##########################
+    IND_AB = []
+    if locglob == '1':
+        p = det.pas_inter(y, epsilon=0.5)
+        b = p[0]
+        i = 1
+        while i < len(p):  # Tant que i < len(p), il reste une borne droite d'intervalle non utilisée
+            a = b
+            b = p[i]  # On récupère cette borne après avoir décalé
+
+            j = x[a:b]
+            g = y[a:b]
+
+            yd, v_poids, indices_aberrants = det.supprime(g, M)  # AMELYS: IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
+            indices_aberrants.sort()
+            IND_AB = IND_AB + indices_aberrants
+            # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
+            # On ne garde que les x associés aux y.
+            xd = list(j)
+            for ind in range(len(indices_aberrants) - 1, - 1, - 1):  # On part de la fin pour ne pas avoir de décalage d'indices
+                xd.pop(indices_aberrants[ind])
+
+            i += 1  # On se décale d'un cran à droite
+
+    else:
+        ldt.affiche_separation()
+        print("bloup")
+        IND_AB = []
+
+    IND_AB = list(set(IND_AB))
+
+    if m_proba:
+        prob = len(IND_AB)/len(y)
+        ybis = winsorization(y,prob)
+    else:
+        ybis = traitement_winsorizing(y, IND_AB)
+
+    return ybis
+
 
 
 if __name__ == "__main__":

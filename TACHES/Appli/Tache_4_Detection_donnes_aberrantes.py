@@ -11,6 +11,7 @@ import plotingv2 as plot
 import numpy as np
 
 # Methodes de detection
+import winsorizing as win
 import Tache_4_methodes as meth
 
 
@@ -166,8 +167,8 @@ def tester(x, y, f = None, M_int = None, locglob=None):
 
     if locglob is None:
         print("Choisir la portee de traitement des donnees :")
-        print('1 : Local')
-        print('2 : Global')
+        print('1 : Global')
+        print('2 : Local')
         locglob = ldt.input_choice(['1','2'])
 
     ##########################
@@ -333,10 +334,15 @@ def trouve_points_aberrants():
 
             M = ldt.input_choice(['1', '2', '3', '4', '5', '6'])
             lab, Mi = D[M]
-            x_ab, y_ab, y_esti = meth.LOESS(x, y, f, Mi)
-
             plot.scatterdata(x, y, c='bx', legend='données',show=False) # affichage des points de l'échantillon
-            plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False) # affichage des points aberrants de l'échantillon
+
+            if type_mod == "1" or "2":
+                y_esti = win.Faire_win(x,y,f,type_mod == "1",Mi)
+                plot.scatterdata(x, y_esti, c='gx', legend='données modifiees',show=False)
+            else:
+                x_ab, y_ab, y_esti = meth.LOESS(x, y, f, Mi)
+                plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False) # affichage des points aberrants de l'échantillon
+
 
 
         return x, y_esti, f, is_array
@@ -351,8 +357,8 @@ def trouve_points_aberrants():
             if locglob_fixe == 'y':
                 ldt.affiche_separation()
                 print("Choisir la portee de traitement des donnees :")
-                print('1 : Local')
-                print('2 : Global')
+                print('1 : Global')
+                print('2 : Local')
                 locglob = ldt.input_choice(['1','2'])
 
             for i, exi in enumerate(x):
@@ -366,8 +372,8 @@ def trouve_points_aberrants():
         else:
             ldt.affiche_separation()
             print("Choisir la portee de traitement des donnees :")
-            print('1 : Local')
-            print('2 : Global')
+            print('1 : Global')
+            print('2 : Local')
             locglob = ldt.input_choice(['1','2'])
             Xtab, Ytab = tester(x, y, f, M, locglob)
 
