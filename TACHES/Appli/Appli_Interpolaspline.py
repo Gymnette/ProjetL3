@@ -2,7 +2,7 @@
 """
 Created on Wed Apr  8 14:09:52 2020
 
-@author: Amelys Rodet
+@author: Interpolaspline
 """
 
 #Outils

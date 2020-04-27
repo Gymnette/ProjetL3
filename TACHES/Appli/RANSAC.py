@@ -344,12 +344,7 @@ def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False,mode=N
         i_points = alea(len(x), nbpoints)
         i_points.sort()
         # i_points contient toujours le même nombre de points distcints,
-        # il suffit de vérifier si ce sont les mêmes pour savoir
-        # si on a déjà fait ce cas.
 
-
-
-        #print(i_points)
         x_selec = []
         y_selec = []
         for e in i_points:
@@ -379,12 +374,7 @@ def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False,mode=N
                 d_courbe = dist(x[i], y[i], xres[i_associe], yres[i_associe])
             if d_courbe <= err:
                 liste_inlier.append(i)
-            #else:
-                #print(i)
-                #print(i_associe)
-                #print(dist(x[i], y[i], xres[i_associe], yres[i_associe]))
-                #print("fin")
-
+                
         if len(liste_inlier) >= nbcorrect:
             # Le modèle semble ne contenir que des inlier !
             # On calcule la spline de lissage correspondante, avec l'erreur.
@@ -419,17 +409,8 @@ def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False,mode=N
                 xmod = list(xtemp)
                 ymod = list(ytemp)
 
-                #ESSAI D'AFFICHAGE DES POINTS ABERRANTS
-                plot.scatterdata(x,y,c="+b",new_fig=False,show=False,legend="Pts aberrants")
-                #plt.plot(x, y, "+b")
-                plot.scatterdata(x_pour_spline, y_pour_spline, c="+y", new_fig=False, show=False,legend="Pts non aberrants")
-                #plt.plot(x_pour_spline, y_pour_spline, "+y")
-
-
-                # AFFICHAGE DE LA SPLINE INTERMEDIAIRE
-                # A LAISSER. DANS L'IDEE, OPTION A PROPOSER
-                # Mais attention à bien modifier la légende
-                #plt.plot(xres, yres, "--g")
+                plot.scatterdata(x,y,c="+b",new_fig=False,show=False,legend="Points aberrants")
+                plot.scatterdata(x_pour_spline, y_pour_spline, c="+y", new_fig=False, show=False,legend="Points non aberrants")
 
             # Que le modèle soit retenu ou non, on met à jour la proportion d'inliers et ce qui est associé
 

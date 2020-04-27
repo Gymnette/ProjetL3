@@ -154,38 +154,27 @@ def Faire_intuitive(uk, zk, f, mode):
                 seuil = -1
 
     plt.figure()
-    plt.plot(uk,zk,"+")
+    plt.plot(uk,zk,"+",label="données")
     uk = list(uk)
     zk = list(zk)
 
     stop = 0
+    u_aberrant = []
+    z_aberrant = []
     while stop<1000: #On break cette boucle lorsqu'il n'y a plus de points aberrants
 
-        # A enlever
-        #plt.figure()
-        #plt.plot(uk,zk,"+")
-
-
-        #test précis :
         if mode == '1':
             xi = np.linspace(a, b, n)
         elif mode == '2':
             xi = spllis.Repartition_chebyshev(a, b, n)
         elif mode == '3':
-            #Test sur une repartition des noeuds aleatoire
             xi = spllis.Repartition_aleatoire(a, b, n)
         else:
             xi = spllis.Repartition_optimale(uk)
             n = len(xi)
-        # La répartition peut aussi être faite de manière aléatoire.
-        # ATTENTION AUX INTERVALLES VIDES AVEC D'AUTRES REPARTITIONS (toujours le même problème)
-        #xi = Repartition_chebyshev(a,b,n)
-        #plt.scatter(xi,[0]*n,label = 'noeuds')
 
         H = [xi[i+1]-xi[i] for i in range(len(xi)-1)] # vecteur des pas de la spline
         rho = spllis.trouve_rho(uk, zk)
-        #rho = 0.04
-        #print(H03(N,n,uk,xi,H))
 
         Y = spllis.Vecteur_y(uk,[zk],xi,n,H,rho)
         yi = np.transpose(Y)
@@ -198,21 +187,15 @@ def Faire_intuitive(uk, zk, f, mode):
             yy=np.append(yy,y)
 
         ind_le_plus_aberrant = Erreur(uk,zk,xx,yy,seuil)
-
-        #y_estim = erreur.Erreur_poids(uk,zk,xx,yy,seuil,1/100000,rho)
-        #plt.plot(xx,yy,lw=1,label='spline de lissage avec rho = '+str(rho))
+        
         if ind_le_plus_aberrant == -1 or len(uk) <= n+1 :
-            plt.plot(xx,yy)
+            plt.plot(xx,yy,"orange",label="interpolation obtenue")
+            plt.plot(u_aberrant, z_aberrant, 'or', label='données retirées, seuil = '+str(seuil))
+
             break
-
-        plt.plot(uk[ind_le_plus_aberrant], zk[ind_le_plus_aberrant], 'or',color='y', label='donnée retirée, seuil = '+str(seuil))
-        #plt.plot(xx,yy)
-
-
-        #plt.plot(uk,y_estim,color='r',label='avec poids')
-
-        uk.pop(ind_le_plus_aberrant)
-        zk.pop(ind_le_plus_aberrant)
+        
+        u_aberrant.append(uk.pop(ind_le_plus_aberrant))
+        z_aberrant.append(zk.pop(ind_le_plus_aberrant))
         stop+=1
 
     ldt.affiche_separation()
@@ -221,7 +204,8 @@ def Faire_intuitive(uk, zk, f, mode):
 
     if f is not None:
         xi = np.linspace(0, 1, 100)
-        plot.plot1d1d(xi, f(xi), new_fig=False, c='g')
+        plot.plot1d1d(xi, f(xi), new_fig=False, c='g', legend = "résultat attendu")
+    
     plt.show()
 
 
@@ -244,3 +228,6 @@ def Lancer_intuitive():
             Faire_intuitive(xi, zk[i], f, M)
     else:
         Faire_intuitive(uk, zk, f, M)
+    
+if __name__ == "__main__":
+    print("ce programme ne se lance pas seul. Lancer Appli_Interpolaspline.")
