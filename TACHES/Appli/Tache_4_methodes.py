@@ -290,7 +290,7 @@ def loess_robuste(x, y,rho,iter=10):
 
 def LOESS_robuste(uk, zk, f = None, M = None):
     """
-    LOESS
+    LOESS robuste
     """
     if M is None :
         print("???")

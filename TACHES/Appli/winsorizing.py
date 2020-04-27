@@ -79,12 +79,13 @@ def traitement_winsorizing(y,indices_points_aberrants):
 
     return ybis
 
-def Faire_win(x, y, f, m_proba, M):
+def Faire_win(x, y, f, m_proba, M, locglob = None):
 
-    print("Choisir la portee de traitement des donnees :")
-    print('1 : Local')
-    print('2 : Global')
-    locglob = ldt.input_choice(['1','2'])
+    if locglob is None:
+        print("Choisir la portee de traitement des donnees :")
+        print('1 : Global')
+        print('2 : Local')
+        locglob = ldt.input_choice(['1','2'])
 
     if M == meth.KNN:
         M = meth.eval_quartile
@@ -105,7 +106,7 @@ def Faire_win(x, y, f, m_proba, M):
             j = x[a:b]
             g = y[a:b]
 
-            yd, v_poids, indices_aberrants = det.supprime(g, M)  # AMELYS: IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
+            _, _, indices_aberrants = det.supprime(g, M)  # AMELYS: IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
             indices_aberrants.sort()
             IND_AB = IND_AB + indices_aberrants
             # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
@@ -118,8 +119,34 @@ def Faire_win(x, y, f, m_proba, M):
 
     else:
         ldt.affiche_separation()
-        print("bloup")
         IND_AB = []
+
+        ldt.affiche_separation()
+        print("Quelle methode de création d'intervalles utiliser ?")
+        print("1 : Par ???????")
+        print("2 : Par densité")
+        p_meth = ldt.input_choice(['1','2'])
+        if p_meth == '1':
+            ep = meth.esti_epsilon(y)
+            p = pas_inter(y,epsilon = ep) #ESSAI
+        else:
+            p = meth.ind_densite(y)
+        p = meth.regrouper(p,30)
+
+        b = p[0]
+        i=1
+        while i < len(p) : # Tant que i < len(p), il reste une borne droite d'intervalle non utilisée
+            a = b
+            b = p[i] #On récupère cette borne après avoir décalé
+
+            j = x[a:b+1]
+            g = y[a:b+1]
+            k = (b-a+1)//2
+
+            _, _, indices_aberrants = det.supprime(g, M)
+            IND_AB = IND_AB + indices_aberrants
+
+            i+=1 # On se décale d'un cran à droite
 
     IND_AB = list(set(IND_AB))
 

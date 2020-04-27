@@ -313,12 +313,18 @@ def trouve_points_aberrants():
                     lab, Mi = D[M_int]
                 else:
                     lab, Mi = D[M]
-                x_abi, y_abi, y_estii = meth.LOESS(xi, y[i], f, Mi)
-                x_ab.append(x_abi)
-                y_ab.append(y_abi)
+
+                if type_mod == "1" or "2":
+                    y_estii = win.Faire_win(xi,y[i],f,type_mod == "1",Mi)
+                    plot.scatterdata(x[i], y_estii, c='gx', legend='données modifiees')
+                else:
+                    x_abi, y_abi, y_estii = meth.LOESS(xi, y[i], f, Mi)
+                    x_ab.append(x_abi)
+                    y_ab.append(y_abi)
+                    plot.scatterdata(xi, y[i], c='bx', legend='données',show=False) # affichage des points de l'échantillon
+                    plot.scatterdata(x_abi, y_abi, c='rx', legend='données aberrantes', new_fig=False) # affichage des points aberrants de l'échantillon
+
                 y_esti.append(y_estii)
-                plot.scatterdata(xi, y[i], c='bx', legend='données',show=False) # affichage des points de l'échantillon
-                plot.scatterdata(x_abi, y_abi, c='rx', legend='données aberrantes', new_fig=False) # affichage des points aberrants de l'échantillon
 
 
         else:
