@@ -276,6 +276,13 @@ def trouve_points_aberrants():
     ldt.affiche_separation()
 
     if sup_poids == "2":
+        print("Choisissez la methode de modification des donnees :")
+        print("1 : Winsoring avec pourcentage de points aberrants")
+        print("2 : Winsoring avec indices de points aberrants")
+        print("3 : LOESS")
+        type_mod = ldt.input_choice(['1','2','3'])
+
+    if sup_poids == "2":
 
         D = {'1': ("Méthode interquartile", meth.eval_quartile),
              '2': ("Test de Chauvenet", meth.test_Chauvenet),
@@ -311,7 +318,7 @@ def trouve_points_aberrants():
                 y_esti.append(y_estii)
                 plot.scatterdata(xi, y[i], c='bx', legend='données',show=False) # affichage des points de l'échantillon
                 plot.scatterdata(x_abi, y_abi, c='rx', legend='données aberrantes', new_fig=False) # affichage des points aberrants de l'échantillon
-               
+
 
         else:
 
@@ -330,7 +337,7 @@ def trouve_points_aberrants():
 
             plot.scatterdata(x, y, c='bx', legend='données',show=False) # affichage des points de l'échantillon
             plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False) # affichage des points aberrants de l'échantillon
-           
+
 
         return x, y_esti, f, is_array
     else :

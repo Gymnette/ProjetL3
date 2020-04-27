@@ -513,8 +513,11 @@ def choisir_rho(uk,zk, rho_auto='y'):
         print("\nChoisissez un paramètre de lissage :")
         rho = - 1
         while rho < 0:
+            rho = input("> ")
+            if rho == "q":
+                sys.exit(0)
             try:
-                rho = int(input("> "))
+                rho = float(rho)
                 if rho < 0:
                     rho = - 1
                     print("Merci d'entrer un nombre valide")
@@ -532,8 +535,11 @@ def choisir_n():
     print("\nChoisissez un nombre de noeuds :")
     n = - 1
     while n < 0:
+        n = input("> ")
+        if n == "q":
+            sys.exit(0)
         try:
-            n = int(input("> "))
+            n = int(n)
             if n < 5:
                 n = - 1
                 print("Merci d'entrer un nombre valide")

@@ -13,6 +13,7 @@ import sys
 from scipy import linalg
 
 import splines_de_lissage as spllis
+import load_tests as ldt
 
 
 ####################
@@ -312,8 +313,12 @@ def LOESS(uk, zk, f = None, M = None):
     if M is None :
         print("???")
         M = eval_quartile
-        
-    rho = spllis.trouve_rho(uk,zk) # trouve le paramètre de lissage optimal        
+
+    rho = spllis.trouve_rho(uk,zk) # trouve le paramètre de lissage optimal
+    print("\nLe paramètre de lissage automatique serait : ", rho)
+    print("Choisir ce paramètre de lissage ? (y = oui, n = non)")
+    rho_auto = ldt.input_choice()
+    rho = spllis.choisir_rho(uk,zk, rho_auto)
 
     yd, v_poids, indices_aberrants = supprimeLOESS(zk, M)
     for i in range(len(indices_aberrants)):
