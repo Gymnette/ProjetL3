@@ -64,6 +64,22 @@ def sortpoints(X, Y):
     Yb = [D[Xb[i]] for i in range(n)]
     return Xb, Yb
 
+def remplissent_conditions(x,y):
+    """
+    Teste l'integrite des donnees avant interpolation'
+    """
+    ok = True
+    err = None
+
+    if not len(x) == len(y):
+        ok = False
+        err = "ERREUR : Le vecteur des abscisses et celui des ordonnees n'ont pas la meme taille"
+    if len(x) == 0 :
+        ok = False
+        err = "ERREUR : Donnees vides"
+
+    return ok,err
+
 def input_choice(Choices=None):
     """
     Type de Choices : Liste des valeurs d'input possible

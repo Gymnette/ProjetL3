@@ -134,7 +134,7 @@ def pas_inter(y, epsilon=0.1):
 
     return p
 
-def tester(x, y, f = None, M_int = None, locglob='1'):
+def tester(x, y, f = None, M_int = None, locglob=None):
     """
     partie du programme principal :
         applique une methode de detection des points aberrants sur un ensemble de donnees
@@ -164,9 +164,16 @@ def tester(x, y, f = None, M_int = None, locglob='1'):
 
     lab, M = D[M_int]
 
+    if locglob is None:
+        print("Choisir la portee de traitement des donnees :")
+        print('1 : Local')
+        print('2 : Global')
+        locglob = ldt.input_choice(['1','2'])
+
     ##########################
     # Traitement des données #
     ##########################
+
     if locglob == '1':
         p = pas_inter(y, epsilon=0.5)
         b = p[0]
@@ -331,8 +338,21 @@ def trouve_points_aberrants():
         if is_array:
             Xtab = []
             Ytab = []
+            ldt.affiche_separation()
+            print("Definir une portee de traitement pour tous les fichiers ? (y = oui, n = non")
+            locglob_fixe = ldt.input_choice()
+            if locglob_fixe == 'y':
+                ldt.affiche_separation()
+                print("Choisir la portee de traitement des donnees :")
+                print('1 : Local')
+                print('2 : Global')
+                locglob = ldt.input_choice(['1','2'])
+
             for i, exi in enumerate(x):
-                X, Y = tester(exi, y[i], f, M)
+                if locglob_fixe == 'y':
+                    X, Y = tester(exi, y[i], f, M,locglob)
+                else:
+                    X, Y = tester(exi, y[i], f, M)
                 Xtab.append(X)
                 Ytab.append(Y)
 

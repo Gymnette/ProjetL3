@@ -146,7 +146,7 @@ def Affiche_Spline_Para(a, b, X, Y, label="", color="r", type_repartition=""):
     Aucun retour
     '''
     n = len(X)
-    plt.scatter(X, Y)
+    plot.scatterdata(X, Y, c="b+", legend="Donnees",show=False)
     if type_repartition == "chordale":
         T = Repartition_cordale(X, Y, a, b)
     elif type_repartition == "chebyshev":
@@ -212,6 +212,12 @@ def Repartition_aleatoire(a, b, n):
     return xi
 
 def test_fichier(U, Z, f=None, mode=None):
+
+    ok, mess_err = ldt.remplissent_conditions(U,Z)
+
+    if not ok :
+        print(mess_err)
+        return
 
     if mode is None:
         #Demande du mode de traitement du fichier
