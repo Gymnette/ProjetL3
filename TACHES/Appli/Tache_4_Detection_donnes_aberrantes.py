@@ -303,8 +303,8 @@ def trouve_points_aberrants():
                 y_ab.append(y_abi)
                 y_esti.append(y_estii)
                 plot.scatterdata(xi, y[i], c='bx', legend='données',show=False) # affichage des points de l'échantillon
-                plot.scatterdata(x_abi, y_abi, c='rx', legend='données aberrantes', new_fig=False,show=False) # affichage des points aberrants de l'échantillon
-                plot.plt(xi,y_estii,  legend='estimations', new_fig=False) # affichage des points aberrants de l'échantillon
+                plot.scatterdata(x_abi, y_abi, c='rx', legend='données aberrantes', new_fig=False) # affichage des points aberrants de l'échantillon
+               
 
         else:
 
@@ -322,8 +322,8 @@ def trouve_points_aberrants():
             x_ab, y_ab, y_esti = meth.LOESS(x, y, f, Mi)
 
             plot.scatterdata(x, y, c='bx', legend='données',show=False) # affichage des points de l'échantillon
-            plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False,show=False) # affichage des points aberrants de l'échantillon
-            plot.plot1d1d(x,y_esti,  legend='estimations', new_fig=False) # affichage des points aberrants de l'échantillon
+            plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False) # affichage des points aberrants de l'échantillon
+           
 
         return x, y_esti, f, is_array
     else :

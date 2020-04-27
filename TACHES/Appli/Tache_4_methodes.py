@@ -228,25 +228,22 @@ def isIN(x, i):
 # Méthodes de détection de points aberrants #
 #############################################
 
-def poids_faibles(x, y,v_poids,rho):
+def poids_faibles(x, y,v_poids,span=1):
 
     """
-    Création du vecteur y_estimated depuis y, où ses valeurs sont estimées par le poid respectif de chacune
+    Création du vecteur y_estimated depuis y, où ses valeurs sont estimées par le poids respectif de chacun
 
     Intput :
         uk,zk : vecteurs de float de l'échantillon étudié
         v_poids : vecteur de float, poids des valeurs de l'échantillon
+        span : pas de l'estimation
     Output :
         y_estimated :  vecteurs de float(valeurs en y) de l'échantillon étudié, estimés par la méthode LOESS.
     """
-
     n = len(x)
+    w = np.array([np.exp(- ((x - x[i])**2)/(2*span))*v_poids[i] for i in range(n)])
     y_estimated = np.zeros(n)
-
-
-    w = np.array([np.exp(- (x - x[i])**2/(2*rho))*v_poids[i] for i in range(n)])  #initialise tous les poids
-
-    for i in range(n): #Calcule la nouvelle coordonnée de tout point
+    for i in range(n):
         weights = w[:, i]
         b = np.array([np.sum(weights * y), np.sum(weights * y * x)])
         A = np.array([[np.sum(weights), np.sum(weights * x)],
@@ -254,11 +251,43 @@ def poids_faibles(x, y,v_poids,rho):
         Theta = linalg.solve(A, b)
         y_estimated[i] = Theta[0] + Theta[1] * x[i]
 
+    return y_estimated
+
+def loess_robuste(x, y,rho,iter=10):
+
+    """
+    Création du vecteur y_estimated depuis y, où ses valeurs sont estimées par le poids de chaque point donné par nos méthodes de détection
+
+    Intput :
+        uk,zk : vecteurs de float de l'échantillon étudié
+        rho : paramètre de lissage
+        iter : iterations de robustesse
+    Output :
+        y_estimated :  vecteurs de float(valeurs en y) de l'échantillon étudié, estimés par la méthode LOESS.
+    """
+
+    n = len(x)
+    w = np.array([np.exp(- (x - x[i])**2/(2*rho)) for i in range(n)])
+    y_estimated = np.zeros(n)
+    delta = np.ones(n)
+    for iteration in range(iter):
+        for i in range(n):
+            weights = delta * w[:, i]
+            b = np.array([np.sum(weights * y), np.sum(weights * y * x)])
+            A = np.array([[np.sum(weights), np.sum(weights * x)],
+                          [np.sum(weights * x), np.sum(weights * x * x)]])
+            Theta = linalg.solve(A, b)
+            y_estimated[i] = Theta[0] + Theta[1] * x[i]
+
+        erreurs = y - y_estimated
+        s = np.median(np.abs(erreurs))
+        delta = np.clip(erreurs / (6.0 * s), -1, 1)
+        delta = (1 - delta ** 2) ** 2
 
     return y_estimated
 
 
-def LOESS(uk, zk, f = None, M = None):
+def LOESS_robuste(uk, zk, f = None, M = None):
     """
     LOESS
     """
@@ -269,10 +298,26 @@ def LOESS(uk, zk, f = None, M = None):
     rho = spllis.trouve_rho(uk,zk) # trouve le paramètre de lissage optimal
 
 
+    y_estimated = loess_robuste(uk, zk,rho) #estimons les nouvelles ordonnées des points de notre échantillon
+
+
+
+    return uk,y_estimated
+
+
+def LOESS(uk, zk, f = None, M = None):
+    """
+    LOESS
+    """
+    if M is None :
+        print("???")
+        M = eval_quartile
+        
+    rho = spllis.trouve_rho(uk,zk) # trouve le paramètre de lissage optimal        
 
     yd, v_poids, indices_aberrants = supprimeLOESS(zk, M)
     for i in range(len(indices_aberrants)):
-        v_poids[indices_aberrants[i]] = 1/3
+        v_poids[indices_aberrants[i]] = 1/10
 
     y_estimated = poids_faibles(uk, zk,v_poids,rho) #estimons les nouvelles ordonnées des points de notre échantillon
 
