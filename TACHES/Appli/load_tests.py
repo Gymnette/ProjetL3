@@ -190,7 +190,7 @@ def charge_donnees(D_methodes=None):
         X = []
         Y = []
         for f_test in liste:
-            x, y = load_points("Tests\\"+f_test+".txt")
+            x, y = load_points("Tests"+sep+f_test+".txt")
             X.append(x)
             Y.append(y)
         return X, Y, None, M_int, True, None
