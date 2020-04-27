@@ -245,6 +245,10 @@ def charge_donnees(D_methodes=None):
 
         return x, y, f, None, False, seed
 
+    std1 = 0.05
+    nb_pts = 30
+    prob = 0.1
+    reg = 0.1
     affiche_separation()
     print("\nTest sur recréation de signal. Signal stationnaire ? (y = oui, n = non)")
     stationnaire = input_choice()
