@@ -20,10 +20,12 @@ def affiche_noms_fichiers_tests():
     """
     Affiche les fichiers de Tests\
     """
+    os = sys.platform
+    sep = '\\' if os == 'win32' else '/'
     try:
-        f_liste = open("Tests\\Tous_les_tests.txt", 'r')
+        f_liste = open("Tests"+sep+"Tous_les_tests.txt", 'r')
     except IOError:
-        print("Erreur, le fichier Tests\Tous_les_tests.txt est introuvable, merci de relancer le programme.")
+        print("Erreur, le fichier Tests"+sep+"Tous_les_tests.txt est introuvable, merci de relancer le programme.")
         sys.exit(0)
 
     liste = (f_liste.read()).split("\n")
@@ -147,11 +149,14 @@ def charge_donnees(D_methodes=None):
 
     type_test = int(type_test)
 
+    os = sys.platform
+    sep = '\\' if os == 'win32' else '/'
+
     if type_test == 1:
 
         affiche_liste_fichiers_liste()
         affiche_separation()
-        f_liste_nom = "Tests\\"+input("Entrez le nom du fichier contenant la liste des tests :\n> ")+".txt"
+        f_liste_nom = "Tests"+sep+input("Entrez le nom du fichier contenant la liste des tests :\n> ")+".txt"
 
         if f_liste_nom == 'q':
             sys.exit(0)
@@ -194,7 +199,7 @@ def charge_donnees(D_methodes=None):
 
         affiche_noms_fichiers_tests()
         affiche_separation()
-        f_test = "Tests\\"+input("Entrez le nom du fichier de test :\n> ")+".txt"
+        f_test = "Tests"+sep+input("Entrez le nom du fichier de test :\n> ")+".txt"
         if f_test == 'q':
             sys.exit(0)
         x, y = load_points(f_test)
