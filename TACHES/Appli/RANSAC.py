@@ -246,7 +246,6 @@ def calcul_Spline_lissage(uk, zk, a, b, n, rho, mode=None):
      #   xi = spllis.Repartition_optimale(uk)
       #  n = len(xi)
     xi = repartition_equitable(uk,n)
-    print(xi,n)
 
     if spllis.presence_intervalle_vide(xi, uk):
         ldt.affiche_separation()
@@ -344,7 +343,6 @@ def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False,mode=N
         xres : vecteur de float
         yres : vecteur de float
     """
-    print("DEBUT",pcorrect)
     a = min(x)
     b = max(x)
 
@@ -442,7 +440,6 @@ def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False,mode=N
                     #il n'y aurait pas de points aberrants
                 if np.log(1 - pcorrect) / np.log(1 - prop_inlier ** len(x)) < 0:
                     break
-                print(pcorrect,prop_inlier,len(x))
                 nbitermax = int(np.floor(np.log(1 - pcorrect) / np.log(1 - prop_inlier ** len(x)))) # Sera ajusté en fonction de prop_inlier
                 if nbitermax > 500:
                     nbitermax = 500
