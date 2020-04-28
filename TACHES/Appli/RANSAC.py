@@ -449,7 +449,7 @@ def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False,mode=N
     plt.plot(xmod,ymod,label = "spline obtenue")
     return xmod, ymod
 
-def Faire_Ransac(x, y, rho, f=None, para='1'):
+def Faire_Ransac(x, y, rho,err=0.5, f=None, para='1'):
     """
     Parameters
     ----------
@@ -470,11 +470,6 @@ def Faire_Ransac(x, y, rho, f=None, para='1'):
         DESCRIPTION.
 
     """
-    if para == '1':
-        parabool = False
-        x, y = ldt.sortpoints(x, y)
-    else:
-        parabool = True
 
     ldt.affiche_separation()
     print("La répartition équitable est utilisée, les autres choix ne sont pas disponibles pour RANSAC.")
@@ -489,7 +484,7 @@ def Faire_Ransac(x, y, rho, f=None, para='1'):
      #   nconsidere = len(spllis.Repartition_optimale(x))
     #else:
     nconsidere = spllis.choisir_n()
-    xres, yres = ransac_auto(x, y, 0.5, d_euclidienne, nconsidere, rho)
+    xres, yres = ransac_auto(x, y, err, d_euclidienne, nconsidere, rho)
     
     #plt.plot(xres, yres, "r")
 
@@ -543,7 +538,22 @@ def Lancer_Ransac():
             else:
                 if rho_auto == 'y':
                     rho = spllis.choisir_rho(x[i],y[i])
-            X, Y = Faire_Ransac(x, y, rho, f, M)
+                    
+            ldt.affiche_separation()
+            print("Choisissez le seuil d'erreur (réel positif) :")
+    
+            seuil = -1
+            while seuil <=0 :
+                seuil = input("> ")
+                if seuil == "q":
+                    sys.exit(0)
+                else:
+                    try :
+                        seuil = float(seuil)
+                    except ValueError:
+                        print("Choisissez un nombre valide")
+                        seuil = -1
+            X, Y = Faire_Ransac(x, y, rho, seuil, f, M)
             Xtab.append(X)
             Ytab.append(Y)
 
@@ -555,8 +565,24 @@ def Lancer_Ransac():
         print("Choisir ce paramètre de lissage ? (y = oui, n = non)")
         rho_auto = ldt.input_choice()
         rho = spllis.choisir_rho(x,y, rho_auto)
-        Xtab, Ytab = Faire_Ransac(x, y, rho, f, M)
+        ldt.affiche_separation()
+        
+        print("Choisissez le seuil d'erreur (réel positif) :")
+    
+        seuil = -1
+        while seuil <=0 :
+            seuil = input("> ")
+            if seuil == "q":
+                sys.exit(0)
+            else:
+                try :
+                    seuil = float(seuil)
+                except ValueError:
+                    print("Choisissez un nombre valide")
+                    seuil = -1
 
+        Xtab, Ytab = Faire_Ransac(x, y, rho, seuil, f, M)
+        
     if seed is not None:
         ldt.affiche_separation()
         print("Graine pour la génération du signal : ", seed)

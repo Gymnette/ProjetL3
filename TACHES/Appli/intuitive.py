@@ -136,8 +136,8 @@ def Faire_intuitive(uk, zk, f, mode):
     
     a = min(uk)
     b = max(uk)
-    if mode == 4:
-        n = spllis.choisir_n()
+    #if mode == 4:
+    n = spllis.choisir_n()
 
     ldt.affiche_separation()
     print("Choisissez le seuil d'erreur (réel positif) :")
@@ -164,15 +164,16 @@ def Faire_intuitive(uk, zk, f, mode):
     z_aberrant = []
     while stop<1000: #break lorsqu'il n'y a plus de points aberrants
 
-        if mode == '1':
-            xi = np.linspace(a, b, n)
-        elif mode == '2':
-            xi = spllis.Repartition_chebyshev(a, b, n)
-        elif mode == '3':
-            xi = spllis.Repartition_aleatoire(a, b, n)
-        else:
-            xi = spllis.Repartition_optimale(uk)
-            n = len(xi)
+        xi = repartition_equitable(uk,n)
+        #if mode == '1':
+         #   xi = np.linspace(a, b, n)
+        #elif mode == '2':
+         #   xi = spllis.Repartition_chebyshev(a, b, n)
+        #elif mode == '3':
+         #   xi = spllis.Repartition_aleatoire(a, b, n)
+        #else:
+         #   xi = spllis.Repartition_optimale(uk)
+          #  n = len(xi)
 
         H = [xi[i+1]-xi[i] for i in range(len(xi)-1)] # vecteur des pas de la spline
         rho = spllis.trouve_rho(uk, zk)
