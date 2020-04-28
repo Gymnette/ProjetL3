@@ -309,15 +309,5 @@ def plotlevel(X, Y, fz, tab_levels=None, c='b', title="", new_fig=True, show=Tru
         plt.show()
 
 if __name__ == "__main__":
-    All_functions = {0:('parametric curve', plot1d2d), 1: ('one dimension', plot1d1d), 2: ('scalar field', plot2d1d), 3: ("vectorial field '3D", plot3d3d), 4 : ("vectorial field (2D)", plot2d2d), 5 : ("leveling curves", plotlevel)}
-
-    print("which running exemple ?")
-    for i in range(len(All_functions)):
-        print(i, ' :', All_functions[i][0])
-    ex = int(input("\n"))
-    help(All_functions[ex][1])
-    doctest.run_docstring_examples(All_functions[ex][1], globals())
-
-    if __name__ == "__main__":
     print("ce programme ne se lance pas seul. Lancer Appli_Interpolaspline.")
 

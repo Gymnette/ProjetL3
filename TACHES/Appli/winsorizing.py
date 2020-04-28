@@ -87,19 +87,31 @@ def traitement_winsorizing(y,indices_points_aberrants):
     return ybis
 
 def Faire_win(x, y, f, m_proba, M, locglob = None):
-    
-    
+
+    D = {'1': ("Méthode interquartile", meth.eval_quartile),
+         '2': ("Test de Chauvenet", meth.test_Chauvenet),
+         '3': ("Méthode de Tau Thompson", meth.thompson),
+         '4': ("Test de Grubbs", meth.grubbs),
+         '5': ("Test de la déviation extreme de student", meth.deviation_extreme_student)}
+
     plot.scatterdata(x, y, c='bx', legend='données', new_fig=False, show=False) # affichage des points de l'échantillon
-    
+
     if locglob is None:
+        ldt.affiche_separation()
         print("Choisir la portee de traitement des donnees :")
         print('1 : Global')
         print('2 : Local')
         locglob = ldt.input_choice(['1','2'])
-        
-    if M == meth.KNN:
-        M = meth.eval_quartile
 
+    if M == meth.KNN:
+        ldt.affiche_separation()
+        print("La méthode des k plus proches voisins n'est pas compatible avec la winzorisation.")
+        print("Merci de choisir une nouvelle méthode")
+
+        for key in D:
+            print(key, " : ", D[key][0])
+
+        M = D[ldt.input_choice(list(D.keys()))][1]
 
     ##########################
     # Traitement des données #
@@ -116,14 +128,14 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
             j = x[a:b]
             g = y[a:b]
 
-            _, _, indices_aberrants = det.supprime(g, M)  
+            _, _, indices_aberrants = det.supprime(g, M)
             indices_aberrants.sort()
             IND_AB = IND_AB + indices_aberrants
             # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
             # On ne garde que les x associés aux y.
             x_ab = []
             y_ab = []
-                
+
             xd = list(j)
             for ind in range(len(indices_aberrants) - 1, - 1, - 1):  # On part de la fin pour ne pas avoir de décalage d'indices
                 xd.pop(indices_aberrants[ind])
@@ -139,7 +151,7 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
 
         ldt.affiche_separation()
         print("Quelle methode de création d'intervalles utiliser ?")
-        print("1 : Par ???????")
+        print("1 : Par pas")
         print("2 : Par densité")
         p_meth = ldt.input_choice(['1','2'])
         if p_meth == '1':
@@ -164,7 +176,7 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
             i+=1 # On se décale d'un cran à droite
 
     IND_AB = list(set(IND_AB))
-    
+
     if m_proba:
         prob = len(IND_AB)/len(y)
         ybis = winsorization(y,prob)
