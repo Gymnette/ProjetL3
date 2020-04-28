@@ -482,7 +482,7 @@ def test_fichier(n, uk, zk, f=None, mode=None, aff_n=None, rho=1):
         x, y = HermiteC1(xi[i], yi[0][i], yip[0][i], xi[i + 1], yi[0][i + 1], yip[0][i + 1])
         xx = np.append(xx, x)
         yy = np.append(yy, y)
-    plt.plot(xx, yy, lw=1, label='spline de lissage avec rho = ' + str(round(rho, 3)))
+    plt.plot(xx, yy, "orange", lw=1, label='spline de lissage avec rho = ' + str(round(rho, 3)))
     plt.legend()
     plt.show()
 

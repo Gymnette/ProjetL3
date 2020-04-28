@@ -148,7 +148,7 @@ def tester(x, y, f = None, M_int = None, locglob=None):
         print("Choisissez une méthode de détection des points aberrants :")
         print("1 : Inter-Quartile")
         print("2 : Test de Chauvenet")
-        print("3 : Test de Tau Thompson")
+        print("3 : Test Tau de Thompson")
         print("4 : Test de Grubbs")
         print("5 : Test de la deviation extreme de Student")
         print("6 : Test des k plus proches voisins ")
@@ -157,7 +157,7 @@ def tester(x, y, f = None, M_int = None, locglob=None):
 
     D = {'1': ("Méthode interquartile", meth.eval_quartile),
          '2': ("Test de Chauvenet", meth.test_Chauvenet),
-         '3': ("Méthode de Tau Thompson", meth.thompson),
+         '3': ("Test Tau de Thompson", meth.thompson),
          '4': ("Test de Grubbs", meth.grubbs),
          '5': ("Test de la déviation extreme de student", meth.deviation_extreme_student),
          '6': ("Test des k plus proches voisins", meth.KNN)}
@@ -255,7 +255,7 @@ def trouve_points_aberrants():
 
     D_meth = {"1": "Inter-Quartile",
             "2": "Test de Chauvenet",
-            "3": "Test de Tau Thompson",
+            "3": "Test Tau de Thompson",
             "4": "Test de Grubbs",
             "5": "Test de la deviation extreme de Student",
             "6": "Test des k plus proches voisins "}
@@ -277,16 +277,16 @@ def trouve_points_aberrants():
 
     if sup_poids == "2":
         print("Choisissez la methode de modification des donnees :")
-        print("1 : Winsoring avec pourcentage de points aberrants")
-        print("2 : Winsoring avec indices de points aberrants")
-        print("3 : LOESS")
+        print("1 : Winsoring (détection et traitement)")
+        print("2 : Winsoring adaptée (traitement uniquement))
+        print("3 : LOESS adaptée (traitement uniquement)")
         type_mod = ldt.input_choice(['1','2','3'])
 
     if sup_poids == "2":
 
         D = {'1': ("Méthode interquartile", meth.eval_quartile),
              '2': ("Test de Chauvenet", meth.test_Chauvenet),
-             '3': ("Méthode de Tau Thompson", meth.thompson),
+             '3': ("Méthode Tau de Thompson", meth.thompson),
              '4': ("Test de Grubbs", meth.grubbs),
              '5': ("Test de la déviation extreme de student", meth.deviation_extreme_student),
              '6': ("Test des k plus proches voisins", meth.KNN)}
@@ -365,8 +365,8 @@ def trouve_points_aberrants():
             if locglob_fixe == 'y':
                 ldt.affiche_separation()
                 print("Choisir la portee de traitement des donnees :")
-                print('1 : Global')
-                print('2 : Local')
+                print('1 : Globale')
+                print('2 : Locale')
                 locglob = ldt.input_choice(['1','2'])
 
             for i, exi in enumerate(x):
@@ -380,8 +380,8 @@ def trouve_points_aberrants():
         else:
             ldt.affiche_separation()
             print("Choisir la portee de traitement des donnees :")
-            print('1 : Global')
-            print('2 : Local')
+            print('1 : Globale')
+            print('2 : Locale')
             locglob = ldt.input_choice(['1','2'])
             Xtab, Ytab = tester(x, y, f, M, locglob)
 

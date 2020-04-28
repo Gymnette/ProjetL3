@@ -246,7 +246,7 @@ def charge_donnees(D_methodes=None):
         return x, y, f, None, False, seed
 
     std1 = 0.05
-    nb_pts = 50
+    nb_pts = 200
     prob = 0.1
     reg = 0.9
     affiche_separation()
@@ -293,18 +293,6 @@ def charge_donnees(D_methodes=None):
         x, y, f, seed = ss.non_stationary_signal((nb_pts, ), switch_prob=prob, noise_func=nfunc, seed=seed)
 
     return x, y, f, None, False, seed
-
-        #############################################################
-        # Epsilon à choisir en fonction des graines et des méthodes #
-        #############################################################
-        # Pour les signaux stationnaires de paramètres 30, et 0.9
-        # Pour les paramètres des méthodes par défaut
-        #           0      1       2       3       4        5
-        # Quartile  0.5
-        # Chauvenet
-        # Thompson
-        # Grubbs    0.3
-        # ESD       0.3
 
 if __name__ == "__main__":
     print("ce programme ne se lance pas seul. Lancer appli_interpolaspline.")
