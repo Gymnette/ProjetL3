@@ -1,8 +1,9 @@
 # -*- coding: utf - 8  -*-
 """
-Created on Thu Apr 16 17:22:04 2020
+Avril 2020
 
 @author: Interpolaspline
+
 """
 def is_char_or_num(char):
     """
@@ -134,3 +135,5 @@ if __name__ == "__main__":
 
     FICHIER.close()
     FICHIER_BIS.close()
+    if __name__ == "__main__":
+    print("ce programme ne se lance pas seul. Lancer Appli_Interpolaspline.")
