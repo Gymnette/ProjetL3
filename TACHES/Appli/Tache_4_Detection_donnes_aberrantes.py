@@ -212,7 +212,7 @@ def tester(x, y, f = None, M_int = None, locglob=None):
         print("Quelle methode de création d'intervalles utiliser ?")
         print("1 : Par ???????")
         print("2 : Par densité")
-        p_meth = '2'
+        p_meth = ldt.input_choice(['1','2'])
         if p_meth == '1':
             ep = meth.esti_epsilon(y)
             p = pas_inter(y,epsilon = ep) #ESSAI
@@ -361,8 +361,7 @@ def trouve_points_aberrants():
                 print("Choisir la portee de traitement des donnees :")
                 print('1 : Global')
                 print('2 : Local')
-#                locglob = ldt.input_choice(['1','2'])
-                locglob='2'
+                locglob = ldt.input_choice(['1','2'])
 
             for i, exi in enumerate(x):
                 if locglob_fixe == 'y':
@@ -377,8 +376,7 @@ def trouve_points_aberrants():
             print("Choisir la portee de traitement des donnees :")
             print('1 : Global')
             print('2 : Local')
-#                locglob = ldt.input_choice(['1','2'])
-            locglob='2'
+            locglob = ldt.input_choice(['1','2'])
             Xtab, Ytab = tester(x, y, f, M, locglob)
 
 

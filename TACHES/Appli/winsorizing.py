@@ -93,8 +93,7 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
         
     if M == meth.KNN:
         M = meth.eval_quartile
-    
-    monplt.plot(x,y,"xb",label="Données modifiées")
+
 
     ##########################
     # Traitement des données #

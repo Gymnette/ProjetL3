@@ -400,13 +400,24 @@ def presence_intervalle_vide(xi, uk):
 
 
 def trouve_rho(x,y):
-    return 0.0000001
+    """
+    trouve rho ideal
+    """
+    if len(x) >= 20:
+        fold = 20
+    else:
+        fold = len(x)
 
     grid = GridSearchCV(KernelDensity(),
                     {'bandwidth': x},
                     cv=fold) # itérations de validation croisée
     ybis = [[e] for e in y]
     grid.fit(ybis)
+
+    rho =  grid.best_params_['bandwidth']
+
+    return rho
+
 
 def test_fichier(n, uk, zk, f=None, mode=None, aff_n=None, rho=1):
     """
@@ -425,12 +436,12 @@ def test_fichier(n, uk, zk, f=None, mode=None, aff_n=None, rho=1):
         print("2. repartition de Chebichev")
         print("3. repartition aléatoire")
         print("4. repartition optimale")
-        mode = '4'
+        mode = ldt.input_choice(['1', '2', '3', '4'])
 
     if aff_n is None:
         ldt.affiche_separation()
         print("\nAfficher les noeuds ? (y = oui, n = non)")
-        aff_n = 'n'
+        aff_n = ldt.input_choice()
 
     if mode == '1':
         xi = np.linspace(a, b, n)
@@ -604,7 +615,7 @@ def creation_spline_lissage(x=None, y=None, f=None, is_array=False):
                 rho = trouve_rho(x[i],y[i])
                 print("\nLe paramètre de lissage automatique serait : ", rho)
                 print("Choisir ce paramètre de lissage ? (y = oui, n = non)")
-                rho_auto = 'y'
+                rho_auto = ldt.input_choice()
                 rho = choisir_rho(x[i],y[i], rho_auto)
             else:
                 if rho_auto == 'y':
@@ -620,15 +631,14 @@ def creation_spline_lissage(x=None, y=None, f=None, is_array=False):
         rho = trouve_rho(x,y)
         print("\nLe paramètre de lissage automatique serait : ", rho)
         print("Choisir ce paramètre de lissage ? (y = oui, n = non)")
-        rho_auto = 'y'
+        rho_auto = ldt.input_choice()
         rho = choisir_rho(x,y, rho_auto)
         ldt.affiche_separation()
         print("\nChoisissez le mode de traitement des données :")
         for key in D_meth.keys():
             print(key, " : ", D_meth[key])
 
-        M = '1'
-        print(M)
+        M = ldt.input_choice(list(D_meth.keys()))
         if M == '4':
             n = 0
         else:
