@@ -278,7 +278,7 @@ def trouve_points_aberrants():
     if sup_poids == "2":
         print("Choisissez la methode de modification des donnees :")
         print("1 : Winsoring (détection et traitement)")
-        print("2 : Winsoring adaptée (traitement uniquement))
+        print("2 : Winsoring adaptée (traitement uniquement)")
         print("3 : LOESS adaptée (traitement uniquement)")
         type_mod = ldt.input_choice(['1','2','3'])
 
