@@ -7,30 +7,31 @@ Avril 2020
          PIASENTIN Béryl, RODET Amélys
 
 """
+import warnings
 
 #Outils
 import load_tests as ldt
 import splines_naturelles as splnat
 import splines_de_lissage as spllis
-import Tache_4_Detection_donnes_aberrantes as ptsabe
+import gestion_aberrance as ptsabe
 import RANSAC as rs
 import LOESS_robuste as loess_r
 import intuitive
-import warnings
 import plotingv2 as plot
 
 
 if __name__ == '__main__':
-    warnings.filterwarnings("ignore", category=RuntimeWarning) # pour enlever les DeprecationWarning
-    warnings.filterwarnings("ignore", category=DeprecationWarning) # pour enlever les DeprecationWarning
-    #Dictionnaire de choix de la FONCTIONNALITE
+    # suppression des Deprecation/Runtime warnings
+    warnings.filterwarnings("ignore", category=RuntimeWarning)
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
+    # Dictionnaire de choix de la FONCTIONNALITE
     D = {'1': ("Création d'une Spline naturelle", splnat.creation_spline_naturelle),
          '2': ("Création d'une Spline de lissage", spllis.creation_spline_lissage),
          '3': ('Méthode de gestion des points aberrants en 3 étapes',
                ptsabe.trouve_points_aberrants),
          '4': ("Algorithme de RanSac", rs.Lancer_Ransac),
-         '5': ("Méthode LOESS Robuste",loess_r.Lancer_LOESS_robuste),
-         '6': ("Méthode Intuitive",intuitive.Lancer_intuitive)}
+         '5': ("Méthode LOESS Robuste", loess_r.Lancer_LOESS_robuste),
+         '6': ("Méthode Intuitive", intuitive.Lancer_intuitive)}
 
     #Menu principal
     ldt.affiche_separation()
@@ -80,4 +81,3 @@ if __name__ == '__main__':
                     splnat.creation_spline_naturelle(X, Y, F, True)
                 elif KEEP_GOING == '2':
                     spllis.creation_spline_lissage(X, Y, F, True)
-

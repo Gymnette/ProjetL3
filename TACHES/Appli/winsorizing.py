@@ -6,7 +6,7 @@ Avril 2020
 
 """
 import math
-import Tache_4_Detection_donnes_aberrantes as det
+import gestion_aberrance as det
 import load_tests as ldt
 import Tache_4_methodes as meth
 import plotingv2 as plot

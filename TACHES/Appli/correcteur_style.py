@@ -135,5 +135,3 @@ if __name__ == "__main__":
 
     FICHIER.close()
     FICHIER_BIS.close()
-    if __name__ == "__main__":
-    print("ce programme ne se lance pas seul. Lancer Appli_Interpolaspline.")
