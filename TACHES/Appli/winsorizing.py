@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import math
-import Tache_4_Detection_donnes_aberrantes as det
+import gestion_aberrance as det
 import load_tests as ldt
 import Tache_4_methodes as meth
 import plotingv2 as plot
@@ -72,17 +72,22 @@ def traitement_winsorizing(y,indices_points_aberrants):
 
     ybis = list(y)
 
-    # Recherche du minimum
-    for i in range(len(donnees)):
-        if donnees[i][1] not in indices_points_aberrants :
-            minimum = donnees[i][0]
-            break
+    if len(donnees)==len(indices_points_aberrants):
+        maximum = max(y)
+        minimum = min(y)
+    else:
 
-    # Recherche du maximum
-    for i in range(len(donnees)-1,-1,-1):
-        if donnees[i][1] not in indices_points_aberrants :
-            maximum = donnees[i][0]
-            break
+        # Recherche du minimum
+        for i in range(len(donnees)):
+            if donnees[i][1] not in indices_points_aberrants :
+                minimum = donnees[i][0]
+                break
+
+        # Recherche du maximum
+        for i in range(len(donnees)-1,-1,-1):
+            if donnees[i][1] not in indices_points_aberrants :
+                maximum = donnees[i][0]
+                break
 
     for i in indices_points_aberrants :
         if ybis[i] > maximum :
@@ -135,32 +140,19 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
     ##########################
     IND_AB = []
     if locglob == '1':
-        p = det.pas_inter(y, epsilon=0.5)
-        b = p[0]
-        i = 1
-        while i < len(p):  # Tant que i < len(p), il reste une borne droite d'intervalle non utilisée
-            a = b
-            b = p[i]  # On récupère cette borne après avoir décalé
-
-            j = x[a:b]
-            g = y[a:b]
-
-            _, _, indices_aberrants = det.supprime(g, M)
-            indices_aberrants.sort()
-            IND_AB = IND_AB + indices_aberrants
-            # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
-            # On ne garde que les x associés aux y.
-            x_ab = []
-            y_ab = []
-
-            xd = list(j)
-            for ind in range(len(indices_aberrants) - 1, - 1, - 1):  # On part de la fin pour ne pas avoir de décalage d'indices
-                xd.pop(indices_aberrants[ind])
-
-            i += 1  # On se décale d'un cran à droite
+        yd, v_poids, indices_aberrants = det.supprime(y, M)
+        indices_aberrants.sort()
+        IND_AB = indices_aberrants
+        # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
+        # On ne garde que les x associés aux y.
+        x_ab = []
+        y_ab = []
         for i in range(len(indices_aberrants)):
-                x_ab = np.append(x_ab,x[indices_aberrants[i]])
-                y_ab = np.append(y_ab,y[indices_aberrants[i]])
+            x_ab = np.append(x_ab,x[indices_aberrants[i]])
+            y_ab = np.append(y_ab,y[indices_aberrants[i]])
+        IND_AB = list(set(IND_AB))
+
+        ybis = traitement_winsorizing(y, IND_AB)
         plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False, show=False) # affichage des points aberrants de l'échantillon
     else:
         ldt.affiche_separation()
@@ -176,19 +168,30 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
             p = det.pas_inter(y,epsilon = ep) #ESSAI
         else:
             p = meth.ind_densite(y)
-        p = meth.regrouper(p,30)
 
+        if M == meth.eval_quartile :
+            p = meth.regrouper(p,t=30)
+
+        if p[-1] != len(x):
+            p.append(len(x))
+        print(x[-1])
         b = p[0]
         i=1
+        ybis = []
+        nt = 0
         while i < len(p) : # Tant que i < len(p), il reste une borne droite d'intervalle non utilisée
             a = b
             b = p[i] #On récupère cette borne après avoir décalé
-
-            j = x[a:b+1]
-            g = y[a:b+1]
+            j = x[a:b]
+            g = y[a:b]
+            nt+=len(g)
 
             _, _, indices_aberrants = det.supprime(g, M)
-            IND_AB = IND_AB + indices_aberrants
+
+            ind_reels = [indice+a for indice in indices_aberrants]
+            IND_AB = IND_AB + ind_reels
+
+            ybis = ybis+traitement_winsorizing(g, indices_aberrants)
 
             i+=1 # On se décale d'un cran à droite
         x_ab, y_ab = [], []
@@ -196,12 +199,6 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
             x_ab.append(x[indice])
             y_ab.append(y[indice])
         plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False, show=False) # affichage des points aberrants de l'échantillon
-
-
-    IND_AB = list(set(IND_AB))
-
-    ybis = traitement_winsorizing(y, IND_AB)
-
     return ybis
 
 
