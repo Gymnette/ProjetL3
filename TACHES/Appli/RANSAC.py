@@ -292,9 +292,7 @@ def calcul_Spline_para(x, y):
 ##################################
 # RANSAC: interpolation robuste #
 ##################################
-# http://w3.mi.parisdescartes.fr/~lomn/Cours/CV/SeqVideo/Material/RANSAC-tutorial.pdf
-# Nombre minimal de points ? Essai avec 3.
-# Interpolation à chaque étape (et non approximation)
+# http://w3.mi.parisdescartes.fr/~lomn/Cours/CV/SeqVideo/Material/RANSAC-tutorial.pdf.
 
 def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False,mode=None):
     """
@@ -338,7 +336,6 @@ def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False,mode=N
     errmod = - 1
 
     k = 0
-    #deja_vu = []
     while k <= nbitermax:
         # Choix d'un échantillon
         i_points = alea(len(x), nbpoints)
@@ -409,8 +406,8 @@ def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False,mode=N
                 xmod = list(xtemp)
                 ymod = list(ytemp)
 
-                plot.scatterdata(x,y,c="+b",new_fig=False,show=False,legend="Points aberrants")
-                plot.scatterdata(x_pour_spline, y_pour_spline, c="+y", new_fig=False, show=False,legend="Points non aberrants")
+                plot.scatterdata(x,y,c="+r",new_fig=False,show=False,legend="Points aberrants")
+                plot.scatterdata(x_pour_spline, y_pour_spline, c="+b", new_fig=False, show=False,legend="Points")
 
             # Que le modèle soit retenu ou non, on met à jour la proportion d'inliers et ce qui est associé
 
@@ -471,16 +468,17 @@ def Faire_Ransac(x, y, rho, f=None, para='1'):
     else:
         nconsidere = spllis.choisir_n()
     xres, yres = ransac_auto(x, y, 0.5, d_euclidienne, nconsidere, rho, parabool, mode=mode)
-
-    plot.scatterdata(xres, yres, c= "r", show=False, new_fig=False, legend="Splines attendue")
+    
     #plt.plot(xres, yres, "r")
 
     xreel, yreel = calcul_Spline_lissage(x, y, min(x), max(x), len(x), rho, mode)
-    plot.plot1d1d(xreel, yreel, c="b", show=False, new_fig=False, legend="Spline obtenue")
+    plot.plot1d1d(xres, yres, c="b", show=False, new_fig=False, legend="Spline obtenue")
     plt.title("Algorithme de Ransac")
+    """
     if f is not None:
         xi = np.linspace(0, 1, 100)
         plot.plot1d1d(xi, f(xi), new_fig=False, c='g',show=False,legend="signal")
+    """
     plot.show()
     return xreel, yreel
 

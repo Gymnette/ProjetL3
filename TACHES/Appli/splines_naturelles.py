@@ -259,9 +259,7 @@ def test_fichier(U, Z, f=None, mode=None):
 
         plt.legend(fontsize="10")
 
-    if f is not None:
-        xi = np.linspace(0, 1, 100)
-        plot.plot1d1d(xi, f(xi), new_fig=False, c='g')
+
 
     plot.show()
 

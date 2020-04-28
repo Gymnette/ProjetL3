@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import splines_de_lissage as spllis
 import load_tests as ldt
 import plotingv2 as plot
-
+import warnings
 
 def voisinsI(x, y, a, b):
     """
@@ -132,7 +132,8 @@ def repartition_equitable(x,n):
     return rep
 
 def Faire_intuitive(uk, zk, f, mode):
-
+    warnings.filterwarnings("ignore", category=DeprecationWarning) # pour enlever les DeprecationWarning
+    
     a = min(uk)
     b = max(uk)
     if mode == 4:
@@ -161,7 +162,7 @@ def Faire_intuitive(uk, zk, f, mode):
     stop = 0
     u_aberrant = []
     z_aberrant = []
-    while stop<1000: #On break cette boucle lorsqu'il n'y a plus de points aberrants
+    while stop<1000: #break lorsqu'il n'y a plus de points aberrants
 
         if mode == '1':
             xi = np.linspace(a, b, n)
@@ -189,8 +190,8 @@ def Faire_intuitive(uk, zk, f, mode):
         ind_le_plus_aberrant = Erreur(uk,zk,xx,yy,seuil)
         
         if ind_le_plus_aberrant == -1 or len(uk) <= n+1 :
-            plt.plot(xx,yy,"orange",label="interpolation obtenue")
-            plt.plot(u_aberrant, z_aberrant, 'or', label='données retirées, seuil = '+str(seuil))
+            plt.plot(xx,yy,"orange",label="spline")
+            plt.plot(u_aberrant, z_aberrant, '+r', label='données retirées')
 
             break
         
@@ -201,11 +202,7 @@ def Faire_intuitive(uk, zk, f, mode):
     ldt.affiche_separation()
     print("Points aberrants trouvés : ",stop)
     ldt.affiche_separation()
-
-    if f is not None:
-        xi = np.linspace(0, 1, 100)
-        plot.plot1d1d(xi, f(xi), new_fig=False, c='g', legend = "résultat attendu")
-    
+  
     plt.show()
 
 

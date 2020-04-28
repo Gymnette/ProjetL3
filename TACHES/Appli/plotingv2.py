@@ -3,14 +3,13 @@
 """
 Created on Mon Jan 13 12:19:20 2020
 
-@author: Amelys Rodet
+@author: Interpolaspline
 """
 
-from mpl_toolkits.mplot3d import Axes3D
+
 
 import numpy as np
 import matplotlib.pyplot as plt
-#from matplotlib import cm
 import doctest
 import warnings as wrng
 
@@ -194,7 +193,6 @@ def plot2d1d(X, Y, fz, c = 'b', title = "", show=True, show_scale =True):
         Sortie :
             Affiche une fenêtre 3d
     """
-    #Z = fz(X, Y)
     n  = len(X)
     if not (isarraylike(fz)):
         Z = np.zeros((n, n))
@@ -298,7 +296,6 @@ def plotlevel(X, Y, fz, tab_levels=None, c='b', title="", new_fig=True, show=Tru
         for j in range(len(Y)):
             y = Y[j]
             Z[i][j] = fz(x, y)
-    #Xm, Ym = np.meshgrid(X, Y)
 
     # Plot the surface.
     if new_fig:

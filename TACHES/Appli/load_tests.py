@@ -2,7 +2,7 @@
 """
 Created on Tue Mar 31 17:09:26 2020
 
-@author: amelys
+@author: Interpolaspline
 """
 import sys
 import numpy as np

@@ -1,11 +1,7 @@
 
 
 """
-L'interpolation reflète toutes les variations, y compris les valeurs aberrantes(bruit)
-Une spline de lissage permet de satisfaire le compromis entre
-la présence des observations "bruyantes" et son raccord aux données présentées
-
-Ce qui fait qu'un lissage est considéré comme différent d'une interpolation
+@author: Interpolaspline
 """
 
 import sys
@@ -414,9 +410,8 @@ def trouve_rho(x,y):
 
     grid = GridSearchCV(KernelDensity(),
                     {'bandwidth': x},
-                    cv=fold) # 20-fold cross-validation
+                    cv=fold) # itérations de validation croisée
     ybis = [[e] for e in y]
-    #grid.fit(y[:, None])
     grid.fit(ybis)
 
     rho =  grid.best_params_['bandwidth']
@@ -491,9 +486,7 @@ def test_fichier(n, uk, zk, f=None, mode=None, aff_n=None, rho=1):
     plt.legend()
     plt.show()
 
-    if f is not None:
-        xi = np.linspace(0, 1, 100)
-        plot.plot1d1d(xi, f(xi), new_fig=False, c='g')
+
 
     ldt.affiche_separation()
     print("Spline créée !")

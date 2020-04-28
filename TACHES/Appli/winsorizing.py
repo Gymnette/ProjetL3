@@ -106,7 +106,7 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
             j = x[a:b]
             g = y[a:b]
 
-            _, _, indices_aberrants = det.supprime(g, M)  # AMELYS: IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
+            _, _, indices_aberrants = det.supprime(g, M)  
             indices_aberrants.sort()
             IND_AB = IND_AB + indices_aberrants
             # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage

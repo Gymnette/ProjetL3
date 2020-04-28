@@ -146,7 +146,7 @@ def tester(x, y, f = None, M_int = None, locglob=None):
     #######################
     if M_int is None:
         ldt.affiche_separation()
-        print("Choisissez une méthode de traitement des points aberrants :")
+        print("Choisissez une méthode de détection des points aberrants :")
         print("1 : Inter-Quartile")
         print("2 : Test de Chauvenet")
         print("3 : Test de Tau Thompson")
@@ -232,7 +232,7 @@ def tester(x, y, f = None, M_int = None, locglob=None):
             g = y[a:b+1]
             k = (b-a+1)//2
 
-            x_ab, y_ab,xd, yd = meth.KNN(j,g,k,15) #AMELYS : IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
+            x_ab, y_ab,xd, yd = meth.KNN(j,g,k,15) 
 
 
 
@@ -301,7 +301,7 @@ def trouve_points_aberrants():
             for i, xi in enumerate(x):
                 if M is None:
                     ldt.affiche_separation()
-                    print("Choisissez une méthode de traitement des points aberrants :")
+                    print("Choisissez une méthode de détection des points aberrants :")
                     print("1 : Inter-Quartile")
                     print("2 : Test de Chauvenet")
                     print("3 : Test de Tau Thompson")
@@ -330,7 +330,7 @@ def trouve_points_aberrants():
         else:
 
             ldt.affiche_separation()
-            print("Choisissez une méthode de traitement des points aberrants :")
+            print("Choisissez une méthode de détection des points aberrants :")
             print("1 : Inter-Quartile")
             print("2 : Test de Chauvenet")
             print("3 : Test de Tau Thompson")
@@ -386,17 +386,6 @@ def trouve_points_aberrants():
 
     return Xtab, Ytab, f, is_array
 
-        #############################################################
-        # Epsilon à choisir en fonction des graines et des méthodes #
-        #############################################################
-        # Pour les signaux stationnaires de paramètres 30, et 0.9
-        # Pour les paramètres des méthodes par défaut
-        #           0      1       2       3       4        5
-        # Quartile  0.5
-        # Chauvenet
-        # Thompson
-        # Grubbs    0.3
-        # ESD       0.3
 
 if __name__ == "__main__":
     print("ce programme ne se lance pas seul. Lancer Appli_Interpolaspline.")
