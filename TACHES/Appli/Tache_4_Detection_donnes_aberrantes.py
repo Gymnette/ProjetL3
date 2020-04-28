@@ -8,7 +8,6 @@ Created on Tue Apr  7 14:29:18 2020
 # Récupération des tests par fichier ou directement des signaux
 import load_tests as ldt
 import plotingv2 as plot
-import numpy as np
 
 # Methodes de detection
 import winsorizing as win
@@ -205,8 +204,9 @@ def tester(x, y, f = None, M_int = None, locglob=None):
             p = pas_inter(y,epsilon = ep) #ESSAI
         else:
             p = meth.ind_densite(y)
-        p = meth.regrouper(p,30)
 
+        if M == meth.eval_quartile :
+            p = meth.regrouper(p,t=30)
         b = p[0]
         X = []
         Y = []
@@ -220,11 +220,11 @@ def tester(x, y, f = None, M_int = None, locglob=None):
 
             if M == meth.KNN:
                 k = (b-a+1)//2
-                x_ab, y_ab,xd, yd = meth.KNN(j,g,k,15) 
+                x_ab, y_ab,xd, yd = meth.KNN(j,g,k,15)
                 X = X + xd
                 Y = Y + yd
             else:
-                yd, v_poids, indices_aberrants = supprime(g, M) 
+                yd, v_poids, indices_aberrants = supprime(g, M)
                 indices_aberrants.sort()
                 # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
                 # On ne garde que les x associés aux y.
@@ -234,7 +234,7 @@ def tester(x, y, f = None, M_int = None, locglob=None):
 
                 X = X + xd
                 Y = Y + yd
-            #x_ab, y_ab,xd, yd = meth.KNN(j,g,k,15) 
+            #x_ab, y_ab,xd, yd = meth.KNN(j,g,k,15)
 
 
 
@@ -318,7 +318,7 @@ def trouve_points_aberrants():
                     y_ab.append(y_abi)
                     plot.scatterdata(x, y, c='bx', legend='données', new_fig=True, show=False) # affichage des points de l'échantillon
                     plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False, show=False) # affichage des points aberrants de l'échantillon
-                      
+
                 else:
                    y_estii = win.Faire_win(xi,y[i],f,type_mod == "1",Mi)
 
@@ -338,12 +338,12 @@ def trouve_points_aberrants():
 
             M = ldt.input_choice(['1', '2', '3', '4', '5', '6'])
             lab, Mi = D[M]
-            
+
             if type_mod == "3":
                 x_ab, y_ab, y_esti = meth.LOESS(x, y, f, Mi)
                 plot.scatterdata(x, y, c='bx', legend='données', new_fig=True, show=False) # affichage des points de l'échantillon
                 plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False, show=False) # affichage des points aberrants de l'échantillon
-                
+
             else:
                y_esti = win.Faire_win(x,y,f,type_mod == "1",Mi)
 

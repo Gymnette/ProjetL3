@@ -280,7 +280,7 @@ def LOESS(uk, zk, f = None, M = None):
 
     return x_aberrantes, y_aberrantes, y_estimated
 
-def supprimeLOESS(x, methode, sup_poids=True, poids=1 / 100,k=7,m=25):  
+def supprimeLOESS(x, methode, sup_poids=True, poids=1 / 100,k=7,m=25):
     """
     Parcours toutes les valeurs de x afin de toutes les traiter.
     La fonction supprime prend un vecteur x d'ordonnées de points, une methode de
@@ -361,7 +361,7 @@ def supprimeLOESS(x, methode, sup_poids=True, poids=1 / 100,k=7,m=25):
     return x_sup, v_poids, indices
 
 
-def quartile(x, coeff=0.01):
+def quartile(x,coeff=0.5):
     """
     Méthode inter-quartiles, calcul de l'intervalle.
     La fonction prend une liste de valeurs (ordonnées de points) et renvoie un intervalle [a,b] associé.
@@ -377,21 +377,21 @@ def quartile(x, coeff=0.01):
     """
     x_s = sorted(x)
     n = len(x_s)
-    if n < 3:
-        return 1, 0  # Intervalle vide: tous les points seront aberrants
-    elif n == 3:
-        return min(x), max(x)  # Intervalle contenant tous les points, aucun ne sera aberrant
+    if n <3 :
+        return 1,0 # Intervalle vide : tous les points seront aberrants
+    elif n == 3 :
+        return min(x),max(x) #Intervalle contenant tous les points, aucun ne sera aberrant
     else:
 
-        k = n // 4
+        k = n//4
         # le premier quartile
-        q1 = x_s[k - 1]
+        q1 = x_s[k-1]
         # le 3éme quartile
-        q3 = x_s[3 * k - 1]
+        q3 = x_s[3*k-1]
         # l'inter-quartile
-        inter_q = q3 - q1
+        inter_q = q3-q1
 
-    return (q1 - coeff * inter_q, q3 + coeff * inter_q)
+    return (q1-coeff*inter_q,q3+coeff*inter_q)
 
 
 def eval_quartile(x, i, a, b):
@@ -412,36 +412,30 @@ def eval_quartile(x, i, a, b):
     return (x[i] < a or x[i] > b)
 
 
-def test_Chauvenet(x, i):
+def test_Chauvenet(x,i,tau=0.5):
     """
-    Test de Chauvenet
-    Renvoie vrai si et seulement si le point x[i] est considéré comme aberrant au regard des autres valeurs de x,
-    selon le test de Chauvenet.
-
-    type des entrées :
-        x : vecteur de float ou vecteur d'int
-        i : int
-
-    type des sorties :
-        booléen
+    cette fonction prend un vecteur x et un indice i
+    et qui revoie True si le pois x[i] est consideré comme un point
+    aberrant selon le test de Chauvenet, et renvoie False sinon
     """
     n = len(x)
-    x_barre = moyenne(x)
-    var_x = (1 / n) * sum(np.array(x) ** 2) - x_barre ** 2
-
-    # Si la variance est nulle, tous les points sont égaux: aucun d'eux n'est aberrant.
-    if var_x == 0:
-        return False
-
-    a = abs(x[i] - x_barre) / var_x ** (0.5)
-    n_a = (2 * stat.norm.cdf(a, loc=0, scale=1) - 1)
-    if n_a > 0.5:
+    x_barre = sum(x)/n
+    var_x = (1/n)*sum(np.array(x)**2) - x_barre**2
+    #print("var_x = ", var_x**0.5)
+    a = abs(x[i]-x_barre)/var_x**(0.5)
+    """
+    verification du calcul du proba
+    """
+    n_a = n*(1-stat.norm.cdf(a,loc = 0,scale = 1))
+    #print("n_a = ", n_a)
+    if n_a < tau :
         return True
-    else:
+    else :
         return False
 
 
-def thompson(x, i, alpha=0.001):
+
+def thompson(x, i, alpha=1.995):
     """
     Test Tau de Thompson
     Renvoie vrai si et seulement si le point x[i] est considéré comme aberrant au regard des autres valeurs de x,
@@ -456,16 +450,19 @@ def thompson(x, i, alpha=0.001):
     type des sorties :
         booléen
     """
-    n = len(x)
-    x_barre = moyenne(x)
-    var_x = (1 / n) * sum(np.array(x) ** 2) - x_barre ** 2
-    sigma = var_x ** (0.5)
-    t_alpha = stat.t.ppf(alpha / 2, n - 1)
-    seuil = t_alpha / ((n ** (0.5)) * (n - 2 + t_alpha ** 2) ** (0.5))
-    gam = (x[i] - x_barre) / sigma
-    if gam > seuil:
+    n =len(x)
+    x_barre = sum(x)/n
+    var_x = (1/n)*sum(np.array(x)**2) - x_barre**2
+    sigma = var_x**(0.5)
+    #print("x_barre == ",x_barre)
+    #print("sigma == ", sigma)
+    t_alpha = stat.t.ppf(alpha/2,n-1)
+    seuil = (t_alpha*(n-1))/((n**(0.5))*(n-2+t_alpha**2)**(0.5))
+    gam = (x[i]-x_barre)/sigma
+    #print(i , x[i],  seuil ,  gam)
+    if gam > seuil or gam < -seuil  :
         return True
-    else:
+    else :
         return False
 
 
