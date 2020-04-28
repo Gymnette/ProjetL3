@@ -20,6 +20,25 @@ import splines_de_lissage as spllis
 ####################
 # Fonctions utiles #
 ####################
+def repartition_equitable(x,n):
+    ninter = n-1
+    nb = len(x)//ninter
+    plus_un = len(x)%ninter
+
+    rep = []
+    ind = 0
+    for _ in range(n-1): # Pour chaque partie
+        rep.append(x[ind])
+        ind += 1
+        compteur = 1
+        while compteur != nb :
+            compteur += 1
+            ind += 1
+        if plus_un != 0 :
+            plus_un -= 1
+            ind += 1
+    rep.append(x[-1])
+    return rep
 
 def alea(n, nb):
     """
@@ -207,25 +226,27 @@ def calcul_Spline_lissage(uk, zk, a, b, n, rho, mode=None):
     #Tri
     uk, zk = ldt.sortpoints(uk, zk)
 
-    if mode is None:
-        ldt.affiche_separation()
-        print("\nEntrez le mode de traitement du fichier :")
-        print("1 : Repartition uniforme des noeuds")
-        print("2 : Repartition de Chebichev")
-        print("3 : Repartition aléatoire")
-        print("4 : Repartition optimale")
-        mode = ldt.input_choice(['1', '2', '3','4'])
+    #if mode is None:
+       # ldt.affiche_separation()
+        #print("\nEntrez le mode de traitement du fichier :")
+        #print("1 : Repartition uniforme des noeuds")
+        #print("2 : Repartition de Chebichev")
+        #print("3 : Repartition aléatoire")
+        #print("4 : Repartition optimale")
+        #mode = ldt.input_choice(['1', '2', '3','4'])
 
-    if mode == '1':
-        xi = np.linspace(a, b, n)
-    elif mode == '2':
-        xi = splnat.Repartition_chebyshev(a, b, n)
-    elif mode == '3':
+   # if mode == '1':
+        #xi = np.linspace(a, b, n)
+   # elif mode == '2':
+       # xi = splnat.Repartition_chebyshev(a, b, n)
+    #elif mode == '3':
         #Test sur une repartition des noeuds aleatoire
-        xi = splnat.Repartition_aleatoire(a, b, n)
-    else:
-        xi = spllis.Repartition_optimale(uk)
-        n = len(xi)
+     #   xi = splnat.Repartition_aleatoire(a, b, n)
+    #else:
+     #   xi = spllis.Repartition_optimale(uk)
+      #  n = len(xi)
+    xi = repartition_equitable(uk,n)
+    print(xi,n)
 
     if spllis.presence_intervalle_vide(xi, uk):
         ldt.affiche_separation()
@@ -323,6 +344,7 @@ def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False,mode=N
         xres : vecteur de float
         yres : vecteur de float
     """
+    print("DEBUT",pcorrect)
     a = min(x)
     b = max(x)
 
@@ -389,7 +411,7 @@ def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False,mode=N
             if para:
                 xtemp, ytemp = calcul_Spline_para(x_pour_spline, y_pour_spline)
             else:
-                xtemp, ytemp = calcul_Spline_lissage(x_pour_spline, y_pour_spline, a, b, nbpoints, rho, mode)
+                xtemp, ytemp = calcul_Spline_lissage(x_pour_spline, y_pour_spline, a, b, nbpoints, rho, 5)
 
             err_temp = - 1
             if para:
@@ -420,12 +442,14 @@ def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False,mode=N
                     #il n'y aurait pas de points aberrants
                 if np.log(1 - pcorrect) / np.log(1 - prop_inlier ** len(x)) < 0:
                     break
+                print(pcorrect,prop_inlier,len(x))
                 nbitermax = int(np.floor(np.log(1 - pcorrect) / np.log(1 - prop_inlier ** len(x)))) # Sera ajusté en fonction de prop_inlier
                 if nbitermax > 500:
                     nbitermax = 500
                 nbcorrect = int(np.floor(prop_inlier * len(x)))
         k += 1
 
+    plt.plot(xmod,ymod,label = "spline obtenue")
     return xmod, ymod
 
 def Faire_Ransac(x, y, rho, f=None, para='1'):
@@ -456,18 +480,19 @@ def Faire_Ransac(x, y, rho, f=None, para='1'):
         parabool = True
 
     ldt.affiche_separation()
-    print("\nEntrez le mode de traitement du fichier :")
-    print("1 : Repartition uniforme des noeuds")
-    print("2 : Repartition de Chebichev")
-    print("3 : Repartition aléatoire")
-    print("4 : Repartition optimale")
-    mode = ldt.input_choice(['1', '2', '3','4'])
-
-    if mode == '4':
-        nconsidere = len(spllis.Repartition_optimale(x))
-    else:
-        nconsidere = spllis.choisir_n()
-    xres, yres = ransac_auto(x, y, 0.5, d_euclidienne, nconsidere, rho, parabool, mode=mode)
+    print("La répartition équitable est utilisée, les autres choix ne sont pas disponibles pour RANSAC.")
+    #print("\nEntrez le mode de traitement du fichier :")
+    #print("1 : Repartition uniforme des noeuds")
+    #print("2 : Repartition de Chebichev")
+    #print("3 : Repartition aléatoire")
+    #print("4 : Repartition optimale")
+    #mode = ldt.input_choice(['1', '2', '3','4'])
+    mode = '4'
+    #if mode == '4':
+     #   nconsidere = len(spllis.Repartition_optimale(x))
+    #else:
+    nconsidere = spllis.choisir_n()
+    xres, yres = ransac_auto(x, y, 0.5, d_euclidienne, nconsidere, rho)
     
     #plt.plot(xres, yres, "r")
 
