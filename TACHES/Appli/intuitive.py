@@ -162,6 +162,12 @@ def Faire_intuitive(uk, zk, f, mode):
     stop = 0
     u_aberrant = []
     z_aberrant = []
+    
+    print("\nChoix automatique du paramètre de lissage ? (y = oui, n = non)")
+    rho_auto = ldt.input_choice()
+    if rho_auto == 'n':
+        rho = spllis.choisir_rho([],[], 'n')
+                
     while stop<1000: #break lorsqu'il n'y a plus de points aberrants
 
         xi = repartition_equitable(uk,n)
@@ -176,7 +182,8 @@ def Faire_intuitive(uk, zk, f, mode):
           #  n = len(xi)
 
         H = [xi[i+1]-xi[i] for i in range(len(xi)-1)] # vecteur des pas de la spline
-        rho = spllis.trouve_rho(uk, zk)
+        if rho_auto == 'y' :
+            rho = spllis.trouve_rho(uk, zk)
 
         Y = spllis.Vecteur_y(uk,[zk],xi,n,H,rho)
         yi = np.transpose(Y)
