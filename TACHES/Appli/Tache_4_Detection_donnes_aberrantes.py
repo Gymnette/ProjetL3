@@ -333,7 +333,7 @@ def trouve_points_aberrants():
                 print("Choisissez une méthode de détection des points aberrants :")
                 print("1 : Inter-Quartile")
                 print("2 : Test de Chauvenet")
-                print("3 : Test de Tau Thompson")
+                print("3 : Test Tau de Thompson")
                 print("4 : Test de Grubbs")
                 print("5 : Test de la deviation extreme de Student")
                 print("6 : Test des k plus proches voisins ")
