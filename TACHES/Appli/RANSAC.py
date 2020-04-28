@@ -270,51 +270,12 @@ def calcul_Spline_lissage(uk, zk, a, b, n, rho, mode=None):
 
     return xx, yy
 
-def calcul_Spline_para(x, y):
-    """
-    Calcule la spline paramétrique cubique de lissage interpolant les données.
-    Renvoie sa discrétisation.
-    La paramétrisation est cordale.
-
-    Type des entrées :
-        x : vecteur de float
-        y : vecteur de float
-        a : int
-        b : int
-
-    Type des sorties :
-        (vecteur de float, vecteur de float)
-    """
-    a = min(x)
-    b = max(x)
-    n = len(x)
-    T = splnat.Repartition_cordale(x, y, a, b)
-
-    #Spline des (ti, xi)
-    H = [T[i + 1] - T[i] for i in range(n - 1)]
-    A = splnat.Matrix_NU(H)
-    B = splnat.Matrix_NU_resulat(x, H)
-    Xp = np.linalg.solve(A, B)
-    Sx = []
-    for i in range(0, n - 1):
-        _, xtemp = splnat.HermiteC1_non_affiche(T[i], x[i], float(Xp[i]), T[i + 1], x[i + 1], float(Xp[i + 1]))
-        Sx += list(xtemp)
-    #Spline des (ti, yi)
-    A = splnat.Matrix_NU(H)
-    B = splnat.Matrix_NU_resulat(y, H)
-    Yp = np.linalg.solve(A, B)
-    Sy = []
-    for i in range(0, n - 1):
-        _, ytemp = splnat.HermiteC1_non_affiche(T[i], y[i], float(Yp[i]), T[i + 1], y[i + 1], float(Yp[i + 1]))
-        Sy += list(ytemp)
-    return Sx, Sy
-
 ##################################
 # RANSAC: interpolation robuste #
 ##################################
 # http://w3.mi.parisdescartes.fr/~lomn/Cours/CV/SeqVideo/Material/RANSAC-tutorial.pdf.
 
-def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False,mode=None):
+def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99,mode=None):
     """
     Automatisation de l'algorithme de Ransac avec un modèle de splines cubiques :
     le calcul de la proportion de points aberrants (outlier) ou non (inlier)
@@ -326,7 +287,6 @@ def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False,mode=N
     du nombre de points pour créer la spline d'essai,
     du paramètre de lissage,
     et de la probabilité d'obtenir un résultat correct avec cet algorithme.
-    para = True si et seulement si on souhaite une spline paramétrique.
     xres et yres représentent la spline qui interpole au mieux les données
     d'après RANSAC, si exact est vraie, tous les calculs sont effectués
     à partir de la spline cubique d'interpolation.
@@ -343,6 +303,7 @@ def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99, para=False,mode=N
         xres : vecteur de float
         yres : vecteur de float
     """
+    para = False #préparation pour l'implémentation du paramétrique
     a = min(x)
     b = max(x)
 
@@ -506,12 +467,10 @@ def Lancer_Ransac():
     None.
 
     """
-    D_meth = {"1": "Non paramétrique",
-              "2": "Paramétrique"}
 
     ldt.affiche_separation()
     print("\nAlgorithme de RanSac")
-    x, y, f, M, is_array, seed = ldt.charge_donnees(D_meth)
+    x, y, f, M, is_array, seed = ldt.charge_donnees()
     if is_array:
         ldt.affiche_separation()
         print("\nDéfinir un paramètre de lissage pour tous les fichiers ? (y = oui, n = non)")
@@ -558,7 +517,7 @@ def Lancer_Ransac():
             Ytab.append(Y)
 
     else:
-        M = ldt.charge_methodes(D_meth, True)
+        #M = ldt.charge_methodes()
         ldt.affiche_separation()
         rho = spllis.trouve_rho(x,y)
         print("\nLe paramètre de lissage automatique serait : ", rho)
