@@ -45,10 +45,10 @@ def supprime(x, methode, sup_poids=True, poids=1 / 100, k=7, m=25, y = None):  #
     v_poids = [1] * n
     indices = []
 
-    if methode == meth.eval_quartile:
+    if methode is meth.eval_quartile:
         a, b = meth.quartile(x)
 
-    if methode == meth.grubbs:
+    if methode is meth.grubbs:
         res, ind = meth.grubbs(x)
         x_cpy = list(x)
         while (ind >= 0 and res):  # Un point aberrant a été trouvé de manière "classique".
@@ -63,7 +63,7 @@ def supprime(x, methode, sup_poids=True, poids=1 / 100, k=7, m=25, y = None):  #
             res, ind = meth.grubbs(x_cpy)
         # Si c'est res qui est faux, pas de soucis, on a notre résultat.
         # Si l'indice est négatif, le résultat sera faux, donc c'est bon, pas de point aberrant détecté.
-    elif methode == meth.deviation_extreme_student:
+    elif methode is meth.deviation_extreme_student:
         est_aberrant = methode(x)
         for i in range(n):
             if est_aberrant[i]:
@@ -73,7 +73,7 @@ def supprime(x, methode, sup_poids=True, poids=1 / 100, k=7, m=25, y = None):  #
                 else:
                     v_poids[i] = poids
 
-    elif methode == meth.KNN:
+    elif methode is meth.KNN:
         ind, uk_ya, x_sup, y = meth.KNN(x, y, k, m)
         return x_sup, y
 
@@ -81,7 +81,7 @@ def supprime(x, methode, sup_poids=True, poids=1 / 100, k=7, m=25, y = None):  #
 
         for i in range(n):
             aberrant = False
-            if methode == meth.test_Chauvenet or methode == meth.thompson:
+            if methode is meth.test_Chauvenet or methode is meth.thompson:
                 aberrant = methode(x, i)
             else:  # methode == eval_quartile:
                 aberrant = meth.eval_quartile(x, i, a, b)
@@ -175,7 +175,7 @@ def tester(x, y, f = None, M_int = None, locglob=None):
     ##########################
 
     if locglob == '1':
-        if M == meth.KNN:
+        if M is meth.KNN:
             xd, yd = supprime(x, M, y = y)
             X = xd
             Y = yd
@@ -205,9 +205,11 @@ def tester(x, y, f = None, M_int = None, locglob=None):
         else:
             p = meth.ind_densite(y)
 
-        if M == meth.eval_quartile :
+        if M is meth.eval_quartile :
             p = meth.regrouper(p,t=30)
 
+        if p[-1] != len(x):
+            p.append(len(x))
         b = p[0]
         X = []
         Y = []
@@ -216,10 +218,10 @@ def tester(x, y, f = None, M_int = None, locglob=None):
             a = b
             b = p[i] #On récupère cette borne après avoir décalé
 
-            j = x[a:b+1]
-            g = y[a:b+1]
+            j = x[a:b]
+            g = y[a:b]
 
-            if M == meth.KNN:
+            if M is meth.KNN:
                 k = (b-a+1)//2
                 x_ab, y_ab,xd, yd = meth.KNN(j,g,k,15)
                 X = X + xd

@@ -75,7 +75,7 @@ def remplissent_conditions(x,y):
 
     if not len(x) == len(y):
         ok = False
-        err = "ERREUR : Le vecteur des abscisses et celui des ordonnees n'ont pas la meme taille"
+        err = "ERREUR : Le vecteur des abscisses et celui des ordonnees n'ont pas la meme taille ("+str(len(x))+" != "+str(len(y))+")"
     if len(x) == 0 :
         ok = False
         err = "ERREUR : Donnees vides"
