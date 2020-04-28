@@ -2,7 +2,7 @@
 """
 Created on Tue Apr  7 14:29:18 2020
 
-@author: amely
+@author: Interpolaspline
 """
 
 # Fonctions utiles
@@ -196,11 +196,6 @@ def voisinsKi(x, i, k):
     s = 0
     for j in range(k):
         s = s + y[j]
-        #try:
-            #s = s + y[j]
-            #break
-        #except IndexError:
-             #pass
     return s / k
 
 
@@ -254,56 +249,7 @@ def poids_faibles(x, y,v_poids,span=1):
 
     return y_estimated
 
-def loess_robuste(x, y,rho,iter=10):
 
-    """
-    Création du vecteur y_estimated depuis y, où ses valeurs sont estimées par le poids de chaque point donné par nos méthodes de détection
-
-    Intput :
-        uk,zk : vecteurs de float de l'échantillon étudié
-        rho : paramètre de lissage
-        iter : iterations de robustesse
-    Output :
-        y_estimated :  vecteurs de float(valeurs en y) de l'échantillon étudié, estimés par la méthode LOESS.
-    """
-
-    n = len(x)
-    w = np.array([np.exp(- (x - x[i])**2/(2*rho)) for i in range(n)])
-    y_estimated = np.zeros(n)
-    delta = np.ones(n)
-    for iteration in range(iter):
-        for i in range(n):
-            weights = delta * w[:, i]
-            b = np.array([np.sum(weights * y), np.sum(weights * y * x)])
-            A = np.array([[np.sum(weights), np.sum(weights * x)],
-                          [np.sum(weights * x), np.sum(weights * x * x)]])
-            Theta = linalg.solve(A, b)
-            y_estimated[i] = Theta[0] + Theta[1] * x[i]
-
-        erreurs = y - y_estimated
-        s = np.median(np.abs(erreurs))
-        delta = np.clip(erreurs / (6.0 * s), -1, 1)
-        delta = (1 - delta ** 2) ** 2
-
-    return y_estimated
-
-
-def LOESS_robuste(uk, zk, f = None, M = None):
-    """
-    LOESS robuste
-    """
-    if M is None :
-        print("???")
-        M = eval_quartile
-
-    rho = spllis.trouve_rho(uk,zk) # trouve le paramètre de lissage optimal
-
-
-    y_estimated = loess_robuste(uk, zk,rho) #estimons les nouvelles ordonnées des points de notre échantillon
-
-
-
-    return uk,y_estimated
 
 
 def LOESS(uk, zk, f = None, M = None):
@@ -328,14 +274,13 @@ def LOESS(uk, zk, f = None, M = None):
 
     x_aberrantes = []
     y_aberrantes = []
-
     for i in range(len(indices_aberrants)):
         x_aberrantes = np.append(x_aberrantes,uk[indices_aberrants[i]])
         y_aberrantes = np.append(y_aberrantes,zk[indices_aberrants[i]])
 
     return x_aberrantes, y_aberrantes, y_estimated
 
-def supprimeLOESS(x, methode, sup_poids=True, poids=1 / 100,k=7,m=25):  # A AJOUTER (AMELYS) : OPTIONS DES METHODES
+def supprimeLOESS(x, methode, sup_poids=True, poids=1 / 100,k=7,m=25):  
     """
     Parcours toutes les valeurs de x afin de toutes les traiter.
     La fonction supprime prend un vecteur x d'ordonnées de points, une methode de
@@ -578,9 +523,7 @@ def grubbs(x, alpha=5 / 100):
     return (dmax > dist_lim), imax
 
 
-# Le test de Tietjen Moore est une généralisation du test de Grubbs.
-# Il peut être appliqué peu importe le nombre de valeurs aberrantes
-# Mais il faut connaître ce nombre exactement: on n'implémente donc pas cette méthode.
+
 
 def deviation_extreme_student(x, alpha=5 / 100, borne_max=0):
     """
