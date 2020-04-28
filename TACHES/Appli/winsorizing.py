@@ -182,7 +182,6 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
         while i < len(p) : # Tant que i < len(p), il reste une borne droite d'intervalle non utilisée
             a = b
             b = p[i] #On récupère cette borne après avoir décalé
-            j = x[a:b]
             g = y[a:b]
             nt+=len(g)
 
