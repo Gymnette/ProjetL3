@@ -274,7 +274,6 @@ def LOESS(uk, zk, f = None, M = None):
 
     x_aberrantes = []
     y_aberrantes = []
-
     for i in range(len(indices_aberrants)):
         x_aberrantes = np.append(x_aberrantes,uk[indices_aberrants[i]])
         y_aberrantes = np.append(y_aberrantes,zk[indices_aberrants[i]])
@@ -524,9 +523,7 @@ def grubbs(x, alpha=5 / 100):
     return (dmax > dist_lim), imax
 
 
-# Le test de Tietjen Moore est une généralisation du test de Grubbs.
-# Il peut être appliqué peu importe le nombre de valeurs aberrantes
-# Mais il faut connaître ce nombre exactement: on n'implémente donc pas cette méthode.
+
 
 def deviation_extreme_student(x, alpha=5 / 100, borne_max=0):
     """

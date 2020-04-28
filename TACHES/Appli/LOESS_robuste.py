@@ -139,7 +139,7 @@ def Faire_LOESS_robuste(x, y, rho):
         x, y = spllis.HermiteC1(xi[i], yi[0][i], yip[0][i], xi[i + 1], yi[0][i + 1], yip[0][i + 1])
         xx = np.append(xx, x)
         yy = np.append(yy, y)
-    plt.plot(xx, yy, lw=1, label='spline de lissage avec rho = ' + str(rho))
+    plt.plot(xx, yy, lw=1, label='spline de lissage avec rho = ' + str(round(rho, 3)))
 
 
     plt.title("LOESS Robuste")

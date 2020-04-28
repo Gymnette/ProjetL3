@@ -3,7 +3,8 @@ import math
 import Tache_4_Detection_donnes_aberrantes as det
 import load_tests as ldt
 import Tache_4_methodes as meth
-
+import plotingv2 as plot
+import numpy as np
 def winsorization(y,quantite_aberrante):
     """
     Applique la Winsorization de manière rigoureuse, selon la définition.
@@ -80,13 +81,16 @@ def traitement_winsorizing(y,indices_points_aberrants):
     return ybis
 
 def Faire_win(x, y, f, m_proba, M, locglob = None):
-
+    
+    
+    plot.scatterdata(x, y, c='bx', legend='données', new_fig=False, show=False) # affichage des points de l'échantillon
+    
     if locglob is None:
         print("Choisir la portee de traitement des donnees :")
         print('1 : Global')
         print('2 : Local')
         locglob = ldt.input_choice(['1','2'])
-
+        
     if M == meth.KNN:
         M = meth.eval_quartile
 
@@ -111,12 +115,18 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
             IND_AB = IND_AB + indices_aberrants
             # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
             # On ne garde que les x associés aux y.
+            x_ab = []
+            y_ab = []
+                
             xd = list(j)
             for ind in range(len(indices_aberrants) - 1, - 1, - 1):  # On part de la fin pour ne pas avoir de décalage d'indices
                 xd.pop(indices_aberrants[ind])
 
             i += 1  # On se décale d'un cran à droite
-
+        for i in range(len(indices_aberrants)):
+                x_ab = np.append(x_ab,x[indices_aberrants[i]])
+                y_ab = np.append(y_ab,y[indices_aberrants[i]])
+        plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False, show=False) # affichage des points aberrants de l'échantillon
     else:
         ldt.affiche_separation()
         IND_AB = []
@@ -149,7 +159,7 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
             i+=1 # On se décale d'un cran à droite
 
     IND_AB = list(set(IND_AB))
-
+    
     if m_proba:
         prob = len(IND_AB)/len(y)
         ybis = winsorization(y,prob)

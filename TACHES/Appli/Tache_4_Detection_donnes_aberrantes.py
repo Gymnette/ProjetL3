@@ -241,14 +241,10 @@ def tester(x, y, f = None, M_int = None, locglob=None):
 
             i+=1 # On se décale d'un cran à droite
 
-    plot.scatterdata(x, y, c='b+', legend = "données", title = lab, new_fig = True, show = False)
-    plot.scatterdata(X, Y, c='r+', legend='données conservées, dites "non aberrantes" ', new_fig = False, show = False)
+    plot.scatterdata(x, y, c='r+', legend = "données", title = lab, new_fig = True, show = False)
+    plot.scatterdata(X, Y, c='b+', legend='données conservées, dites "non aberrantes" ', new_fig = False, show = False)
 
-    if f is not None:
-        xi = np.linspace(0, 1, 100)
-        plot.plot1d1d(xi, f(xi), new_fig = False, c = 'g')
 
-    plot.show()
     return X, Y
 
 
@@ -314,15 +310,15 @@ def trouve_points_aberrants():
                 else:
                     lab, Mi = D[M]
 
-                if type_mod == "1" or "2":
-                    y_estii = win.Faire_win(xi,y[i],f,type_mod == "1",Mi)
-                    plot.scatterdata(x[i], y_estii, c='gx', legend='données modifiees')
-                else:
+                if type_mod == "3":
                     x_abi, y_abi, y_estii = meth.LOESS(xi, y[i], f, Mi)
                     x_ab.append(x_abi)
                     y_ab.append(y_abi)
-                    plot.scatterdata(xi, y[i], c='bx', legend='données',show=False) # affichage des points de l'échantillon
-                    plot.scatterdata(x_abi, y_abi, c='rx', legend='données aberrantes', new_fig=False) # affichage des points aberrants de l'échantillon
+                    plot.scatterdata(x, y, c='bx', legend='données', new_fig=True, show=False) # affichage des points de l'échantillon
+                    plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False, show=False) # affichage des points aberrants de l'échantillon
+                      
+                else:
+                   y_estii = win.Faire_win(xi,y[i],f,type_mod == "1",Mi)
 
                 y_esti.append(y_estii)
 
@@ -340,14 +336,14 @@ def trouve_points_aberrants():
 
             M = ldt.input_choice(['1', '2', '3', '4', '5', '6'])
             lab, Mi = D[M]
-            plot.scatterdata(x, y, c='bx', legend='données',show=False) # affichage des points de l'échantillon
-
-            if type_mod == "1" or "2":
-                y_esti = win.Faire_win(x,y,f,type_mod == "1",Mi)
-                plot.scatterdata(x, y_esti, c='gx', legend='données modifiees',show=False)
-            else:
+            
+            if type_mod == "3":
                 x_ab, y_ab, y_esti = meth.LOESS(x, y, f, Mi)
-                plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False) # affichage des points aberrants de l'échantillon
+                plot.scatterdata(x, y, c='bx', legend='données', new_fig=True, show=False) # affichage des points de l'échantillon
+                plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False, show=False) # affichage des points aberrants de l'échantillon
+                
+            else:
+               y_esti = win.Faire_win(x,y,f,type_mod == "1",Mi)
 
 
 

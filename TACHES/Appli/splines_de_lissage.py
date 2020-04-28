@@ -12,7 +12,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KernelDensity
 import load_tests as ldt
 import plotingv2 as plot
-
+import warnings
 
 
 
@@ -454,7 +454,7 @@ def test_fichier(n, uk, zk, f=None, mode=None, aff_n=None, rho=1):
         xi = Repartition_optimale(uk)
         n = len(xi)
 
-    plot.scatterdata(uk, zk, 'rx', new_fig=False, show=False, legend='données') # affichage des points de l'échantillon
+    
     plt.title('spline de lissage avec ' + str(n) + ' noeuds') # titre
 
 
@@ -482,7 +482,7 @@ def test_fichier(n, uk, zk, f=None, mode=None, aff_n=None, rho=1):
         x, y = HermiteC1(xi[i], yi[0][i], yip[0][i], xi[i + 1], yi[0][i + 1], yip[0][i + 1])
         xx = np.append(xx, x)
         yy = np.append(yy, y)
-    plt.plot(xx, yy, lw=1, label='spline de lissage avec rho = ' + str(rho))
+    plt.plot(xx, yy, lw=1, label='spline de lissage avec rho = ' + str(round(rho, 3)))
     plt.legend()
     plt.show()
 
@@ -500,6 +500,7 @@ def choisir_rho(uk,zk, rho_auto='y'):
     la fidélité des données et le caractère théorique de la fonction
 
     """
+    warnings.filterwarnings("ignore", category=DeprecationWarning) # pour enlever les DeprecationWarning
     if rho_auto == 'y':
         rho = trouve_rho(uk,zk)
     else:
@@ -570,6 +571,7 @@ def creation_spline_lissage(x=None, y=None, f=None, is_array=False):
 
     if (x is None) or (y is None):
         x, y, f, M, is_array, seed = ldt.charge_donnees(D_meth)
+        plot.scatterdata(x, y, c='bx', legend='données', new_fig=False, show=False) # affichage des points de l'échantillon
         if seed is not None:
             print("Graine pour la génération du signal : ", seed)
     elif is_array:

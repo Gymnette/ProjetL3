@@ -155,7 +155,7 @@ def Faire_intuitive(uk, zk, f, mode):
                 seuil = -1
 
     plt.figure()
-    plt.plot(uk,zk,"+",label="données")
+    plt.plot(uk,zk,"+b",label="données")
     uk = list(uk)
     zk = list(zk)
 
@@ -190,7 +190,7 @@ def Faire_intuitive(uk, zk, f, mode):
         ind_le_plus_aberrant = Erreur(uk,zk,xx,yy,seuil)
         
         if ind_le_plus_aberrant == -1 or len(uk) <= n+1 :
-            plt.plot(xx,yy,"orange",label="spline")
+            plt.plot(xx,yy,"b",label="spline")
             plt.plot(u_aberrant, z_aberrant, '+r', label='données retirées')
 
             break
@@ -202,7 +202,8 @@ def Faire_intuitive(uk, zk, f, mode):
     ldt.affiche_separation()
     print("Points aberrants trouvés : ",stop)
     ldt.affiche_separation()
-  
+    plt.legend()
+    plt.title("Méthode Intuitive")
     plt.show()
 
 

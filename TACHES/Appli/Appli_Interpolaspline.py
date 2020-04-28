@@ -13,9 +13,10 @@ import Tache_4_Detection_donnes_aberrantes as ptsabe
 import RANSAC as rs
 import LOESS_robuste as loess_r
 import intuitive
-
+import warnings
 if __name__ == '__main__':
-
+    warnings.filterwarnings("ignore", category=RuntimeWarning) # pour enlever les DeprecationWarning
+    warnings.filterwarnings("ignore", category=DeprecationWarning) # pour enlever les DeprecationWarning
     #Dictionnaire de choix de la FONCTIONNALITE
     D = {'1': ("Création d'une Spline naturelle", splnat.creation_spline_naturelle),
          '2': ("Création d'une Spline de lissage", spllis.creation_spline_lissage),
@@ -51,7 +52,7 @@ if __name__ == '__main__':
             (X, Y, F, IS_TAB) = RETOUR
             if not IS_TAB:
                 ldt.affiche_separation()
-                print("\nPoints aberrants supprimés. Que voulez-vous faire ?")
+                print("\nPoints aberrants traités. Que voulez-vous faire ?")
                 print("1 : Creer la spline naturelle associée")
                 print('2 : Creer la spline de lissage associée')
                 print('3 : Retourner au menu principal')
@@ -62,7 +63,7 @@ if __name__ == '__main__':
                     spllis.creation_spline_lissage(X, Y, F)
             else:
                 ldt.affiche_separation()
-                print("\nPoints aberrants supprimés. Que voulez-vous faire ?")
+                print("\nPoints aberrants traités. Que voulez-vous faire ?")
                 print("1 : Creer les splines naturelles associées")
                 print('2 : Creer les splines de lissage associées')
                 print('3 : Retourner au menu principal')
