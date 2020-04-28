@@ -1,8 +1,9 @@
 # -*- coding: utf - 8 -*-
 """
-Created on Tue Apr  7 14:29:18 2020
+Avril 2020
 
 @author: Interpolaspline
+
 """
 
 # Fonctions utiles
@@ -627,3 +628,5 @@ def KNN(x, y, k, m):
         x_nab.append(z[j][0])
         y_na.append(z[j][1])
     return x_ab, y_ab, x_nab, y_na
+if __name__ == "__main__":
+    print("ce programme ne se lance pas seul. Lancer Appli_Interpolaspline.")

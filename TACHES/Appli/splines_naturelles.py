@@ -1,5 +1,10 @@
-# !/ usr / bin / env python3
 # -*- coding: utf - 8 -*-
+"""
+Avril 2020
+
+@author: Interpolaspline
+
+"""
 from random import random
 import numpy as np
 import matplotlib.pyplot as plt
@@ -241,7 +246,6 @@ def test_fichier(U, Z, f=None, mode=None):
 
     elif mode == '2':
         #Mode tri sur l'axe X : les donnees sont triees selon l'axe X
-        #plt.figure()
         #Tri sur X
         X, Y = ldt.sortpoints(U, Z)
 
@@ -251,7 +255,6 @@ def test_fichier(U, Z, f=None, mode=None):
 
     elif mode == '3':
         #Mode tri sur l'axe X : les donnees sont triees selon l'axe Y
-        #plt.figure()
         #Tri sur Y
         Y, X = ldt.sortpoints(Z, U)
 

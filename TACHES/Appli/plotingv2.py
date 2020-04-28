@@ -1,9 +1,9 @@
-# !/ usr / bin / env python3
 # -*- coding: utf - 8 -*-
 """
-Created on Mon Jan 13 12:19:20 2020
+Avril 2020
 
 @author: Interpolaspline
+
 """
 
 
@@ -317,4 +317,7 @@ if __name__ == "__main__":
     ex = int(input("\n"))
     help(All_functions[ex][1])
     doctest.run_docstring_examples(All_functions[ex][1], globals())
+
+    if __name__ == "__main__":
+    print("ce programme ne se lance pas seul. Lancer Appli_Interpolaspline.")
 

@@ -1,8 +1,9 @@
 # -*- coding: utf - 8 -*-
 """
-Created on Thu Apr 16 17:22:04 2020
+Avril 2020
 
 @author: Interpolaspline
+
 """
 
 import sys

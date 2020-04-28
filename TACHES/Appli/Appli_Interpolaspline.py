@@ -2,7 +2,10 @@
 """
 Avril 2020
 
-@author: Interpolaspline
+@author: CORBILLE Clément, DOUMBOUYA Mohamed,
+         EL BOUCHOUARI Zakaria,HEDDIA Bilel, 
+         PIASENTIN Béryl, RODET Amélys
+
 """
 
 #Outils

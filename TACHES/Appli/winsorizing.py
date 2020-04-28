@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+"""
+Avril 2020
+
+@author: Interpolaspline
+
+"""
 import math
 import Tache_4_Detection_donnes_aberrantes as det
 import load_tests as ldt
