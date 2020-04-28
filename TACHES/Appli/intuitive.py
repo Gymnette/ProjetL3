@@ -133,8 +133,10 @@ def repartition_equitable(x,n):
 
 def Faire_intuitive(uk, zk, f, mode):
 
+    print("DEBUT INTUITIF")
     a = min(uk)
     b = max(uk)
+    print(mode)
     if mode == 4:
         n = spllis.choisir_n()
 
@@ -163,8 +165,11 @@ def Faire_intuitive(uk, zk, f, mode):
     z_aberrant = []
     while stop<1000: #On break cette boucle lorsqu'il n'y a plus de points aberrants
 
+        #2 LIGNES RAJOUTEES
+        mode = '1'
         if mode == '1':
-            xi = np.linspace(a, b, n)
+            xi = repartition_equitable(uk,len(uk)//2)
+            n = len(xi)
         elif mode == '2':
             xi = spllis.Repartition_chebyshev(a, b, n)
         elif mode == '3':
@@ -175,7 +180,8 @@ def Faire_intuitive(uk, zk, f, mode):
 
         H = [xi[i+1]-xi[i] for i in range(len(xi)-1)] # vecteur des pas de la spline
         rho = spllis.trouve_rho(uk, zk)
-
+        #print(rho)
+        
         Y = spllis.Vecteur_y(uk,[zk],xi,n,H,rho)
         yi = np.transpose(Y)
         yip = np.transpose(np.linalg.solve(spllis.MatriceA(n,H),(np.dot(spllis.MatriceR(n,H),Y))))

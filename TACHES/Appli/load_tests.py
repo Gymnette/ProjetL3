@@ -2,7 +2,7 @@
 """
 Created on Tue Mar 31 17:09:26 2020
 
-@author: amelys
+@author: Interpolaspline
 """
 import sys
 import numpy as np
@@ -145,9 +145,9 @@ def charge_donnees(D_methodes=None):
     print("3 : Générer un test")
     print("4 : Recréer un test à partir d'une graine")
 
-    type_test = input_choice(['1', '2', '3', '4'])
+    #type_test = input_choice(['1', '2', '3', '4'])
 
-    type_test = int(type_test)
+    type_test = '4'
 
     os = sys.platform
     sep = '\\' if os == 'win32' else '/'
@@ -211,8 +211,8 @@ def charge_donnees(D_methodes=None):
         stationnaire = input_choice()
 
         std1 = 0.05
-        nb_pts = 30
-        prob = 0.1
+        nb_pts = 200 # MODIFIE PAR BERYL, A REMETTRE
+        prob = 0.9
         reg = 0.1
 
         affiche_separation()
@@ -246,16 +246,16 @@ def charge_donnees(D_methodes=None):
         return x, y, f, None, False, seed
 
     std1 = 0.05
-    nb_pts = 30
-    prob = 0.1
+    nb_pts = 100 # MODIFIE PAR BERYL, A REMETTRE
+    prob = 0.9
     reg = 0.1
     affiche_separation()
     print("\nTest sur recréation de signal. Signal stationnaire ? (y = oui, n = non)")
-    stationnaire = input_choice()
+    stationnaire = 'n'
 
     affiche_separation()
     print("\nQuelle graine utiliser ?")
-    seed = - 1
+    seed = 32427415
     while seed < 0:
         try:
             seed = int(input("> "))
@@ -278,8 +278,8 @@ def charge_donnees(D_methodes=None):
     # signaux de tests stationnaires provenant du générateur
     if skip == 'y':
         std1 = 0.05
-        nb_pts = 30
-        prob = 0.1
+        nb_pts = 100 # MODIFIE PAR BERYL, A REMETTRE
+        prob = 0.9
         reg = 0.1
     else:
         print("Choisissez les valeurs suivantes :")
@@ -297,18 +297,6 @@ def charge_donnees(D_methodes=None):
         x, y, f, seed = ss.non_stationary_signal((nb_pts, ), switch_prob=prob, noise_func=nfunc, seed=seed)
 
     return x, y, f, None, False, seed
-
-        #############################################################
-        # Epsilon à choisir en fonction des graines et des méthodes #
-        #############################################################
-        # Pour les signaux stationnaires de paramètres 30, et 0.9
-        # Pour les paramètres des méthodes par défaut
-        #           0      1       2       3       4        5
-        # Quartile  0.5
-        # Chauvenet
-        # Thompson
-        # Grubbs    0.3
-        # ESD       0.3
 
 if __name__ == "__main__":
     print("ce programme ne se lance pas seul. Lancer Appli_Interpolaspline.")

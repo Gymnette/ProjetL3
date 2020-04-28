@@ -4,6 +4,8 @@ import Tache_4_Detection_donnes_aberrantes as det
 import load_tests as ldt
 import Tache_4_methodes as meth
 
+import matplotlib.pyplot as monplt
+
 def winsorization(y,quantite_aberrante):
     """
     Applique la Winsorization de manière rigoureuse, selon la définition.
@@ -89,7 +91,8 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
 
     if M == meth.KNN:
         M = meth.eval_quartile
-
+    
+    monplt.plot(x,y,"xb",label="Données modifiées")
 
     ##########################
     # Traitement des données #
