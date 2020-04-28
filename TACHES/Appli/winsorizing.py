@@ -138,7 +138,7 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
         p_meth = ldt.input_choice(['1','2'])
         if p_meth == '1':
             ep = meth.esti_epsilon(y)
-            p = pas_inter(y,epsilon = ep) #ESSAI
+            p = det.pas_inter(y,epsilon = ep) #ESSAI
         else:
             p = meth.ind_densite(y)
         p = meth.regrouper(p,30)
@@ -151,7 +151,6 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
 
             j = x[a:b+1]
             g = y[a:b+1]
-            k = (b-a+1)//2
 
             _, _, indices_aberrants = det.supprime(g, M)
             IND_AB = IND_AB + indices_aberrants
