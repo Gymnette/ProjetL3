@@ -167,8 +167,8 @@ def tester(x, y, f = None, M_int = None, locglob=None):
 
     if locglob is None:
         print("Choisir la portee de traitement des donnees :")
-        print('1 : Global')
-        print('2 : Local')
+        print('1 : Globale')
+        print('2 : Locale')
         locglob = ldt.input_choice(['1','2'])
 
     ##########################
@@ -176,41 +176,28 @@ def tester(x, y, f = None, M_int = None, locglob=None):
     ##########################
 
     if locglob == '1':
-        p = pas_inter(y, epsilon=0.5)
-        b = p[0]
-        X = []
-        Y = []
-        i = 1
-        while i < len(p):  # Tant que i < len(p), il reste une borne droite d'intervalle non utilisée
-            a = b
-            b = p[i]  # On récupère cette borne après avoir décalé
+        if M == meth.KNN:
+            xd, yd = supprime(x, M, y = y)
+            X = xd
+            Y = yd
+        else:
+            yd, v_poids, indices_aberrants = supprime(y, M)
+            indices_aberrants.sort()
+            # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
+            # On ne garde que les x associés aux y.
+            xd = list(x)
+            for ind in range(len(indices_aberrants) - 1, - 1, - 1):  # On part de la fin pour ne pas avoir de décalage d'indices
+                xd.pop(indices_aberrants[ind])
 
-            j = x[a:b]
-            g = y[a:b]
+            X = xd
+            Y = yd
 
-            if M == meth.KNN:
-                xd, yd = supprime(j, M, y = g)
-                X = X + xd
-                Y = Y + yd
-            else:
-                yd, v_poids, indices_aberrants = supprime(g, M)  # AMELYS: IL FAUT GERER LE CAS Où ON NE SUPPRIME PAS LES POIDS
-                indices_aberrants.sort()
-                # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
-                # On ne garde que les x associés aux y.
-                xd = list(j)
-                for ind in range(len(indices_aberrants) - 1, - 1, - 1):  # On part de la fin pour ne pas avoir de décalage d'indices
-                    xd.pop(indices_aberrants[ind])
-
-                X = X + xd
-                Y = Y + yd
-
-            i += 1  # On se décale d'un cran à droite
 
     else:
 
         ldt.affiche_separation()
         print("Quelle methode de création d'intervalles utiliser ?")
-        print("1 : Par ???????")
+        print("1 : Par pas")
         print("2 : Par densité")
         p_meth = ldt.input_choice(['1','2'])
         if p_meth == '1':
@@ -230,14 +217,29 @@ def tester(x, y, f = None, M_int = None, locglob=None):
 
             j = x[a:b+1]
             g = y[a:b+1]
-            k = (b-a+1)//2
 
-            x_ab, y_ab,xd, yd = meth.KNN(j,g,k,15) 
+            if M == meth.KNN:
+                k = (b-a+1)//2
+                x_ab, y_ab,xd, yd = meth.KNN(j,g,k,15) 
+                X = X + xd
+                Y = Y + yd
+            else:
+                yd, v_poids, indices_aberrants = supprime(g, M) 
+                indices_aberrants.sort()
+                # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
+                # On ne garde que les x associés aux y.
+                xd = list(j)
+                for ind in range(len(indices_aberrants) - 1, - 1, - 1):  # On part de la fin pour ne pas avoir de décalage d'indices
+                    xd.pop(indices_aberrants[ind])
+
+                X = X + xd
+                Y = Y + yd
+            #x_ab, y_ab,xd, yd = meth.KNN(j,g,k,15) 
 
 
 
-            X = X + xd
-            Y = Y + yd
+            #X = X + xd
+            #Y = Y + yd
 
             i+=1 # On se décale d'un cran à droite
 
