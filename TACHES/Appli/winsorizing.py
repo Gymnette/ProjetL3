@@ -169,10 +169,6 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
     return ybis
 
 
-
 if __name__ == "__main__":
-    y= [1,2,1,3,10,2,1,3,0,20,-15]
-    inds = [4,9,10]
-    ybis = traitement_winsorizing(y, inds)
-    ysec = winsorization(y,0.3)
-    print(y,ybis,ysec,sep="\n")
+    print("ce programme ne se lance pas seul. Lancer Appli_Interpolaspline.")
+
