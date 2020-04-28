@@ -211,9 +211,9 @@ def charge_donnees(D_methodes=None):
         stationnaire = input_choice()
 
         std1 = 0.05
-        nb_pts = 30
+        nb_pts = 50
         prob = 0.1
-        reg = 0.1
+        reg = 0.9
 
         affiche_separation()
         print("\nCreation de signal rapide ? (y = oui, n = non)")
@@ -246,9 +246,9 @@ def charge_donnees(D_methodes=None):
         return x, y, f, None, False, seed
 
     std1 = 0.05
-    nb_pts = 30
+    nb_pts = 200
     prob = 0.1
-    reg = 0.1
+    reg = 0.9
     affiche_separation()
     print("\nTest sur recréation de signal. Signal stationnaire ? (y = oui, n = non)")
     stationnaire = input_choice()
@@ -276,12 +276,8 @@ def charge_donnees(D_methodes=None):
     skip = input_choice()
 
     # signaux de tests stationnaires provenant du générateur
-    if skip == 'y':
-        std1 = 0.05
-        nb_pts = 30
-        prob = 0.1
-        reg = 0.1
-    else:
+
+    if skip == 'n':
         print("Choisissez les valeurs suivantes :")
         std1 = float(input("(flottant) Ecart type = "))
         nb_pts = int(input("(entier) Nombre de points = "))
@@ -297,18 +293,6 @@ def charge_donnees(D_methodes=None):
         x, y, f, seed = ss.non_stationary_signal((nb_pts, ), switch_prob=prob, noise_func=nfunc, seed=seed)
 
     return x, y, f, None, False, seed
-
-        #############################################################
-        # Epsilon à choisir en fonction des graines et des méthodes #
-        #############################################################
-        # Pour les signaux stationnaires de paramètres 30, et 0.9
-        # Pour les paramètres des méthodes par défaut
-        #           0      1       2       3       4        5
-        # Quartile  0.5
-        # Chauvenet
-        # Thompson
-        # Grubbs    0.3
-        # ESD       0.3
 
 if __name__ == "__main__":
     print("ce programme ne se lance pas seul. Lancer appli_interpolaspline.")

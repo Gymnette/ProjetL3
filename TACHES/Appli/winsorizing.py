@@ -108,7 +108,7 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
     plot.scatterdata(x, y, c='bx', legend='données', new_fig=False, show=False) # affichage des points de l'échantillon
 
     if m_proba:
-        print("Choisissez le pourcentage de valeurs aberrantes")
+        print("Choisissez le pourcentage (< 1) de valeurs aberrantes")
         try:
             prob = float(input("> "))
         except ValueError:
@@ -121,8 +121,8 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
     if locglob is None:
         ldt.affiche_separation()
         print("Choisir la portee de traitement des donnees :")
-        print('1 : Global')
-        print('2 : Local')
+        print('1 : Globale')
+        print('2 : Locale')
         locglob = ldt.input_choice(['1','2'])
 
     if M == meth.KNN:
