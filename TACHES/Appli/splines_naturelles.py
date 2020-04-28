@@ -294,5 +294,4 @@ def creation_spline_naturelle(x=None, y=None, f=None, is_array=False, seed=None)
     ldt.affiche_separation()
 
 if __name__ == "__main__":
-    print("ce programme ne se lance pas seul. Lancer Appli_Interpolaspline.")
-
+    print("ce programme ne se lance pas seul. Lancer appli_interpolaspline.")

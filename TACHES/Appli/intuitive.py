@@ -133,7 +133,7 @@ def repartition_equitable(x,n):
 
 def Faire_intuitive(uk, zk, f, mode):
     warnings.filterwarnings("ignore", category=DeprecationWarning) # pour enlever les DeprecationWarning
-    
+
     a = min(uk)
     b = max(uk)
     #if mode == 4:
@@ -162,12 +162,12 @@ def Faire_intuitive(uk, zk, f, mode):
     stop = 0
     u_aberrant = []
     z_aberrant = []
-    
+
     print("\nChoix automatique du paramètre de lissage ? (y = oui, n = non)")
     rho_auto = ldt.input_choice()
     if rho_auto == 'n':
         rho = spllis.choisir_rho([],[], 'n')
-                
+
     while stop<1000: #break lorsqu'il n'y a plus de points aberrants
 
         xi = repartition_equitable(uk,n)
@@ -196,13 +196,13 @@ def Faire_intuitive(uk, zk, f, mode):
             yy=np.append(yy,y)
 
         ind_le_plus_aberrant = Erreur(uk,zk,xx,yy,seuil)
-        
+
         if ind_le_plus_aberrant == -1 or len(uk) <= n+1 :
             plt.plot(xx,yy,"b",label="spline")
             plt.plot(u_aberrant, z_aberrant, '+r', label='données retirées')
 
             break
-        
+
         u_aberrant.append(uk.pop(ind_le_plus_aberrant))
         z_aberrant.append(zk.pop(ind_le_plus_aberrant))
         stop+=1
@@ -234,6 +234,6 @@ def Lancer_intuitive():
             Faire_intuitive(xi, zk[i], f, M)
     else:
         Faire_intuitive(uk, zk, f, M)
-    
+
 if __name__ == "__main__":
-    print("ce programme ne se lance pas seul. Lancer Appli_Interpolaspline.")
+    print("ce programme ne se lance pas seul. Lancer appli_interpolaspline.")

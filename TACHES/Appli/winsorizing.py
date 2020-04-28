@@ -5,7 +5,9 @@ import load_tests as ldt
 import Tache_4_methodes as meth
 import plotingv2 as plot
 import numpy as np
-def winsorization(y,quantite_aberrante):
+
+
+def winsorization(x, y, quantite_aberrante):
     """
     Applique la Winsorization de manière rigoureuse, selon la définition.
     quantite_aberrante appartient à [0,1[.
@@ -19,6 +21,10 @@ def winsorization(y,quantite_aberrante):
     """
 
     ybis = list(y)
+    xabmin = []
+    xabmax = []
+    minival = []
+    maxival= []
 
     n = len(y)
     nb = math.floor(quantite_aberrante*n)//2
@@ -39,8 +45,14 @@ def winsorization(y,quantite_aberrante):
     for i in range(nb) :
         ybis[mini[i][1]] = minimum
         ybis[maxi[i][1]] = maximum
+        xabmin.append(x[mini[i][1]])
+        minival.append(y[mini[i][1]])
+        maxival.append(y[maxi[i][1]])
+        xabmax.append(x[maxi[i][1]])
 
-    return ybis
+    x_ab = xabmin + xabmax
+    y_ab = minival + maxival
+    return x_ab, y_ab, ybis
 
 def traitement_winsorizing(y,indices_points_aberrants):
     """
@@ -81,19 +93,42 @@ def traitement_winsorizing(y,indices_points_aberrants):
     return ybis
 
 def Faire_win(x, y, f, m_proba, M, locglob = None):
-    
-    
+
+    D = {'1': ("Méthode interquartile", meth.eval_quartile),
+         '2': ("Test de Chauvenet", meth.test_Chauvenet),
+         '3': ("Méthode de Tau Thompson", meth.thompson),
+         '4': ("Test de Grubbs", meth.grubbs),
+         '5': ("Test de la déviation extreme de student", meth.deviation_extreme_student)}
+
     plot.scatterdata(x, y, c='bx', legend='données', new_fig=False, show=False) # affichage des points de l'échantillon
-    
+
+    if m_proba:
+        print("Choisissez le pourcentage de valeurs aberrantes")
+        try:
+            prob = float(input("> "))
+        except ValueError:
+            print("Valeur par défault choisie : 0.01")
+            prob = 0.01
+        x_ab,y_ab, ybis = winsorization(x,y,prob)
+        plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False, show=False) # affichage des points aberrants de l'échantillon
+        return ybis
+
     if locglob is None:
+        ldt.affiche_separation()
         print("Choisir la portee de traitement des donnees :")
         print('1 : Global')
         print('2 : Local')
         locglob = ldt.input_choice(['1','2'])
-        
-    if M == meth.KNN:
-        M = meth.eval_quartile
 
+    if M == meth.KNN:
+        ldt.affiche_separation()
+        print("La méthode des k plus proches voisins n'est pas compatible avec la winzorisation.")
+        print("Merci de choisir une nouvelle méthode")
+
+        for key in D:
+            print(key, " : ", D[key][0])
+
+        M = D[ldt.input_choice(list(D.keys()))][1]
 
     ##########################
     # Traitement des données #
@@ -110,14 +145,14 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
             j = x[a:b]
             g = y[a:b]
 
-            _, _, indices_aberrants = det.supprime(g, M)  
+            _, _, indices_aberrants = det.supprime(g, M)
             indices_aberrants.sort()
             IND_AB = IND_AB + indices_aberrants
             # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
             # On ne garde que les x associés aux y.
             x_ab = []
             y_ab = []
-                
+
             xd = list(j)
             for ind in range(len(indices_aberrants) - 1, - 1, - 1):  # On part de la fin pour ne pas avoir de décalage d'indices
                 xd.pop(indices_aberrants[ind])
@@ -133,7 +168,7 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
 
         ldt.affiche_separation()
         print("Quelle methode de création d'intervalles utiliser ?")
-        print("1 : Par ???????")
+        print("1 : Par pas")
         print("2 : Par densité")
         p_meth = ldt.input_choice(['1','2'])
         if p_meth == '1':
@@ -156,18 +191,19 @@ def Faire_win(x, y, f, m_proba, M, locglob = None):
             IND_AB = IND_AB + indices_aberrants
 
             i+=1 # On se décale d'un cran à droite
+        x_ab, y_ab = [], []
+        for indice in IND_AB:
+            x_ab.append(x[indice])
+            y_ab.append(y[indice])
+        plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False, show=False) # affichage des points aberrants de l'échantillon
+
 
     IND_AB = list(set(IND_AB))
-    
-    if m_proba:
-        prob = len(IND_AB)/len(y)
-        ybis = winsorization(y,prob)
-    else:
-        ybis = traitement_winsorizing(y, IND_AB)
+
+    ybis = traitement_winsorizing(y, IND_AB)
 
     return ybis
 
 
 if __name__ == "__main__":
-    print("ce programme ne se lance pas seul. Lancer Appli_Interpolaspline.")
-
+    print("ce programme ne se lance pas seul. Lancer appli_interpolaspline.")

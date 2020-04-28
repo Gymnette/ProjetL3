@@ -311,4 +311,4 @@ def charge_donnees(D_methodes=None):
         # ESD       0.3
 
 if __name__ == "__main__":
-    print("ce programme ne se lance pas seul. Lancer Appli_Interpolaspline.")
+    print("ce programme ne se lance pas seul. Lancer appli_interpolaspline.")

@@ -5,6 +5,8 @@ Avril 2020
 @author: Interpolaspline
 """
 
+import warnings
+
 #Outils
 import load_tests as ldt
 import splines_naturelles as splnat
@@ -13,7 +15,9 @@ import Tache_4_Detection_donnes_aberrantes as ptsabe
 import RANSAC as rs
 import LOESS_robuste as loess_r
 import intuitive
-import warnings
+import plotingv2 as plot
+
+
 if __name__ == '__main__':
     warnings.filterwarnings("ignore", category=RuntimeWarning) # pour enlever les DeprecationWarning
     warnings.filterwarnings("ignore", category=DeprecationWarning) # pour enlever les DeprecationWarning
@@ -25,14 +29,14 @@ if __name__ == '__main__':
          '4': ("Algorithme de RanSac", rs.Lancer_Ransac),
          '5': ("Méthode LOESS Robuste",loess_r.Lancer_LOESS_robuste),
          '6': ("Méthode Intuitive",intuitive.Lancer_intuitive)}
-            
+
     #Menu principal
     ldt.affiche_separation()
     print("\nBienvenue dans l'application d'interpolation Interpolaspline !\n")
 
-
     while True:
 
+        plot.show()
         print("\n----------------- Menu Principal -----------------\n")
 
         print("Veuillez choisir la FONCTIONNALITE desiree :\n")
@@ -50,13 +54,14 @@ if __name__ == '__main__':
 
         if RETOUR is not None:
             (X, Y, F, IS_TAB) = RETOUR
+            plot.show()
             if not IS_TAB:
                 ldt.affiche_separation()
                 print("\nPoints aberrants traités. Que voulez-vous faire ?")
                 print("1 : Creer la spline naturelle associée")
                 print('2 : Creer la spline de lissage associée')
                 print('3 : Retourner au menu principal')
-                KEEP_GOING = ldt.input_choice(['1', '2', '3']) 
+                KEEP_GOING = ldt.input_choice(['1', '2', '3'])
                 if KEEP_GOING == '1':
                     splnat.creation_spline_naturelle(X, Y, F)
                 elif KEEP_GOING == '2':
@@ -67,9 +72,9 @@ if __name__ == '__main__':
                 print("1 : Creer les splines naturelles associées")
                 print('2 : Creer les splines de lissage associées')
                 print('3 : Retourner au menu principal')
-                KEEP_GOING = ldt.input_choice(['1', '2', '3']) 
+                KEEP_GOING = ldt.input_choice(['1', '2', '3'])
                 if KEEP_GOING == '1':
                     splnat.creation_spline_naturelle(X, Y, F, True)
                 elif KEEP_GOING == '2':
                     spllis.creation_spline_lissage(X, Y, F, True)
-            
+

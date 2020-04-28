@@ -78,7 +78,7 @@ def Faire_LOESS_robuste(x, y, rho):
 
     a = min(x) # intervalle
     b = max(y) # intervalle
-    
+
 
     ldt.affiche_separation()
     print("\nEntrez le mode de traitement du fichier :")
@@ -92,16 +92,16 @@ def Faire_LOESS_robuste(x, y, rho):
         n = len(spllis.Repartition_optimale(x))
     else:
         n = spllis.choisir_n()
-        
+
     print("\nAfficher les noeuds ? (y = oui, n = non)")
     aff_n = ldt.input_choice()
-        
+
     yres = Calculer_LOESS_robuste(x, y,rho)
 
     plot.scatterdata(x, y, c= "rx", show=False, new_fig=False, legend="Echantillon")
 
 
-    
+
     if mode == '1':
         xi = np.linspace(a, b, n)
     elif mode == '2':
@@ -112,8 +112,8 @@ def Faire_LOESS_robuste(x, y, rho):
     else:
         xi = spllis.Repartition_optimale(x)
         n = len(xi)
-        
-        
+
+
     if spllis.presence_intervalle_vide(xi, x):
         ldt.affiche_separation()
         print("\nErreur : Un intervalle vide est detecté.")
@@ -121,8 +121,8 @@ def Faire_LOESS_robuste(x, y, rho):
         print(" - nombre de noeuds")
         print(" - type de répartition\n")
         ldt.affiche_separation()
-        sys.exit(1)   
-   
+        sys.exit(1)
+
 
 
     if aff_n == 'y':
@@ -145,7 +145,7 @@ def Faire_LOESS_robuste(x, y, rho):
     plt.title("LOESS Robuste")
     plt.legend()
     plt.show()
-    
+
 
 def Lancer_LOESS_robuste():
     """
@@ -165,10 +165,7 @@ def Lancer_LOESS_robuste():
     rho = spllis.choisir_rho(x,y, rho_auto)
 
     Faire_LOESS_robuste(x, y, rho)
-    
-
-
 
 
 if __name__ == "__main__":
-    print("ce programme ne se lance pas seul. Lancer Appli_Interpolaspline.")
+    print("ce programme ne se lance pas seul. Lancer appli_interpolaspline.")

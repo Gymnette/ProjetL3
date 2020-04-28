@@ -454,7 +454,7 @@ def test_fichier(n, uk, zk, f=None, mode=None, aff_n=None, rho=1):
         xi = Repartition_optimale(uk)
         n = len(xi)
 
-    
+
     plt.title('spline de lissage avec ' + str(n) + ' noeuds') # titre
 
 
@@ -649,4 +649,4 @@ def creation_spline_lissage(x=None, y=None, f=None, is_array=False):
     ldt.affiche_separation()
 
 if __name__ == "__main__":
-    print("ce programme ne se lance pas seul. Lancer Appli_Interpolaspline.")
+    print("ce programme ne se lance pas seul. Lancer appli_interpolaspline.")
