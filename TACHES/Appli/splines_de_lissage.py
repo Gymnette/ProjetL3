@@ -582,8 +582,9 @@ def creation_spline_lissage(x=None, y=None, f=None, is_array=False):
     M = None
 
     if (x is None) or (y is None):
-        x, y, f, M, is_array, seed = ldt.charge_donnees(D_meth)
-        plot.scatterdata(x, y, c='bx', legend='données', new_fig=False, show=False) # affichage des points de l'échantillon
+        x, y, f, M, is_array, seed = ldt.charge_donnees(D_meth,liste_test=True)
+        if not is_array:
+            plot.scatterdata(x, y, c='bx', legend='données', new_fig=False, show=False) # affichage des points de l'échantillon
         if seed is not None:
             print("Graine pour la génération du signal : ", seed)
     elif is_array:
@@ -623,6 +624,8 @@ def creation_spline_lissage(x=None, y=None, f=None, is_array=False):
 
         for i, e in enumerate(x):
             print("Fichier ", i + 1, "\nNombre de points : ", len(e))
+            plot.scatterdata(e, y[i], c='bx', legend='données', new_fig=True, show=False) # affichage des points de l'échantillon
+
             if rho_fixe == 'n':
                 rho = trouve_rho(x[i],y[i])
                 print("\nLe paramètre de lissage automatique serait : ", rho)
