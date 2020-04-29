@@ -139,7 +139,7 @@ def charge_methodes(D_methodes=None, une_methode=False):
     return M_int
 
 
-def charge_donnees(D_methodes=None,liste_test = True):
+def charge_donnees(D_methodes=None, liste_test=False):
     """
     Charge x,y, fonction, methode, et un booleen qui donne le type de x et y pour pouvoiir appliquer les methodes
     """

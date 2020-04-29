@@ -283,7 +283,7 @@ def trouve_points_aberrants():
 
     ldt.affiche_separation()
     print("Bienvenue dans ce gestionnaire des points aberrants !")
-    x, y, f, M, is_array, seed = ldt.charge_donnees(D_meth)
+    x, y, f, M, is_array, seed = ldt.charge_donnees(D_meth,liste_test=True)
     if seed is not None:
         ldt.affiche_separation()
         print("Graine pour la génération du signal : ", seed)
