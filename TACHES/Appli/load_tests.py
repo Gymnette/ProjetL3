@@ -139,24 +139,29 @@ def charge_methodes(D_methodes=None, une_methode=False):
     return M_int
 
 
-def charge_donnees(D_methodes=None):
+def charge_donnees(D_methodes=None,liste_test = True):
     """
     Charge x,y, fonction, methode, et un booleen qui donne le type de x et y pour pouvoiir appliquer les methodes
     """
-    print("Choisissez une option de récupération de données :")
-    print("1 : Fichier contenant une liste de plusieurs fichiers à tester")
-    print("2 : Récupération sur un fichier")
-    print("3 : Générer un test")
-    print("4 : Recréer un test à partir d'une graine")
+    D = {"1" : "Récupération sur un fichier",
+         "2" : "Générer un test",
+         "3" : "Recréer un test à partir d'une graine"}
 
-    type_test = input_choice(['1', '2', '3', '4'])
+    if liste_test:
+        D["4"] = "Fichier contenant une liste de plusieurs fichiers à tester"
+
+    print("Choisissez une option de récupération de données :")
+
+    for key in D:
+        print(key, " : ", D[key])
+    type_test = input_choice(list(D.keys()))
 
     type_test = int(type_test)
 
     os = sys.platform
     sep = '\\' if os == 'win32' else '/'
 
-    if type_test == 1:
+    if type_test == 4:
 
         affiche_liste_fichiers_liste()
         affiche_separation()
@@ -199,7 +204,7 @@ def charge_donnees(D_methodes=None):
             Y.append(y)
         return X, Y, None, M_int, True, None
 
-    if type_test == 2:
+    if type_test == 1:
 
         affiche_noms_fichiers_tests()
         affiche_separation()
@@ -209,7 +214,7 @@ def charge_donnees(D_methodes=None):
         x, y = load_points(f_test)
         return x, y, None, None, False, None
 
-    if type_test == 3:
+    if type_test == 2:
         affiche_separation()
         print("\nTest sur génération de signal. Signal stationnaire ? (y = oui, n = non)")
         stationnaire = input_choice()
