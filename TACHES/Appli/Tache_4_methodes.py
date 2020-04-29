@@ -1,6 +1,6 @@
 # -*- coding: utf - 8 -*-
 """
-Created on Tue Apr  7 14:29:18 2020
+Avril 2020
 
 @author: Interpolaspline
 """

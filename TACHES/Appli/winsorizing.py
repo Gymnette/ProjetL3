@@ -1,4 +1,10 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf - 8 -*-
+"""
+Avril 2020
+
+@author: Interpolaspline
+"""
+
 import math
 import gestion_aberrance as det
 import load_tests as ldt

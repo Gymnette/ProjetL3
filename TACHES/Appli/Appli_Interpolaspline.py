@@ -3,6 +3,12 @@
 Avril 2020
 
 @author: Interpolaspline
+CORBILLE Clément
+DOUMBOUYA Mohamed
+EL BOUCHOUARI Zakaria
+HEDDIA Bilel
+PIASENTIN Béryl
+RODET Amélys
 
 PROGRAMME PRINCIPAL A LANCER
 

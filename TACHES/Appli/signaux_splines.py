@@ -1,3 +1,9 @@
+# -*- coding: utf - 8 -*-
+"""
+Avril 2020
+
+@author: Interpolaspline
+"""
 """
 Creation de signaux aleatoires.
 """

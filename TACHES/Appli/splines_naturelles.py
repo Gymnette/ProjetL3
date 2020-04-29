@@ -1,5 +1,10 @@
 # !/ usr / bin / env python3
 # -*- coding: utf - 8 -*-
+"""
+Avril 2020
+
+@author: Interpolaspline
+"""
 from random import random
 import numpy as np
 import matplotlib.pyplot as plt

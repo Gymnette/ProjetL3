@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf - 8 -*-
 """
-Created on Sun Apr 26 17:58:21 2020
+Avril 2020
 
 @author: Interpolaspline
 """
+
 import sys
 
 from typing import List
