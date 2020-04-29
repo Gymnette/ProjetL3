@@ -1,9 +1,8 @@
 # -*- coding: utf - 8  -*-
 """
-Avril 2020
+Created on Thu Apr 16 17:22:04 2020
 
 @author: Interpolaspline
-
 """
 def is_char_or_num(char):
     """

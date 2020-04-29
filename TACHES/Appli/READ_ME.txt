@@ -3,10 +3,10 @@
 #############################################################
 
 ###############
-# Instalation #
+# Installation #
 ###############
 
-Les fichiers suivants doivent se trouver au même endroit:
+Les fichiers suivants sont fournis et doivent se trouver au même endroit:
 	- appli_interpolaspline.py
 	- gestion_aberrance.py
 	- intuitive.py
