@@ -11,6 +11,10 @@ import signaux_splines as ss
 
 
 def affiche_liste_fichiers_liste():
+    """
+    affiche la liste des fichiers du dossier Tests
+
+    """
     affiche_separation()
     print("Pour le fichier contenant tous les fichiers du repertoire Test,")
     print("entrez Tous_les_tests")

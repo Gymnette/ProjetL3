@@ -56,23 +56,11 @@ def Faire_LOESS_robuste(x, y, rho):
     """
     Parameters
     ----------
-    x : TYPE
-        DESCRIPTION.
-    y : TYPE
-        DESCRIPTION.
-    f : TYPE, optional
-        DESCRIPTION. The default is None.
-    para : TYPE, optional
-        DESCRIPTION. The default is '1'.
-
-    Returns
-    -------
-    xreel : TYPE
-        DESCRIPTION.
-    yreel : TYPE
-        DESCRIPTION.
-
+    x : liste d'int
+    y : liste d'int
+    rho : float
     """
+
     #Tri
     x, y = ldt.sortpoints(x, y)
 

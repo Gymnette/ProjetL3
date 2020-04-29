@@ -112,6 +112,19 @@ def construct(x, y, v_poids, rho=0.05):
     return y_estimated
 
 def repartition_equitable(x,n):
+    """
+    Repartit équitablement les données x en n intervalles
+
+    Parameters
+    ----------
+    x : liste d'int
+    n : int
+
+    Returns
+    -------
+    rep : liste d'int
+
+    """
     ninter = n-1
     nb = len(x)//ninter
     plus_un = len(x)%ninter
@@ -132,7 +145,13 @@ def repartition_equitable(x,n):
     return rep
 
 def Faire_intuitive(uk, zk, f, mode):
-    warnings.filterwarnings("ignore", category=DeprecationWarning) # pour enlever les DeprecationWarning
+    """
+    Applique la methode intuitive aux données xk,zk
+
+    """
+
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
+    # pour enlever les DeprecationWarning
 
     a = min(uk)
     b = max(uk)

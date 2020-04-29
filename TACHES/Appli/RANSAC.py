@@ -17,10 +17,21 @@ import load_tests as ldt
 import splines_naturelles as splnat
 import splines_de_lissage as spllis
 
-####################
-# Fonctions utiles #
-####################
+
 def repartition_equitable(x,n):
+    """
+    Repartit équitablement les données x en n intervalles
+
+    Parameters
+    ----------
+    x : liste d'int
+    n : int
+
+    Returns
+    -------
+    rep : liste d'int
+
+    """
     ninter = n-1
     nb = len(x)//ninter
     plus_un = len(x)%ninter
@@ -352,7 +363,7 @@ def ransac_auto(x, y, err, dist, nbpoints, rho, pcorrect=0.99,mode=None):
                 d_courbe = dist(x[i], y[i], xres[i_associe], yres[i_associe])
             if d_courbe <= err:
                 liste_inlier.append(i)
-                
+
         if len(liste_inlier) >= nbcorrect:
             # Le modèle semble ne contenir que des inlier !
             # On calcule la spline de lissage correspondante, avec l'erreur.
@@ -446,7 +457,7 @@ def Faire_Ransac(x, y, rho,err=0.5, f=None, para='1'):
     #else:
     nconsidere = spllis.choisir_n()
     xres, yres = ransac_auto(x, y, err, d_euclidienne, nconsidere, rho)
-    
+
     #plt.plot(xres, yres, "r")
 
     xreel, yreel = calcul_Spline_lissage(x, y, min(x), max(x), len(x), rho, mode)
@@ -497,10 +508,10 @@ def Lancer_Ransac():
             else:
                 if rho_auto == 'y':
                     rho = spllis.choisir_rho(x[i],y[i])
-                    
+
             ldt.affiche_separation()
             print("Choisissez le seuil d'erreur (réel positif) :")
-    
+
             seuil = -1
             while seuil <=0 :
                 seuil = input("> ")
@@ -525,9 +536,9 @@ def Lancer_Ransac():
         rho_auto = ldt.input_choice()
         rho = spllis.choisir_rho(x,y, rho_auto)
         ldt.affiche_separation()
-        
+
         print("Choisissez le seuil d'erreur (réel positif) :")
-    
+
         seuil = -1
         while seuil <=0 :
             seuil = input("> ")
@@ -541,7 +552,7 @@ def Lancer_Ransac():
                     seuil = -1
 
         Xtab, Ytab = Faire_Ransac(x, y, rho, seuil, f, M)
-        
+
     if seed is not None:
         ldt.affiche_separation()
         print("Graine pour la génération du signal : ", seed)

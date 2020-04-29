@@ -198,6 +198,9 @@ def Repartition_chebyshev(a, b, n):
     return T
 
 def Repartition_aleatoire(a, b, n):
+    """
+    Repartit aléatoirement n points entre a et b
+    """
     rdm = np.random.rand(n - 2)
     rdm.sort()
     xi = [a]
@@ -212,6 +215,9 @@ def Repartition_aleatoire(a, b, n):
     return xi
 
 def test_fichier(U, Z, f=None, mode=None):
+    """
+    Création d'une spline naturelle sur les données U,Z'
+    """
 
     ok, mess_err = ldt.remplissent_conditions(U,Z)
 
@@ -268,6 +274,9 @@ def test_fichier(U, Z, f=None, mode=None):
     ldt.affiche_separation()
 
 def creation_spline_naturelle(x=None, y=None, f=None, is_array=False, seed=None):
+    """
+    créé la spline naturelle (appelée depuis le menu principal)
+    """
 
     print("\nCreation de la spline naturelle interpolant chaque point donne.\n")
 

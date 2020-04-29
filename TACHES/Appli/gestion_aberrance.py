@@ -19,7 +19,7 @@ import Tache_4_methodes as meth
 ###############################################
 
 
-def supprime(x, methode, sup_poids=True, poids=1 / 100, k=7, m=25, y = None):  # A AJOUTER (AMELYS): OPTIONS DES METHODES
+def supprime(x, methode, sup_poids=True, poids=1 / 100, k=7, m=25, y=None):  # A AJOUTER (AMELYS): OPTIONS DES METHODES
     """
     Parcours toutes les valeurs de x afin de toutes les traiter.
     La fonction supprime prend un vecteur x d'ordonnées de points, une methode de
@@ -74,7 +74,7 @@ def supprime(x, methode, sup_poids=True, poids=1 / 100, k=7, m=25, y = None):  #
                     v_poids[i] = poids
 
     elif methode is meth.KNN:
-        ind, uk_ya, x_sup, y = meth.KNN(x, y, k, m)
+        ind, _, x_sup, y = meth.KNN(x, y, k, m)
         return x_sup, y
 
     else:
@@ -134,10 +134,19 @@ def pas_inter(y, epsilon=0.1):
 
     return p
 
-def tester(x, y, f = None, M_int = None, locglob=None):
+def tester(x, y, f=None, M_int=None, locglob=None):
     """
     partie du programme principal :
         applique une methode de detection des points aberrants sur un ensemble de donnees
+
+    Type des entrées :
+    x et y : vecteurs de float ou vecteur d'int
+    f : fonction
+    M_int : caractère (compris dans : ['1', '2', '3', '4', '5', '6'])
+    locglob : '1' ou '2'
+
+    Type des sorties :
+        X et Y : liste[int], liste[int]
     """
 
     #######################
@@ -168,7 +177,7 @@ def tester(x, y, f = None, M_int = None, locglob=None):
         print("Choisir la portee de traitement des donnees :")
         print('1 : Globale')
         print('2 : Locale')
-        locglob = ldt.input_choice(['1','2'])
+        locglob = ldt.input_choice(['1', '2'])
 
     ##########################
     # Traitement des données #
@@ -176,11 +185,11 @@ def tester(x, y, f = None, M_int = None, locglob=None):
 
     if locglob == '1':
         if M is meth.KNN:
-            xd, yd = supprime(x, M, y = y)
+            xd, yd = supprime(x, M, y=y)
             X = xd
             Y = yd
         else:
-            yd, v_poids, indices_aberrants = supprime(y, M)
+            yd, _, indices_aberrants = supprime(y, M)
             indices_aberrants.sort()
             # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
             # On ne garde que les x associés aux y.
@@ -198,23 +207,23 @@ def tester(x, y, f = None, M_int = None, locglob=None):
         print("Quelle methode de création d'intervalles utiliser ?")
         print("1 : Par pas")
         print("2 : Par densité")
-        p_meth = ldt.input_choice(['1','2'])
+        p_meth = ldt.input_choice(['1', '2'])
         if p_meth == '1':
             ep = meth.esti_epsilon(y)
-            p = pas_inter(y,epsilon = ep) #ESSAI
+            p = pas_inter(y, epsilon=ep) #ESSAI
         else:
             p = meth.ind_densite(y)
 
-        if M is meth.eval_quartile :
-            p = meth.regrouper(p,t=30)
+        if M is meth.eval_quartile:
+            p = meth.regrouper(p, t=30)
 
         if p[-1] != len(x):
             p.append(len(x))
         b = p[0]
         X = []
         Y = []
-        i=1
-        while i < len(p) : # Tant que i < len(p), il reste une borne droite d'intervalle non utilisée
+        i = 1
+        while i < len(p): # Tant que i < len(p), il reste une borne droite d'intervalle non utilisée
             a = b
             b = p[i] #On récupère cette borne après avoir décalé
 
@@ -222,12 +231,12 @@ def tester(x, y, f = None, M_int = None, locglob=None):
             g = y[a:b]
 
             if M is meth.KNN:
-                k = (b-a+1)//2
-                x_ab, y_ab,xd, yd = meth.KNN(j,g,k,15)
+                k = (b - a + 1) //2
+                _, _, xd, yd = meth.KNN(j, g, k, 15)
                 X = X + xd
                 Y = Y + yd
             else:
-                yd, v_poids, indices_aberrants = supprime(g, M)
+                yd, _, indices_aberrants = supprime(g, M)
                 indices_aberrants.sort()
                 # On parcourt les indices dans l'ordre décroissant pour ne pas avoir de décalage
                 # On ne garde que les x associés aux y.
@@ -237,30 +246,40 @@ def tester(x, y, f = None, M_int = None, locglob=None):
 
                 X = X + xd
                 Y = Y + yd
-            #x_ab, y_ab,xd, yd = meth.KNN(j,g,k,15)
+            #x_ab, y_ab, xd, yd = meth.KNN(j, g, k, 15)
 
 
 
             #X = X + xd
             #Y = Y + yd
 
-            i+=1 # On se décale d'un cran à droite
+            i += 1 # On se décale d'un cran à droite
 
-    plot.scatterdata(x, y, c='r+', legend = "données", title = lab, new_fig = True, show = False)
-    plot.scatterdata(X, Y, c='b+', legend='données conservées, dites "non aberrantes" ', new_fig = False, show = False)
+    plot.scatterdata(x, y, c='r+', legend="données", title=lab, new_fig=True, show=False)
+    plot.scatterdata(X, Y, c='b+', legend='données conservées, dites "non aberrantes" ', new_fig=False, show=False)
 
 
     return X, Y
 
 
 def trouve_points_aberrants():
+    """
+    Fonction principale : appelée depuis le menu principal
+    Début de la gestion depoints aberrants
+    (récupération de fichiers, choix des méthodes)
+
+    Sorties :
+        Xtab, Ytab : listes ou listes de listes (dépend du type de données)
+        f : fonction (si création de signal, None sinon)
+        is_array : booleen (type de Xtab et Ytab)
+    """
 
     D_meth = {"1": "Inter-Quartile",
-            "2": "Test de Chauvenet",
-            "3": "Test Tau de Thompson",
-            "4": "Test de Grubbs",
-            "5": "Test de la deviation extreme de Student",
-            "6": "Test des k plus proches voisins "}
+              "2": "Test de Chauvenet",
+              "3": "Test Tau de Thompson",
+              "4": "Test de Grubbs",
+              "5": "Test de la deviation extreme de Student",
+              "6": "Test des k plus proches voisins "}
 
     ldt.affiche_separation()
     print("Bienvenue dans ce gestionnaire des points aberrants !")
@@ -274,7 +293,7 @@ def trouve_points_aberrants():
     print("Supprimer les points aberrants ou les modifier ?\n")
     print("1 : Supprimer")
     print("2 : Modifier")
-    sup_poids = ldt.input_choice(['1','2'])
+    sup_poids = ldt.input_choice(['1', '2'])
     ldt.affiche_separation()
 
     if sup_poids == "2":
@@ -282,7 +301,7 @@ def trouve_points_aberrants():
         print("1 : Winsoring (détection et traitement)")
         print("2 : Winsoring adaptée (traitement uniquement)")
         print("3 : LOESS adaptée (traitement uniquement)")
-        type_mod = ldt.input_choice(['1','2','3'])
+        type_mod = ldt.input_choice(['1', '2', '3'])
 
     if sup_poids == "2":
 
@@ -311,9 +330,9 @@ def trouve_points_aberrants():
                     print("6 : Test des k plus proches voisins ")
 
                     M_int = ldt.input_choice(['1', '2', '3', '4', '5', '6'])
-                    lab, Mi = D[M_int]
+                    _, Mi = D[M_int]
                 else:
-                    lab, Mi = D[M]
+                    _, Mi = D[M]
 
                 if type_mod == "3":
                     x_abi, y_abi, y_estii = meth.LOESS(xi, y[i], f, Mi)
@@ -323,7 +342,7 @@ def trouve_points_aberrants():
                     plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False, show=False) # affichage des points aberrants de l'échantillon
 
                 else:
-                   y_estii = win.Faire_win(xi,y[i],f,type_mod == "1",Mi)
+                    y_estii = win.Faire_win(xi, y[i], f, type_mod == "1", Mi)
 
                 y_esti.append(y_estii)
 
@@ -351,12 +370,12 @@ def trouve_points_aberrants():
                 plot.scatterdata(x_ab, y_ab, c='rx', legend='données aberrantes', new_fig=False, show=False) # affichage des points aberrants de l'échantillon
 
             else:
-               y_esti = win.Faire_win(x,y,f,type_mod == "1",Mi)
+                y_esti = win.Faire_win(x, y, f, type_mod == "1", Mi)
 
 
 
         return x, y_esti, f, is_array
-    else :
+    else:
 
         if is_array:
             Xtab = []
@@ -369,11 +388,11 @@ def trouve_points_aberrants():
                 print("Choisir la portee de traitement des donnees :")
                 print('1 : Globale')
                 print('2 : Locale')
-                locglob = ldt.input_choice(['1','2'])
+                locglob = ldt.input_choice(['1', '2'])
 
             for i, exi in enumerate(x):
                 if locglob_fixe == 'y':
-                    X, Y = tester(exi, y[i], f, M,locglob)
+                    X, Y = tester(exi, y[i], f, M, locglob)
                 else:
                     X, Y = tester(exi, y[i], f, M)
                 Xtab.append(X)
@@ -384,7 +403,7 @@ def trouve_points_aberrants():
             print("Choisir la portee de traitement des donnees :")
             print('1 : Globale')
             print('2 : Locale')
-            locglob = ldt.input_choice(['1','2'])
+            locglob = ldt.input_choice(['1', '2'])
             Xtab, Ytab = tester(x, y, f, M, locglob)
 
 

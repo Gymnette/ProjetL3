@@ -98,6 +98,21 @@ def traitement_winsorizing(y,indices_points_aberrants):
     return ybis
 
 def Faire_win(x, y, f, m_proba, M, locglob = None):
+    """
+    Parameters
+    ----------
+    x : liste d'int ou de float
+    y : liste d'int ou de float
+    f : fonction
+    m_proba : booleen
+    M : Methode.
+    locglob : '1' ou '2'
+        DESCRIPTION. The default is None.
+
+    Returns
+    -------
+    ybis : liste d'int ou de float
+    """
 
     D = {'1': ("Méthode interquartile", meth.eval_quartile),
          '2': ("Test de Chauvenet", meth.test_Chauvenet),

@@ -3,11 +3,16 @@
 Avril 2020
 
 @author: Interpolaspline
+
+PROGRAMME PRINCIPAL A LANCER
+
+Initialise l'application
+Fait le lien entre le gestionnaire de points aberrants et la création de splines
 """
 
 import warnings
 
-#Outils
+#Modules
 import load_tests as ldt
 import splines_naturelles as splnat
 import splines_de_lissage as spllis
@@ -55,6 +60,7 @@ if __name__ == '__main__':
         RETOUR = D[FONCTIONNALITE][1]()
 
         if RETOUR is not None:
+            # Dans ce cas, on vient de passer dans le gestionnaire des points aberrants
             (X, Y, F, IS_TAB) = RETOUR
             plot.show()
             if not IS_TAB:

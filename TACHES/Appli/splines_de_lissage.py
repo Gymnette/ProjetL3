@@ -381,6 +381,18 @@ def Repartition_aleatoire(a, b, n):
     return xi
 
 def Repartition_optimale(uk):
+    """
+    Repartit équitablement les données x en taille(x)//10 (+1) intervalles
+
+    Parameters
+    ----------
+    uk : liste d'int
+
+    Returns
+    -------
+    xi : liste d'int
+
+    """
     xi = [uk[i] for i in range(0,len(uk),10)]
     if xi[-1] != uk[-1]:
         xi.append(uk[-1])
