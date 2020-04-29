@@ -2,9 +2,9 @@
 # Bonjour et bienvenue dans l'application Interpolaspline ! #
 #############################################################
 
-###############
+################
 # Installation #
-###############
+################
 
 Les fichiers suivants sont fournis et doivent se trouver au même endroit:
 	- appli_interpolaspline.py
@@ -35,3 +35,4 @@ Lors de l'ajout d'un fichier de test :
 
 1 : Lancer appli_interpolaspline.py
 2 : Suivre les instructions de la console
+3 : Se référer au rapport pour plus d'informations sur les fonctionnalités.
